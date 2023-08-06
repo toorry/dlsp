@@ -1,0 +1,19 @@
+{
+  "Type": "Paths",
+  "Name": "Current",
+  "Root": "D:\\Mega\\projects\\DestraLSP\\OStageC\\",
+  "Settings": "D:\\Mega\\projects\\DestraLSP\\OStageC\\settings\\",
+  "Scenes": "D:\\Mega\\projects\\DestraLSP\\OStageC\\scenes\\",
+  "PresetsInput": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\input",
+  "PresetsPoint": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\point",
+  "PresetsOutputs": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\outputs",
+  "PresetsField": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\field",
+  "PresetsGain": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\gain",
+  "PresetsEQ": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\eq",
+  "PresetsGate": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\gate",
+  "PresetsComp": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\comp",
+  "PresetsLimiter": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\limiter",
+  "PresetsSends": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\sends",
+  "PresetsHall": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\hall",
+  "PresetsDelay": "D:\\Mega\\projects\\DestraLSP\\OStageC\\presets\\delay"
+}

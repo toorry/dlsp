@@ -1,0 +1,222 @@
+{
+  "fader_1": -72,
+  "knob_1": 0.5,
+  "text_1": "",
+  "text_2": "Input Gain",
+  "tabInput01Main": -1,
+  "panelInput01": 0,
+  "tabInput01": -1,
+  "panelInputs": 0,
+  "tabInputs": -1,
+  "tabPoints": [
+    0,
+    0
+  ],
+  "padPoint1XY": [
+    0.406545,
+    0.590545
+  ],
+  "lblPoint1PanGain": "Gain",
+  "txtPoint1PanGain": "",
+  "fdrPoint1PanGain": 0.25,
+  "lblPoint1PanLFE": "LFE",
+  "txtPoint1PanLFE": 0,
+  "fdrPoint1PanLFE": 0,
+  "lblPoint1PanX": "X",
+  "txtPoint1PanX": -18.69099736213684,
+  "fdrPoint1PanX": 0.4065450131893158,
+  "lblPoint1PanY": "Y",
+  "txtPoint1PanY": 18.108999729156494,
+  "fdrPoint1PanY": 0.5905449986457825,
+  "lblPoint1PanZ": "Z",
+  "txtPoint1PanZ": 50,
+  "fdrPoint1PanZ": 0.5,
+  "lblPoint1PanDivergence": "Divergence",
+  "txtPoint1PanDivergence": 0,
+  "fdrPoint1PanDivergence": 0,
+  "lblPoint1PanDelay": "Delay",
+  "txtPoint1PanDelay": 0.5723649859428406,
+  "knobPoint1PanDelay": 0.5723649859428406,
+  "btnPoint1PanMute": 0,
+  "btnPoint1PanSolo": 0,
+  "tabPoint1Field": -1,
+  "tab_14": [
+    0,
+    0
+  ],
+  "tab_15": [
+    0,
+    0
+  ],
+  "tab_16": [
+    0,
+    0
+  ],
+  "tab_17": [
+    0,
+    0
+  ],
+  "tab_18": [
+    0,
+    0
+  ],
+  "tab_19": [
+    0,
+    0
+  ],
+  "tab_20": [
+    0,
+    0
+  ],
+  "tab_21": [
+    0,
+    0
+  ],
+  "tab_22": [
+    0,
+    0
+  ],
+  "tab_23": [
+    0,
+    0
+  ],
+  "tab_24": [
+    0,
+    0
+  ],
+  "tab_25": [
+    0,
+    0
+  ],
+  "tab_26": [
+    0,
+    0
+  ],
+  "tab_27": [
+    0,
+    0
+  ],
+  "tab_28": [
+    0,
+    0
+  ],
+  "panelPointGroups1": 0,
+  "tabPointGroups1": -1,
+  "tabPointGroups2sep": [
+    0,
+    0
+  ],
+  "tab_7": [
+    0,
+    0
+  ],
+  "tab_8": [
+    0,
+    0
+  ],
+  "tab_9": [
+    0,
+    0
+  ],
+  "tab_10": [
+    0,
+    0
+  ],
+  "tab_11": [
+    0,
+    0
+  ],
+  "tab_12": [
+    0,
+    0
+  ],
+  "tab_30": [
+    0,
+    0
+  ],
+  "panelField": 0,
+  "tabField": -1,
+  "InpPan": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "surrpan-in-1-X-lbl": 0.5,
+  "In-1-Y": 0.5,
+  "In-2-X": "X:",
+  "In-2-Y": "Y:",
+  "In-3-X": "X:",
+  "In-3-Y": "Y:",
+  "In-4-X": "X:",
+  "In-4-Y": "Y:",
+  "In-5-X": "X:",
+  "In-5-Y": "Y:",
+  "In-6-X": "X:",
+  "In-6-Y": "Y:",
+  "In-7-X": "X:",
+  "In-7-Y": "Y:",
+  "In-8-X": "X:",
+  "In-8-Y": "Y:",
+  "In-9-X": "X:",
+  "In-9-Y": "Y:",
+  "In-10-X": "X:",
+  "In-10-Y": "Y:",
+  "button_2": 0,
+  "button_3": 0,
+  "button_4": 0,
+  "surrpan-in-1-x": 0,
+  "tabInputsPan": -1,
+  "spkrLbl_1": "Front\nLeft",
+  "spkrLbl_2": "Front\nRight",
+  "spkrLbl_3": "Wide\nFront\nLeft",
+  "spkrLbl_4": "Wide\nFront\nRight",
+  "spkrLbl_5": "Side\nLeft",
+  "spkrLbl_6": "6Side\nRight",
+  "spkrLbl_7": "Wide\nBack\nLeft",
+  "spkrLbl_8": "Wide\nBack\nRight",
+  "spkrLbl_9": "Back\nLeft",
+  "spkrLbl_10": "Back\nRight",
+  "spkrOutVolLbl": "Output Volume",
+  "spkrOutVol_1": 0,
+  "spkrOutVol_2": 0,
+  "spkrOutVol_3": 0,
+  "spkrOutVol_4": 0,
+  "spkrOutVol_5": 0,
+  "spkrOutVol_6": 0,
+  "spkrOutVol_7": 0,
+  "spkrOutVol_8": 0,
+  "spkrOutVol_9": 0,
+  "spkrOutVol_10": 0,
+  "spkrInfLbl": "Influence",
+  "spkrInfLvl_1": 0,
+  "spkrInfLvl_2": 0,
+  "spkrInfLvl_3": 0,
+  "spkrInfLvl_4": 0,
+  "spkrInfLvl_5": 0,
+  "spkrInfLvl_6": 0,
+  "spkrInfLvl_7": 0,
+  "spkrInfLvl_8": 0,
+  "spkrInfLvl_9": 0,
+  "spkrInfLvl_10": 0,
+  "button_1": 0,
+  "tabSpkrCtrl": -1,
+  "panelMain": 2,
+  "root": -1
+}

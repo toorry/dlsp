@@ -1,0 +1,101 @@
+{
+  "version": "1.24.2",
+  "createdWith": "Open Stage Control",
+  "type": "fragment",
+  "content": {
+    "type": "knob",
+    "top": 30,
+    "left": 0,
+    "lock": false,
+    "id": "knobInput1Gain",
+    "visible": true,
+    "interaction": true,
+    "comments": "",
+    "width": 140,
+    "height": 140,
+    "expand": "false",
+    "colorText": "#ffffff",
+    "colorWidget": "auto",
+    "colorStroke": "auto",
+    "colorFill": "auto",
+    "alphaStroke": "auto",
+    "alphaFillOff": "auto",
+    "alphaFillOn": "auto",
+    "lineWidth": "auto",
+    "borderRadius": "auto",
+    "padding": "auto",
+    "html": "",
+    "css": "",
+    "design": "default",
+    "pips": true,
+    "dashed": true,
+    "angle": 270,
+    "mode": "circular",
+    "spring": false,
+    "doubleTap": true,
+    "range": {
+      "min": {
+        "-50": 0
+      },
+      "7%": {
+        "-40": 0.1
+      },
+      "14%": {
+        "-30": 0.2
+      },
+      "21%": {
+        "-20": 0.3
+      },
+      "28%": {
+        "-15": 0.35
+      },
+      "35%": {
+        "-10": 0.4
+      },
+      "42%": {
+        "-5": 0.45
+      },
+      "50%": {
+        "0": 0.5
+      },
+      "58%": {
+        "+5": 0.55
+      },
+      "65%": {
+        "+10": 0.6
+      },
+      "72%": {
+        "+15": 0.65
+      },
+      "79%": {
+        "+20": 0.7
+      },
+      "86%": {
+        "+30": 0.8
+      },
+      "93%": {
+        "+40": 0.9
+      },
+      "max": {
+        "+50": 1
+      }
+    },
+    "logScale": false,
+    "sensitivity": "@{varInput1MainknobSensitivity}",
+    "steps": "",
+    "origin": "auto",
+    "value": "",
+    "default": 0.5,
+    "linkId": "",
+    "address": "/in/1/g",
+    "preArgs": "",
+    "typeTags": "",
+    "decimals": 6,
+    "target": "",
+    "ignoreDefaults": false,
+    "bypass": false,
+    "onCreate": "",
+    "onValue": "set('txtInput1Gain',(value*100-50));",
+    "onTouch": ""
+  }
+}
