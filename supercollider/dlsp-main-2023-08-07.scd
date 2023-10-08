@@ -388,6 +388,18 @@ s.boot;
 	});
 	~points.postln;
 
+	~fields = Array.newClear(~fieldsAmount);
+	~fieldsAmount.do({
+		arg num;
+		var field = Dictionary();
+		field.put(\busIn,~buses[\field][num][\in]);
+		//point.put(\busInCtrl,~buses[\point][num][\inCtrl]);
+		//point.put(\outVolume,Bus(audio(s,1)));
+		~fields[num] = field;
+	});
+
+
+
 	//Initialise OUTPUTS
 	~outputs = Array.newClear(~outputsAmount);
 	~outputsAmount.do({
@@ -492,6 +504,7 @@ s.boot;
 	});
 	~buses[\output][0][\in];
 	~buses[\space][0][\in];
+	~fields[0];
 	~fieldsAmount.do({
 		arg num;
 		var item = ~fields[num];
@@ -889,16 +902,22 @@ s.boot;
 
 ~funcLvlIndicatorUpdate = {
 	arg bus, indicator;
-	indicator.value = bus.value;
+	indicator.value = Amplitude.kr(bus).value;
 	~lvlIndicatorRate.wait;
+	'infunc'.postln;
 };
 
 ~pointsAmount.do({
 	arg num;
-	var func = Routine({funcLvlIndicatorUpdate.value(bus: ~buses[\point][num][\in], indicator: ~guis[\point][num][\lvlInInd]).loop;});
-	~guis[\point][num].put(\lvlInUpdateFunc, );
-)};
+	var func = Routine.new({~funcLvlIndicatorUpdate.value(bus: ~buses[\point][num][\in], indicator: ~guis[\point][num][\lvlInInd]).loop;});
+	~guis[\point][num].put(\lvlInUpdateFunc, func);
+	func.next;
+});
 
+~buses[\point][0][\in].value.postln;
+~guis[\point][0][\lvlInInd];
+
+Bus
 s.quit;
 s.reboot;
 
