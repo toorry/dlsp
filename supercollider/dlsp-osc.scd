@@ -56,3 +56,5 @@ OSCdef(\stopServer,
 		\stopcommand.postln;
 		s.quit; },
 	'/dlsp/server/stop');
+datetime
+~ostagec.sendMsg('/dlsp/log', Date.localtime.asString);

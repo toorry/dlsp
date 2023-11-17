@@ -23,6 +23,7 @@ ADT.userOctaveCmd = "C:\Users\timmy\adt"
 //AmbiVerbSC
 Quarks.install("https://github.com/JamesWenlock/AmbiVerbSC");
 
+ServerOptions.outDevices;
 ServerOptions.inDevices.do({
 	arg item;
 	item.postln;
