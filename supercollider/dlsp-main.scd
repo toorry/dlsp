@@ -37,6 +37,16 @@ ServerOptions.outDevices.do({
 Server.killAll;
 s.quit;
 
+File.getcwd;
+
+"systemctl poweroff -i".unixCmd;
+"echo 'master'; echo '1'".runInTerminal;
+~listing.reverse.as(Array).dupEach.join.postln; // Mangle
+"sudo shutdown now".unixCmd { |res, pid| [\done, res, pid].postln };
+
+File.new("/home/sndadmin/test.txt", "w");
+File.closeAll;
+
 ////REGULAR RUN
 
 ~initConfig.value;
