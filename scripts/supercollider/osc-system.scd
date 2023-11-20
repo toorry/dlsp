@@ -23,14 +23,17 @@ OSCdef(\startServer,
 	{ arg msg;
 		'ostagec msg to boot server'.postln;
 		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Booting sound server..');
-		s.boot; },
+		~regularBoot.next;
+	},
 	'/dlsp/server/start');
 
 OSCdef(\stopServer,
 	{ arg msg;
 		'ostagec msg to quit server'.postln;
 		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Quitting sound server..');
-		s.quit; },
+		s.quit;
+		~regularBoot.value;
+	},
 	'/dlsp/server/stop');
 
 OSCdef(\reboot,
@@ -46,3 +49,5 @@ OSCdef(\shutdown,
 		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Shutting down..');
 		"systemctl poweroff -i".unixCmd; },
 	'/dlsp/shutdown');
+
+//~regularBoot.reset;
