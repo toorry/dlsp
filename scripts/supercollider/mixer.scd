@@ -1,6 +1,7 @@
 
-~initConfig = {
+~initConfig = Routine {
 
+	'declaring server environment'.postln;
 	~hwInputs;
 	~hwOutputs;
 
@@ -45,7 +46,7 @@
 	outputsAmount = 4,
 	decodersAmount = 2,
 
-	ambOrder = 1,
+	ambOrder = 3,
 	hoaEncRadius = 1,
 	hoaDirections = [45.0, 135.0, -135.0, -45.0].degrad,
 	hoaBeamShape = \basic,
@@ -54,6 +55,7 @@
 	mainWindowWidth = 1024,
 	mainWindowHeight = 768;
 
+	'setting server variables'.postln;
 	~hwInputs = hwInputs;
 	~hwOutputs = hwOutputs;
 	~inputsAmount = inputsAmount;
@@ -81,18 +83,51 @@
 	//s.options.outDevice = hwOutDevice;
 	s.options.sampleRate = hwSampleRate;
 	s.options.memSize = memSize;
-	s.boot;
+	s.waitForBoot({
+		'initializing kernels'.postln;
+		~ostagec.sendMsg('/dlsp/log', 'Initializing kernels');
+		~initKernels.value;
+		s.sync();
+		1.0.wait;
+		'preparing Synth'.postln;
+		~ostagec.sendMsg('/dlsp/log', 'Preparing Synth');
+		~prepareSynths.value;
+		s.sync();
+		1.0.wait;
+		'initializing Busses'.postln;
+		~ostagec.sendMsg('/dlsp/log', 'Initializing Busses');
+		~initBuses.value;
+		s.sync();
+		1.0.wait;
+		'initializing Channels'.postln;
+		~ostagec.sendMsg('/dlsp/log', 'Initializing Channels');
+		~initChannels.value;
+		s.sync();
+		1.0.wait;
+		'initializing Groups'.postln;
+		~ostagec.sendMsg('/dlsp/log', 'Initializing Groups');
+		~initGroups.value;
+		s.sync();
+		1.0.wait;
+		'initializing Synths'.postln;
+		~ostagec.sendMsg('/dlsp/log', 'Initializing Synths');
+		~initSynths.value;
+		s.sync();
+		1.0.wait;
+		'starting vuMeter'.postln;
+		~vuSend.play;
+	});
 };
 
-~initKernels = Routine {
+~initKernels = {
 
 	~ambEncBinaural = FoaEncoderMatrix.newHoa1;
-	s.sync;
+	s.sync();
 	~ambDecBinaural = FoaDecoderKernel.newCIPIC;
-	s.sync;
+	s.sync();
 };
 
-~prepareSynths = Routine {
+~prepareSynths = {
 
 	SynthDef(\outVolume, {
 		arg busIn, busOut, busOutCtrl, isAmb = 0, amp = 0;
@@ -109,7 +144,8 @@
 		Out.ar(busOut, sig);
 		Out.kr(busOutCtrl, sig);
 	}).add;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for outVolume');
+	//s.sync();
 
 	SynthDef(\ambPan, {
 		arg busIn, busOut, busOutCtrl, amp=0, angRot = 0, angElev = 0, omni = 0;
@@ -130,7 +166,8 @@
 		Out.ar(busOut, sndHoa);
 		Out.kr(busOutCtrl, sndHoa);
 	}).add;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for ambPan');
+	//s.sync();
 
 	SynthDef(\ambDecSpeakers, {
 		arg busIn, busOut, busOutCtrl, amp=0;
@@ -147,7 +184,8 @@
 		Out.ar(busOut, sndIn);
 		Out.kr(busOutCtrl, sndIn);
 	}).add;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for ambDecSpeakers');
+	//s.sync();
 
 	/*SynthDef(\ambDecBinaural, {
 		arg busIn, busOut, busOutCtrl, amp=0;
@@ -168,10 +206,10 @@
 		Out.ar(busOut, sndIn);
 		Out.ar(busOutCtrl, sndIn);
 	}).add;*/
-	s.sync;
+
 };
 
-~initBuses = Routine {
+~initBuses = {
 
 	~hwInputs = s.options.numInputBusChannels;
 	~hwOutputs = s.options.numOutputBusChannels;
@@ -180,7 +218,8 @@
 	~busSilentCtrl = Bus.control(s, 1);
 	~busTrash = Bus.audio(s,1);
 	~busTrashCtrl = Bus.control(s, 1);
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for system buses');
+	//s.sync();
 	~buses = Dictionary();
 	~buses.put(\hwIn,Array.newClear(~hwInputs));
 	~buses.put(\hwInCtrl,Array.newClear(~hwInputs));
@@ -192,21 +231,24 @@
 	~buses.put(\field,Array.newClear(~fieldsAmount));
 	~buses.put(\space, Array.newClear(~spacesAmount));
 	~buses.put(\output, Array.newClear(~outputsAmount));
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for buses dictionary');
+	//s.sync();
 	~hwInputs.do ({
 		arg num;
 		~buses[\hwIn][num] = ~hwOutputs + num;
 		~buses[\hwInCtrl][num] = Bus.control(s, 1);
 	});
 	~buses[\hwIn].postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for hwInputs buses');
+	//s.sync();
 	~hwOutputs.do ({
 		arg num;
 		~buses[\hwOut][num] = num;
 		~buses[\hwOutCtrl][num] = Bus.control(s, 1);
 	});
 	~buses[\hwOut].postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for hwOutputs buses');
+	//s.sync();
 	~inputsAmount.do ({
 		arg num;
 		var item = Dictionary();
@@ -215,7 +257,8 @@
 		~buses[\input][num]=item;
 	});
 	~buses[\input].postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Inputs buses');
+	//s.sync();
 	~mixesAmount.do ({
 		arg num;
 		var item = Dictionary();
@@ -224,7 +267,8 @@
 		~buses[\mix][num]=item;
 	});
 	~buses[\mix].postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Mixes buses');
+	//s.sync();
 	~pointsAmount.do ({
 		arg num;
 		var item = Dictionary();
@@ -233,7 +277,8 @@
 		~buses[\point][num]=item;
 	});
 	~buses[\point].postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Points buses');
+	//s.sync();
 	~fieldsAmount.do({
 		arg num;
 		var item = Dictionary();
@@ -242,7 +287,8 @@
 		~buses[\field][num] = item;
 	});
 	~buses[\field].postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Fields buses');
+	//s.sync();
 	~spacesAmount.do({
 		arg num;
 		var item = Dictionary();
@@ -251,10 +297,10 @@
 		~buses[\space][num] = item;
 	});
 	~buses[\space].postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Spaces buses');
+	//s.sync();
 	~buses.put(\outputs, Bus.audio(s, ~outputsAmount));
 	~buses.put(\outputsCtrl, Bus.control(s, ~outputsAmount));
-	s.sync;
 	~outputsAmount.do ({
 		arg num;
 		var item = Dictionary();
@@ -263,10 +309,11 @@
 		~buses[\output][num]=item;
 	});
 	~buses[\output].postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Outputs buses');
+	//s.sync();
 };
 
-~initChannels = Routine {
+~initChannels = {
 
 	//Initialise INPUTS
 	~inputs = Array.newClear(~inputsAmount);
@@ -280,7 +327,8 @@
 		~inputs[num] = input;
 	});
 	~inputs.postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Inputs dictionary');
+	//s.sync();
 
 	//Initialise MIXES
 	~mixes = Array.newClear(~mixesAmount);
@@ -293,7 +341,8 @@
 		~mixes[num] = mix;
 	});
 	~mixes.postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Mixes dictionary');
+	//s.sync();
 
 	//Initialise POINTS
 	~points = Array.newClear(~pointsAmount);
@@ -306,7 +355,8 @@
 		~points[num] = point;
 	});
 	~points.postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Points dictionary');
+	//s.sync();
 
 	~fields = Array.newClear(~fieldsAmount);
 	~fieldsAmount.do({
@@ -318,7 +368,8 @@
 		//point.put(\outVolume,Bus(audio(s,1)));
 		~fields[num] = field;
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Fields dictionary');
+	//s.sync();
 
 	~spaces = Array.newClear(~spacesAmount);
 	~spacesAmount.do({
@@ -330,7 +381,8 @@
 		//point.put(\outVolume,Bus(audio(s,1)));
 		~spaces[num] = space;
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Spaces dictionary');
+	//s.sync();
 
 	//Initialise OUTPUTS
 	~outputs = Array.newClear(~outputsAmount);
@@ -343,12 +395,13 @@
 		~outputs[num] = output;
 	});
 	~outputs.postln;
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for Outputs dictionary');
+	//s.sync();
 };
 
 //Initialise GROUPS
 
-~initGroups = Routine {
+~initGroups = {
 
 	~grpHwInputs = Group.new;
 	~grpInputs = Group.after(~grpHwInputs);
@@ -358,49 +411,57 @@
 	~grpSpaces = Group.after(~grpFields);
 	~grpOutputs = Group.after(~grpSpaces);
 	~grpHwOutputs = Group.after(~grpInputs);
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for main groups');
+	//s.sync();
 	~grpInput = Array.newClear(~inputsAmount);
 	~grpMix = Array.newClear(~mixesAmount);
 	~grpPoint = Array.newClear(~pointsAmount);
 	~grpField = Array.newClear(~fieldsAmount);
 	~grpSpace = Array.newClear(~spacesAmount);
 	~grpOutput = Array.newClear(~outputsAmount);
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for channel groups');
+	//s.sync();
 	~inputsAmount.do({
 		arg num;
 		~grpInput[num] = Group.new(~grpInputs, \addToTail);
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for inputs group adds');
+	//s.sync();
 	~mixesAmount.do({
 		arg num;
 		~grpMix[num] = Group.new(~grpMixes, \addToTail);
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for mixes group adds');
+	//s.sync();
 	~pointsAmount.do({
 		arg num;
 		~grpPoint[num] = Group.new(~grpPoints, \addToTail);
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for points group adds');
+	//s.sync();
 	~fieldsAmount.do({
 		arg num;
 		~grpField[num] = Group.new(~grpFields, \addToTail);
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for fields group adds');
+	//s.sync();
 	~spacesAmount.do({
 		arg num;
 		~grpSpace[num] = Group.new(~grpSpaces, \addToTail);
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for spaces group adds');
+	//s.sync();
 	~outputsAmount.do({
 		arg num;
 		~grpOutput[num] = Group.new(~grpOutputs, \addToTail);
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for outputs group adds');
+	//s.sync();
 };
 
 //Initialise SYNTHS
 
-~initSynths = Routine {
+~initSynths = {
 
 	~inputsAmount.do({
 		arg num;
@@ -430,7 +491,8 @@
 			);
 		});
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for input synths');
+	//s.sync();
 
 	~mixesAmount.do({
 		arg num;
@@ -448,7 +510,8 @@
 			);
 		});
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for mixes synths');
+	//s.sync();
 
 	~pointsAmount.do({
 		arg num;
@@ -490,7 +553,8 @@
 			);
 		});
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for points synths');
+	//s.sync();
 
 	~fieldsAmount.do({
 		arg num;
@@ -513,7 +577,8 @@
 			~grpField[num],
 			\addToTail));*/
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for fields synths');
+	//s.sync();
 
 	~outputsAmount.do({
 		arg num;
@@ -526,10 +591,11 @@
 			{ item.put(name, Synth(\outVolume, [\busIn, item.at(\busIn), \busOut, ~buses[\hwOut][count], \amp, 0], ~grpOutput[num], \addToTail)) };
 		});
 	});
-	s.sync;
+	//~ostagec.sendMsg('/dlsp/log', 'waiting for outputs synths');
+	//s.sync();
 };
-~buses;
-(
+
+
 ~vuSend = Routine {
 	var value;
 	loop {
@@ -539,8 +605,37 @@
 		0.5.wait;
 	}
 };
-)
+
 //~vuSend.play;
 //~vuSend.stop;
 //~vuSend.reset;
 //OSCFunc.trace(false);
+~regularBoot = Routine {
+
+	~initConfig.value;
+	~bootConfig.value(
+		hwInputs: 2, hwOutputs: 2,
+		//hwInDevice: "Windows WASAPI : Microphone Array (AMD Audio Device)",
+		//hwInDevice: "Windows WASAPI : CABLE Output (VB-Audio Virtual Cable)",
+		//hwOutDevice: "Windows WASAPI : Line (Realphones System-Wide)",
+		hwSampleRate: 48000,
+		memSize: 1048576,
+		inputsAmount: 4,
+		mixesAmount: 4,
+		pointsAmount: 4,
+		fieldsAmount: 1,
+		spacesAmount: 1,
+		outputsAmount: 4,
+
+		ambOrder: 3,
+		hoaEncRadius: 1,
+		hoaDirections: [30.0, 135.0, -135.0, -30.0].degrad,
+		hoaBeamShape: \basic,
+		hoaMatch: \amp,
+
+		mainWindowWidth: 750,
+		mainWindowHeight: 550;
+	);
+};
+
+//~mixes;

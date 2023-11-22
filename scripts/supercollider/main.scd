@@ -61,43 +61,8 @@ ServerBoot.add(~msgserverstart);
 ServerQuit.add(~msgserverstop);
 
 //// MIXER INITIALIZE
-File.readAllString(~path ++ "/scripts/supercollider/mixer.scd").interpret;
+File.readAllString(~path ++ "/scripts/supercollider/mixer.scd").interpret.postln;
 
 //// SYSTEM OSC MESSAGES HANDLERS
-File.readAllString(~path ++ "/scripts/supercollider/osc-system.scd").interpret;
+File.readAllString(~path ++ "/scripts/supercollider/osc-system.scd").interpret.postln;
 
-~regularBoot = {
-
-	~initConfig.value;
-	~bootConfig.value(
-		hwInputs: 2, hwOutputs: 2,
-		//hwInDevice: "Windows WASAPI : Microphone Array (AMD Audio Device)",
-		//hwInDevice: "Windows WASAPI : CABLE Output (VB-Audio Virtual Cable)",
-		//hwOutDevice: "Windows WASAPI : Line (Realphones System-Wide)",
-		hwSampleRate: 48000,
-		memSize: 1048576,
-		inputsAmount: 4,
-		mixesAmount: 4,
-		pointsAmount: 4,
-		fieldsAmount: 1,
-		spacesAmount: 1,
-		outputsAmount: 4,
-
-		ambOrder: 3,
-		hoaEncRadius: 1,
-		hoaDirections: [30.0, 135.0, -135.0, -30.0].degrad,
-		hoaBeamShape: \basic,
-		hoaMatch: \amp,
-
-		mainWindowWidth: 750,
-		mainWindowHeight: 550;
-	);
-};
-
-ServerBoot.add({ ~initKernels.value; s.sync; });
-ServerBoot.add({ ~prepareSynths.value; s.sync; });
-ServerBoot.add({ ~initBuses.value; s.sync; });
-ServerBoot.add({ ~initChannels.value; s.sync; });
-ServerBoot.add({ ~initGroups.value; s.sync; });
-ServerBoot.add({ ~initSynths.value; s.sync; });
-ServerBoot.add({ ~vuSend.play; s.sync; });
