@@ -599,10 +599,10 @@
 ~vuSend = Routine {
 	var value;
 	loop {
-		value  = ~buses[\input][0][\inCtrl].getSynchronous;
+		value  = ~buses[\input][0][\inCtrl].getSynchronous.abs;
 		value.postln;
-		~myoscaddr.sendMsg('channel 1 value ' ++ value);
-		0.5.wait;
+		~ostagec.sendMsg('/in/1/in/vu', value);
+		0.1.wait;
 	}
 };
 
