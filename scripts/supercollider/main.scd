@@ -66,3 +66,5 @@ File.readAllString(~path ++ "/scripts/supercollider/mixer.scd").interpret.postln
 //// SYSTEM OSC MESSAGES HANDLERS
 File.readAllString(~path ++ "/scripts/supercollider/osc-system.scd").interpret.postln;
 
+//// CONTROL OSC MESSAGES HANDLERS
+File.readAllString(~path ++ "/scripts/supercollider/osc-control.scd").interpret.postln;

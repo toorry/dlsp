@@ -53,4 +53,48 @@ OSCdef(\shutdown,
 		"systemctl poweroff -i".unixCmd; },
 	'/dlsp/shutdown');
 
-//~regularBoot.reset;
+OSCdef(\vuClear,
+	{ arg msg;
+		~vu[\hwIn][\channelsAmount] = 0;
+		~vu[\hwIn][\firstChannel] = 0;
+		~vu[\inputs][\channelsAmount] = 0;
+		~vu[\inputs][\firstChannel] = 0;
+		~vu[\mixes][\channelsAmount] = 0;
+		~vu[\mixes][\firstChannel] = 0;
+		~vu[\points][\channelsAmount] = 0;
+		~vu[\points][\firstChannel] = 0;
+		~vu[\fields][\channelsAmount] = 0;
+		~vu[\fields][\firstChannel] = 0;
+		~vu[\spaces][\channelsAmount] = 0;
+		~vu[\spaces][\firstChannel] = 0;
+		~vu[\decoders][\channelsAmount] = 0;
+		~vu[\decoders][\firstChannel] = 0;
+		~vu[\outputs][\channelsAmount] = 0;
+		~vu[\outputs][\firstChannel] = 0;
+		~vu[\hwOut][\channelsAmount] = 0;
+		~vu[\hwOut][\firstChannel] = 0; },
+	'/vu/clear');
+
+OSCdef(\vuSetIn,
+	{ arg msg;
+		var firstChannel = (msg[2] - 1).asInteger,
+		channelsAmount = msg[1].asInteger;
+		msg.postln;
+		channelsAmount.postln;
+		firstChannel.postln;
+		if(firstChannel == ~inputsAmount) {
+			firstChannel = 0;
+			channelsAmount = 0;
+		} {
+			if(firstChannel < 0) {
+				channelsAmount = channelsAmount + firstChannel;
+				firstChannel = 0;
+			};
+			if((firstChannel + channelsAmount - 1) >= 4) {
+				channelsAmount = ~inputsAmount - firstChannel;
+			};
+		};
+		~vu[\inputs][\firstChannel] = firstChannel;
+		~vu[\inputs][\channelsAmount] = channelsAmount;
+	},
+	'/vu/in');

@@ -5,6 +5,7 @@
 	~hwInputs;
 	~hwOutputs;
 
+	~sourcesAmount;
 	~inputsAmount;
 	~mixesAmount;
 	~pointsAmount;
@@ -27,7 +28,8 @@
 	~windowHeight;
 	~windowWidth;
 
-	~lvlIndicatorRate = 0.1;
+	~vu;
+	~vuRate;
 };
 
 ~bootConfig = {
@@ -77,6 +79,8 @@
 	~windowHeight = mainWindowHeight;
 	~windowWidth = mainWindowWidth;
 
+	~vuRate = 0.1;
+
 	s.options.numInputBusChannels = ~hwInputs;
 	s.options.numOutputBusChannels = ~hwOutputs;
 	//s.options.inDevice = hwInDevice;
@@ -88,32 +92,34 @@
 		~ostagec.sendMsg('/dlsp/log', 'Initializing kernels');
 		~initKernels.value;
 		s.sync();
-		1.0.wait;
+		//1.0.wait;
 		'preparing Synth'.postln;
 		~ostagec.sendMsg('/dlsp/log', 'Preparing Synth');
 		~prepareSynths.value;
 		s.sync();
-		1.0.wait;
+		//1.0.wait;
 		'initializing Busses'.postln;
 		~ostagec.sendMsg('/dlsp/log', 'Initializing Busses');
 		~initBuses.value;
 		s.sync();
-		1.0.wait;
+		//1.0.wait;
 		'initializing Channels'.postln;
 		~ostagec.sendMsg('/dlsp/log', 'Initializing Channels');
 		~initChannels.value;
 		s.sync();
-		1.0.wait;
+		//1.0.wait;
 		'initializing Groups'.postln;
 		~ostagec.sendMsg('/dlsp/log', 'Initializing Groups');
 		~initGroups.value;
 		s.sync();
-		1.0.wait;
+		//1.0.wait;
 		'initializing Synths'.postln;
 		~ostagec.sendMsg('/dlsp/log', 'Initializing Synths');
 		~initSynths.value;
 		s.sync();
-		1.0.wait;
+		//1.0.wait;
+		~initVU.value;
+		s.sync();
 		'starting vuMeter'.postln;
 		~vuSend.play;
 	});
@@ -595,14 +601,61 @@
 	//s.sync();
 };
 
+~initVU = {
+	~vu = Dictionary.new();
+	~vu.put(\rate, 0.1);
+	~vu.put(\hwIn, Dictionary.new());
+	~vu.put(\sources, Dictionary.new());
+	~vu.put(\inputs, Dictionary.new());
+	~vu.put(\mixes, Dictionary.new());
+	~vu.put(\points, Dictionary.new());
+	~vu.put(\fields, Dictionary.new());
+	~vu.put(\spaces, Dictionary.new());
+	~vu.put(\decoders, Dictionary.new());
+	~vu.put(\outputs, Dictionary.new());
+	~vu.put(\hwOut, Dictionary.new());
+	~vu[\hwIn].put(\firstChannel, 0);
+	~vu[\hwIn].put(\channelsAmount, 0);
+	~vu[\hwIn].put(\vu, Array.newClear(~hwInputs));
+	~vu[\inputs].put(\firstChannel, 0);
+	~vu[\inputs].put(\channelsAmount, 0);
+	~vu[\inputs].put(\vu, Array.newClear(~inputsAmount));
+	~vu[\mixes].put(\firstChannel, 0);
+	~vu[\mixes].put(\channelsAmount, 0);
+	~vu[\mixes].put(\vu, Array.newClear(~mixesAmount));
+	~vu[\points].put(\firstChannel, 0);
+	~vu[\points].put(\channelsAmount, 0);
+	~vu[\points].put(\vu, Array.newClear(~pointsAmount));
+	~vu[\fields].put(\firstChannel, 0);
+	~vu[\fields].put(\channelsAmount, 0);
+	~vu[\fields].put(\vu, Array.newClear(~fieldsAmount));
+	~vu[\spaces].put(\firstChannel, 0);
+	~vu[\spaces].put(\channelsAmount, 0);
+	~vu[\spaces].put(\vu, Array.newClear(~spacesAmount));
+	~vu[\decoders].put(\firstChannel, 0);
+	~vu[\decoders].put(\channelsAmount, 0);
+	~vu[\decoders].put(\vu, Array.newClear(~decodersAmount));
+	~vu[\outputs].put(\firstChannel, 0);
+	~vu[\outputs].put(\channelsAmount, 0);
+	~vu[\outputs].put(\vu, Array.newClear(~outputsAmount));
+	~vu[\hwOut].put(\firstChannel, 0);
+	~vu[\hwOut].put(\channelsAmount, 0);
+	~vu[\hwOut].put(\vu, Array.newClear(~hwOutputs));
+	~vu.postln;
+};
 
 ~vuSend = Routine {
 	var value;
 	loop {
-		value  = ~buses[\input][0][\inCtrl].getSynchronous.abs;
-		value.postln;
-		~ostagec.sendMsg('/in/1/in/vu', value);
-		0.1.wait;
+		(~vu[\inputs][\channelsAmount].asString + ~vu[\inputs][\firstChannel].asString).post;
+		~vu[\inputs][\channelsAmount].do({
+			arg num;
+			~vu[\inputs][\vu][num + ~vu[\inputs][\firstChannel]] =
+			~buses[\input][num + ~vu[\inputs][\firstChannel]][\inCtrl].getSynchronous.abs;
+			~ostagec.sendMsg('/in/in/vu', num+1, ~vu[\inputs][\vu][num + ~vu[\inputs][\firstChannel]]);
+		});
+		~vu[\inputs][\vu].postln;
+		~vuRate.wait;
 	}
 };
 
