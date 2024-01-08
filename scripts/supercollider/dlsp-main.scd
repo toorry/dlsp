@@ -1324,3 +1324,10 @@ t.sizeHint
 t.bounds = t.bounds.size_(t.sizeHint);
 
 // Now you can see the whole text
+
+SynthDef(\changeInOutNum, {
+	arg in, out;
+	var sig;
+	sig = In.ar(in,1);
+	Out.ar(out,sig);
+}).add;

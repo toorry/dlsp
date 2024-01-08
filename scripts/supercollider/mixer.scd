@@ -603,7 +603,7 @@
 
 ~initVU = {
 	~vu = Dictionary.new();
-	~vu.put(\rate, 0.1);
+	~vu.put(\rate, 0.2);
 	~vu.put(\hwIn, Dictionary.new());
 	~vu.put(\sources, Dictionary.new());
 	~vu.put(\inputs, Dictionary.new());
@@ -614,32 +614,57 @@
 	~vu.put(\decoders, Dictionary.new());
 	~vu.put(\outputs, Dictionary.new());
 	~vu.put(\hwOut, Dictionary.new());
-	~vu[\hwIn].put(\firstChannel, 0);
-	~vu[\hwIn].put(\channelsAmount, 0);
+
+	~vu[\inputs].put(\in, Dictionary.new());
+	~vu[\inputs].put(\gain, Dictionary.new());
+	~vu[\inputs].put(\gate, Dictionary.new());
+	~vu[\inputs].put(\eq, Dictionary.new());
+	~vu[\inputs].put(\comp, Dictionary.new());
+	~vu[\inputs].put(\ins, Dictionary.new());
+	~vu[\inputs].put(\limit, Dictionary.new());
+	~vu[\inputs].put(\outPre, Dictionary.new());
+	~vu[\inputs].put(\out, Dictionary.new());
+	~vu[\inputs].put(\mixSends, Dictionary.new());
+	~vu[\inputs].put(\pointSends, Dictionary.new());
+	~vu[\inputs].put(\outSends, Dictionary.new());
+	~vu[\inputs].do {
+		arg item;
+		item.put(\track, Array.new(~inputsAmount));
+		item.put(\vu, Array.new(~inputsAmount));
+	};
+	~vu[\inputs][\mixSends][\track].do { arg item = Array.new(~mixesAmount); };
+	~vu[\inputs][\mixSends][\vu].do { arg item = Array.newClear(~mixesAmount); };
+	~vu[\inputs][\pointSends][\track].do { arg item = Array.new(~pointsAmount); };
+	~vu[\inputs][\pointSends][\vu].do { arg item = Array.newClear(~pointsAmount); };
+	~vu[\inputs][\outSends][\track].do { arg item = Array.new(~outputsAmount); };
+	~vu[\inputs][\outSends][\vu].do { arg item = Array.newClear(~outputsAmount); };
+
+	~vu[\mixes].put(\in, Dictionary.new());
+	~vu[\mixes].put(\eq, Dictionary.new());
+	~vu[\mixes].put(\com, Dictionary.new());
+	~vu[\mixes].put(\ins, Dictionary.new());
+	~vu[\mixes].put(\limit, Dictionary.new());
+	~vu[\mixes].put(\outPre, Dictionary.new());
+	~vu[\mixes].put(\out, Dictionary.new());
+	~vu[\mixes].put(\in, Dictionary.new());
+
+	~vu[\hwIn].put(\track, Array.new(~hwInputs);
 	~vu[\hwIn].put(\vu, Array.newClear(~hwInputs));
-	~vu[\inputs].put(\firstChannel, 0);
-	~vu[\inputs].put(\channelsAmount, 0);
+	~vu[\inputs].put(\track, Array.new(~inputsAmount));
 	~vu[\inputs].put(\vu, Array.newClear(~inputsAmount));
-	~vu[\mixes].put(\firstChannel, 0);
-	~vu[\mixes].put(\channelsAmount, 0);
+	~vu[\mixes].put(\track, Array.new(~mixesAmount));
 	~vu[\mixes].put(\vu, Array.newClear(~mixesAmount));
-	~vu[\points].put(\firstChannel, 0);
-	~vu[\points].put(\channelsAmount, 0);
+	~vu[\points].put(\track, Array.new(~pointsAmount));
 	~vu[\points].put(\vu, Array.newClear(~pointsAmount));
-	~vu[\fields].put(\firstChannel, 0);
-	~vu[\fields].put(\channelsAmount, 0);
+	~vu[\fields].put(\track, Array.new(~fieldsAmount));
 	~vu[\fields].put(\vu, Array.newClear(~fieldsAmount));
-	~vu[\spaces].put(\firstChannel, 0);
-	~vu[\spaces].put(\channelsAmount, 0);
+	~vu[\spaces].put(\track, Array.new(~spacesAmount));
 	~vu[\spaces].put(\vu, Array.newClear(~spacesAmount));
-	~vu[\decoders].put(\firstChannel, 0);
-	~vu[\decoders].put(\channelsAmount, 0);
+	~vu[\decoders].put(\track, Array.new(~decodersAmount));
 	~vu[\decoders].put(\vu, Array.newClear(~decodersAmount));
-	~vu[\outputs].put(\firstChannel, 0);
-	~vu[\outputs].put(\channelsAmount, 0);
+	~vu[\outputs].put(\track, Array.new(~outputsAmount));
 	~vu[\outputs].put(\vu, Array.newClear(~outputsAmount));
-	~vu[\hwOut].put(\firstChannel, 0);
-	~vu[\hwOut].put(\channelsAmount, 0);
+	~vu[\hwOut].put(\track, Array.new(~hwOutputs));
 	~vu[\hwOut].put(\vu, Array.newClear(~hwOutputs));
 	~vu.postln;
 };
@@ -647,12 +672,12 @@
 ~vuSend = Routine {
 	var value;
 	loop {
-		(~vu[\inputs][\channelsAmount].asString + ~vu[\inputs][\firstChannel].asString).post;
-		~vu[\inputs][\channelsAmount].do({
-			arg num;
-			~vu[\inputs][\vu][num + ~vu[\inputs][\firstChannel]] =
-			~buses[\input][num + ~vu[\inputs][\firstChannel]][\inCtrl].getSynchronous.abs;
-			~ostagec.sendMsg('/in/in/vu', num+1, ~vu[\inputs][\vu][num + ~vu[\inputs][\firstChannel]]);
+		~vu[\inputs][\toTrack].asString.post;
+		~vu[\inputs][\toTrack].do({
+			arg item;
+			~vu[\inputs][\vu][item] =
+			~buses[\input][item][\inCtrl].getSynchronous.abs;
+				~ostagec.sendMsg('/vu', 'in', item, 'out', ~vu[\inputs][\vu][item]);
 		});
 		~vu[\inputs][\vu].postln;
 		~vuRate.wait;
@@ -692,3 +717,25 @@
 };
 
 //~mixes;
+
+
+(
+// z and y are the same object
+var y, z;
+z = [1, 2, 3];
+y = z.add(4);
+z.postln;
+y.postln;
+)
+
+(
+// in this case a new object is returned
+var y, z;
+z = [1, 2, 3, 4, 6];
+z.add(5);
+
+z.postln;
+y.postln;
+z.removeAt(2);
+z.postln;
+)
