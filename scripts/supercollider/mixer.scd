@@ -14,6 +14,8 @@
 	~outputsAmount;
 	~decodersAmount;
 
+	~ambTransformerSlots;
+
 	~ambOrder;
 	~hoaOrder;
 	~ambChansAmount;
@@ -67,6 +69,8 @@
 	~spacesAmount = spacesAmount;
 	~outputsAmount = outputsAmount;
 	~decodersAmount = decodersAmount;
+
+	~ambTransformerSlots = 4;
 
 	~ambOrder = ambOrder;
 	~hoaOrder = ~ambOrder;
@@ -134,6 +138,27 @@
 };
 
 ~prepareSynths = {
+
+	SynthDef(\inGain, {
+		arg busIn, busOut, busOutCtrl, gain = 1;
+		var sig;
+
+		sig = In.ar(busIn, 1) * gain;
+		Out.ar(busOut, sig);
+		Out.kr(busOutCtrl, sig);
+	}).add;
+
+	SynthDef(\inGate, {
+		arg busIn, busOut, busOutCtrl,
+		threshold = 0.01, ratio = 10, attack = 0.01, release = 0.01, dryWet = 1;
+		var sig;
+
+		sig = In.ar(busIn, 1);
+		sig = Compander.ar( in: sig, control: sig, thresh: threshold, slopeBelow: ratio, slopeAbove: 1,
+			clampTime: attack, relaxTime: release) * dryWet + sig * (1 - dryWet);
+		Out.ar(busOut, sig);
+		Out.kr(busOutCtrl, sig);
+	}).add;
 
 	SynthDef(\outVolume, {
 		arg busIn, busOut, busOutCtrl, isAmb = 0, amp = 0;
@@ -228,29 +253,40 @@
 	//s.sync();
 	~buses = Dictionary();
 	~buses.put(\hwIn,Array.newClear(~hwInputs));
-	~buses.put(\hwInCtrl,Array.newClear(~hwInputs));
 	~buses.put(\hwOut,Array.newClear(~hwOutputs));
-	~buses.put(\hwOutCtrl,Array.newClear(~hwOutputs));
 	~buses.put(\input,Array.newClear(~inputsAmount));
 	~buses.put(\mix,Array.newClear(~mixesAmount));
 	~buses.put(\point,Array.newClear(~pointsAmount));
 	~buses.put(\field,Array.newClear(~fieldsAmount));
 	~buses.put(\space, Array.newClear(~spacesAmount));
+	~buses.put(\decoder, Array.newClear(~decodersAmount));
 	~buses.put(\output, Array.newClear(~outputsAmount));
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for buses dictionary');
 	//s.sync();
+	~buses[\hwIn].do {
+		arg item;
+		item = Dictionary.new();
+	};
 	~hwInputs.do ({
 		arg num;
-		~buses[\hwIn][num] = ~hwOutputs + num;
-		~buses[\hwInCtrl][num] = Bus.control(s, 1);
+		~buses[\hwIn][num].put(\in, ~hwOutputs + num);
+		~buses[\hwIn][num].put(\inCtrl, Bus.control(s, 1));
+		~buses[\hwIn][num].put(\out, Bus.audio(s, 1));
+		~buses[\hwIn][num].put(\outCtrl, Bus.control(s, 1));
 	});
 	~buses[\hwIn].postln;
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for hwInputs buses');
 	//s.sync();
+	~buses[\hwOut].do {
+		arg item;
+		item = Dictionary.new();
+	};
 	~hwOutputs.do ({
 		arg num;
-		~buses[\hwOut][num] = num;
-		~buses[\hwOutCtrl][num] = Bus.control(s, 1);
+		~buses[\hwOut][num].put(\in, Bus.audio(s, 1));
+		~buses[\hwOut][num].put(\inCtrl, Bus.control(s, 1));
+		~buses[\hwOut][num].put(\out, num);
+		~buses[\hwOut][num].put(\outCtrl, Bus.control(s, 1));
 	});
 	~buses[\hwOut].postln;
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for hwOutputs buses');
@@ -260,6 +296,28 @@
 		var item = Dictionary();
 		item.put(\in,Bus.audio(s,1));
 		item.put(\inCtrl, Bus.control(s, 1));
+		item.put(\gain,Bus.audio(s,1));
+		item.put(\gainCtrl, Bus.control(s, 1));
+		item.put(\gate,Bus.audio(s,1));
+		item.put(\gateCtrl, Bus.control(s, 1));
+		item.put(\eq,Bus.audio(s,1));
+		item.put(\eqCtrl, Bus.control(s, 1));
+		item.put(\comp,Bus.audio(s,1));
+		item.put(\compCtrl, Bus.control(s, 1));
+		item.put(\ins,Bus.audio(s,1));
+		item.put(\insCtrl, Bus.control(s, 1));
+		item.put(\limit,Bus.audio(s,1));
+		item.put(\limitCtrl, Bus.control(s, 1));
+		item.put(\outPre,Bus.audio(s,1));
+		item.put(\outPreCtrl, Bus.control(s, 1));
+		item.put(\out,Bus.audio(s,1));
+		item.put(\outCtrl, Bus.control(s, 1));
+		item.put(\mixSendCtrl, Array.new(~mixesAmount));
+		item[\mixSendCtrl].do ({ arg item = Bus.control(s, 1); });
+		item.put(\pointSendCtrl, Array.new(~pointsAmount));
+		item[\pointSendCtrl].do ({ arg item = Bus.control(s, 1); });
+		item.put(\outSendCtrl, Array.new(~outputsAmount));
+		item[\outSendCtrl].do ({ arg item = Bus.control(s, 1); });
 		~buses[\input][num]=item;
 	});
 	~buses[\input].postln;
@@ -270,6 +328,22 @@
 		var item = Dictionary();
 		item.put(\in,Bus.audio(s,1));
 		item.put(\inCtrl, Bus.control(s, 1));
+		item.put(\eq,Bus.audio(s,1));
+		item.put(\eqCtrl, Bus.control(s, 1));
+		item.put(\comp,Bus.audio(s,1));
+		item.put(\compCtrl, Bus.control(s, 1));
+		item.put(\ins,Bus.audio(s,1));
+		item.put(\insCtrl, Bus.control(s, 1));
+		item.put(\limit,Bus.audio(s,1));
+		item.put(\limitCtrl, Bus.control(s, 1));
+		item.put(\outPre,Bus.audio(s,1));
+		item.put(\outPreCtrl, Bus.control(s, 1));
+		item.put(\out,Bus.audio(s,1));
+		item.put(\outCtrl, Bus.control(s, 1));
+		item.put(\pointSendCtrl, Array.new(~pointsAmount));
+		item[\pointSendCtrl].do ({ arg item = Bus.control(s, 1); });
+		item.put(\outSendCtrl, Array.new(~outputsAmount));
+		item[\outSendCtrl].do ({ arg item = Bus.control(s, 1); });
 		~buses[\mix][num]=item;
 	});
 	~buses[\mix].postln;
@@ -280,6 +354,18 @@
 		var item = Dictionary();
 		item.put(\in,Bus.audio(s,1));
 		item.put(\inCtrl, Bus.control(s, 1));
+		item.put(\out,Bus.audio(s,1));
+		item.put(\outCtrl, Bus.control(s, 1));
+		item.put(\fieldPan, Array.new(~fieldsAmount);
+		item[\fieldPan].do ({ arg item = Bus.audio(s, ~ambChansAmount)});
+		item.put(\fieldPanCtrl, Array.new(~fieldsAmount);
+		item[\fieldPanCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item.put(\spacePan, Array.new(~spacesAmount);
+		item[\spacePan].do ({ arg item = Bus.audio(s, ~ambChansAmount)});
+		item.put(\spacePanCtrl, Array.new(~spacesAmount);
+		item[\spacePanCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item.put(\outSendCtrl, Array.new(~outputsAmount));
+		item[\outSendCtrl].do ({ arg item = Bus.control(s, 1); });
 		~buses[\point][num]=item;
 	});
 	~buses[\point].postln;
@@ -290,6 +376,17 @@
 		var item = Dictionary();
 		item.put(\in,Bus.audio(s,~ambChansAmount));
 		item.put(\inCtrl, Bus.control(s, ~ambChansAmount));
+		item.put(\slot, Array.new(~ambTransformerSlots));
+		item[\slot].do ({ arg item = Bus.audio(s, ~ambChansAmount); });
+		item.put(\slotCtrl, Array.new(~ambTransformerSlots));
+		item[\slotCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount); });
+		item.put(\out,Bus.audio(s,~ambChansAmount));
+		item.put(\outCtrl, Bus.control(s, ~ambChansAmount));
+		item.put(\spaceSendCtrl, Array.new(~spacesAmount);
+		item[\spaceSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item.put(\decSendCtrl, Array.new(~decodersAmount);
+		item[\decSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item.put(\outSendCtrl, Bus.control(s, ~ambChansAmount));
 		~buses[\field][num] = item;
 	});
 	~buses[\field].postln;
@@ -300,11 +397,34 @@
 		var item = Dictionary();
 		item.put(\in,Bus.audio(s,~ambChansAmount));
 		item.put(\inCtrl, Bus.control(s, ~ambChansAmount));
+		item.put(\slot, Array.new(~ambTransformerSlots));
+		item[\slot].do ({ arg item = Bus.audio(s, ~ambChansAmount); });
+		item.put(\slotCtrl, Array.new(~ambTransformerSlots));
+		item[\slotCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount); });
+		item.put(\out,Bus.audio(s,~ambChansAmount));
+		item.put(\outCtrl, Bus.control(s, ~ambChansAmount));
+		item.put(\decSendCtrl, Array.new(~decodersAmount);
+		item[\decSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item.put(\outSendCtrl, Bus.control(s, ~ambChansAmount));
 		~buses[\space][num] = item;
 	});
 	~buses[\space].postln;
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for Spaces buses');
 	//s.sync();
+	~decodersAmount.do({
+		arg num;
+		var item = Dictionary();
+		item.put(\in,Bus.audio(s,~ambChansAmount));
+		item.put(\inCtrl, Bus.control(s, ~ambChansAmount));
+		item.put(\nfc,Bus.audio(s,~ambChansAmount));
+		item.put(\nfcCtrl, Bus.control(s, ~ambChansAmount));
+		item.put(\out,Bus.audio(s,~ambChansAmount));
+		item.put(\outCtrl, Bus.control(s, ~ambChansAmount));
+		item.put(\outSendCtrl, Bus.control(s, ~ambChansAmount));
+		~buses[\decoder][num] = item;
+	});
+	~buses[\space].postln;
+
 	~buses.put(\outputs, Bus.audio(s, ~outputsAmount));
 	~buses.put(\outputsCtrl, Bus.control(s, ~outputsAmount));
 	~outputsAmount.do ({
@@ -312,6 +432,10 @@
 		var item = Dictionary();
 		item.put(\in,Bus.newFrom(~buses[\outputs], num, 1));
 		item.put(\inCtrl, Bus.newFrom(~buses[\outputsCtrl], num, 1));
+		item.put(\out,Bus.audio(s, 1));
+		item.put(\outCtrl, Bus.control(s, 1));
+		item.put(\hwOutSendCtrl, Array.new(~outputsAmount));
+		item[\hwOutSendCtrl].do ({ arg item = Bus.control(s, 1); });
 		~buses[\output][num]=item;
 	});
 	~buses[\output].postln;
@@ -326,10 +450,7 @@
 	~inputsAmount.do({
 		arg num;
 		var input = Dictionary();
-		if(num < ~hwInputs)
-		{input.put(\busIn,~buses[\hwIn][num])} //then
-		{input.put(\busIn,~busSilent)}; //else
-		//input.put(\outVolume,Bus(audio(s,1)));
+		input.put(\bus, ~buses[\input][num];
 		~inputs[num] = input;
 	});
 	~inputs.postln;
@@ -341,9 +462,7 @@
 	~mixesAmount.do({
 		arg num;
 		var mix = Dictionary();
-		mix.put(\busIn,~buses[\mix][num][\in]);
-		mix.put(\busInCtrl,~buses[\mix][num][\inCtrl]);
-		//input.put(\outVolume,Bus(audio(s,1)));
+		mix.put(\bus, ~buses[\mix][num];
 		~mixes[num] = mix;
 	});
 	~mixes.postln;
@@ -355,9 +474,7 @@
 	~pointsAmount.do({
 		arg num;
 		var point = Dictionary();
-		point.put(\busIn,~buses[\point][num][\in]);
-		point.put(\busInCtrl,~buses[\point][num][\inCtrl]);
-		//point.put(\outVolume,Bus(audio(s,1)));
+		point.put(\bus, ~buses[\point][num];
 		~points[num] = point;
 	});
 	~points.postln;
@@ -368,10 +485,7 @@
 	~fieldsAmount.do({
 		arg num;
 		var field = Dictionary();
-		field.put(\busIn,~buses[\field][num][\in]);
-		field.put(\busInCtrl,~buses[\field][num][\inCtrl]);
-		//point.put(\busInCtrl,~buses[\point][num][\inCtrl]);
-		//point.put(\outVolume,Bus(audio(s,1)));
+		field.put(\bus, ~buses[\field][num];
 		~fields[num] = field;
 	});
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for Fields dictionary');
@@ -381,23 +495,26 @@
 	~spacesAmount.do({
 		arg num;
 		var space = Dictionary();
-		space.put(\busIn,~buses[\space][num][\in]);
-		space.put(\busInCtrl,~buses[\space][num][\inCtrl]);
-		//point.put(\busInCtrl,~buses[\point][num][\inCtrl]);
-		//point.put(\outVolume,Bus(audio(s,1)));
+		space.put(\bus, ~buses[\space][num];
 		~spaces[num] = space;
 	});
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for Spaces dictionary');
 	//s.sync();
+
+	~decoders = Array.newClear(~decodersAmount);
+	~decodersAmount.do({
+		arg num;
+		var decoder = Dictionary();
+		decoder.put(\bus, ~buses[\decoder][num];
+		~decoders[num] = space;
+	});
 
 	//Initialise OUTPUTS
 	~outputs = Array.newClear(~outputsAmount);
 	~outputsAmount.do({
 		arg num;
 		var output = Dictionary();
-		output.put(\busIn,~buses[\output][num][\in]);
-		output.put(\busInCtrl,~buses[\output][num][\inCtrl]);
-		//point.put(\outVolume,Bus(audio(s,1)));
+		output.put(\bus, ~buses[\output][num];
 		~outputs[num] = output;
 	});
 	~outputs.postln;
@@ -410,7 +527,8 @@
 ~initGroups = {
 
 	~grpHwInputs = Group.new;
-	~grpInputs = Group.after(~grpHwInputs);
+	~grpSources = Group.after(~grpHwInputs);
+	~grpInputs = Group.after(~grpSources);
 	~grpMixes = Group.after(~grpInputs);
 	~grpPoints = Group.after(~grpMixes);
 	~grpFields = Group.after(~grpPoints);
@@ -672,16 +790,16 @@
 ~vuSend = Routine {
 	var value;
 	loop {
-		~vu[\inputs][\toTrack].asString.post;
-		~vu[\inputs][\toTrack].do({
+		~vu[\inputs][\in][\toTrack].asString.post;
+		~vu[\inputs][\in][\toTrack].do({
 			arg item;
-			~vu[\inputs][\vu][item] =
+			~vu[\inputs][\in][\vu][item] =
 			~buses[\input][item][\inCtrl].getSynchronous.abs;
-				~ostagec.sendMsg('/vu', 'in', item, 'out', ~vu[\inputs][\vu][item]);
+			~ostagec.sendMsg('/vu', 'in', item, 'out', ~vu[\inputs][\in][\vu][item]);
 		});
 		~vu[\inputs][\vu].postln;
 		~vuRate.wait;
-	}
+	};
 };
 
 //~vuSend.play;
