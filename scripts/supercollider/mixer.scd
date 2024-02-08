@@ -160,6 +160,27 @@
 		Out.kr(busOutCtrl, sig);
 	}).add;
 
+	SynthDef(\inEQ, {
+		arg busIn, busOut, busOutCtrl,
+		lowCutOn =1, lowCutFreq = 100, lowCutQ = 1,
+		lowShelfOn = 1, lowShelfFreq = 250, lowShelfQ = 0, lowShelfGain = 0, dryWet = 1;
+		var sigIn, sigOut;
+
+		sigIn = In.ar(busIn, 1);
+		sigOut = BHiPass.ar( in: sigIn, freq, rq, mul);
+		sigOut = BLowShelf.ar( in: sig, freq, rs, db, mul);
+		sigOut = BPeakEQ.ar( in: sig, freq, rq, db, mul);
+		sigOut = BPeakEQ.ar( in: sig, freq, rq, db, mul);
+		sigOut = BPeakEQ.ar( in: sig, freq, rq, db, mul);
+		sigOut = BPeakEQ.ar( in: sig, freq, rq, db, mul);
+		sigOut = BHiShelf.ar( in: sig, freq, rs, db, mul);
+		sigOut = BLowPass.ar( in: sig, freq, rq, mul);
+		sigOut = sigIn * (1 - dryWet) + sigOut * dryWet;
+		Out.ar(busOut, sig);
+		Out.kr(busOutCtrl, sig);
+	}).add;
+
+
 	SynthDef(\outVolume, {
 		arg busIn, busOut, busOutCtrl, isAmb = 0, amp = 0;
 		var sig;
