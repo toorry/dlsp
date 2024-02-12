@@ -36,3 +36,20 @@ OSCFunc.trace(false);
 Platform.ideName.postln;
 Platform.architecture.postln;
 Platform.
+
+ServerOptions.devices;
+
+"jack_control stop".unixCmdGetStdOut;
+
+~fromCons = "jack_control dpd device".unixCmdGetStdOut;
+~fromCons.postln;
+
+s.boot;
+s.quit;
+
+// connect first to input channels with system
+"SC_JACK_DEFAULT_INPUTS".setenv("system:capture_1,system:capture_2");
+
+// connect all output channels with system
+"SC_JACK_DEFAULT_OUTPUTS".setenv("system");
+"SC_JACK_DEFAULT_OUTPUTS".setenv("system:playback_3,system:playback_5");
