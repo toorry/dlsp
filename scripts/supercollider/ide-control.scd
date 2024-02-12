@@ -32,3 +32,7 @@ OSCFunc.trace(false);
 ~myoscaddr.sendMsg('/vu/in', 6, 3);
 ~vu;
 ~vuSend.stop;
+
+Platform.ideName.postln;
+Platform.architecture.postln;
+Platform.

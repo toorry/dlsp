@@ -8,7 +8,6 @@
 ~myoscaddr = NetAddr.new("127.0.0.1", 57120);
 
 
-
 //// FINDING SETTINGS
 
 if(File.exists(~path ++ "/settings.txt")) {
@@ -60,8 +59,8 @@ if(File.exists(~dlspSettings['work-path'] ++ "/sources")) {
 ServerBoot.add(~msgserverstart);
 ServerQuit.add(~msgserverstop);
 
-//// MIXER INITIALIZE
-File.readAllString(~path ++ "/scripts/supercollider/mixer.scd").interpret.postln;
+//// SOUND SERVER INITIALIZE
+File.readAllString(~path ++ "/scripts/supercollider/server.scd").interpret.postln;
 
 //// SYSTEM OSC MESSAGES HANDLERS
 File.readAllString(~path ++ "/scripts/supercollider/osc-system.scd").interpret.postln;

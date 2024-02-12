@@ -2,7 +2,8 @@
 ~initConfig = Routine {
 
 	'declaring server environment'.postln;
-	~hwInputs;
+	~serverConf = new Dictionary();
+	~serverConf.put('hwInputs;
 	~hwOutputs;
 
 	~sourcesAmount;
@@ -162,19 +163,26 @@
 
 	SynthDef(\inEQ, {
 		arg busIn, busOut, busOutCtrl,
-		lowCutOn =1, lowCutFreq = 100, lowCutQ = 1,
-		lowShelfOn = 1, lowShelfFreq = 250, lowShelfQ = 0, lowShelfGain = 0, dryWet = 1;
+		lowCutOn = 1.0, lowCutFreq = 100,
+		lowShelfOn = 1.0, lowShelfFreq = 250, lowShelfQ = 1.0, lowShelfGain = 0,
+		band1On = 1.0, band1Freq = 250, band1Q = 1.0, band1Gain = 0,
+		band2On = 1.0, band2Freq = 600, band2Q = 1.0, band2Gain = 0,
+		band3On = 1.0, band3Freq = 1500, band3Q = 1.0, band3Gain = 0,
+		band4On = 1.0, band4Freq = 4000, band4Q = 1.0, band4Gain = 0,
+		hiShelfOn = 1.0, hiShelfFreq = 4000, hiShelfQ = 1.0, hiShelfGain = 0,
+		hiCutOn = 1.0, hiCutFreq = 10000,
+		dryWet = 1.0;
 		var sigIn, sigOut;
 
 		sigIn = In.ar(busIn, 1);
-		sigOut = BHiPass.ar( in: sigIn, freq, rq, mul);
-		sigOut = BLowShelf.ar( in: sig, freq, rs, db, mul);
-		sigOut = BPeakEQ.ar( in: sig, freq, rq, db, mul);
-		sigOut = BPeakEQ.ar( in: sig, freq, rq, db, mul);
-		sigOut = BPeakEQ.ar( in: sig, freq, rq, db, mul);
-		sigOut = BPeakEQ.ar( in: sig, freq, rq, db, mul);
-		sigOut = BHiShelf.ar( in: sig, freq, rs, db, mul);
-		sigOut = BLowPass.ar( in: sig, freq, rq, mul);
+		sigOut = HPF.ar( in: sigIn, freq: lowCutFreq, mul: lowCutOn);
+		sigOut = BLowShelf.ar( in: sig, freq: lowShelfFreq, rs: lowShelfQ, db: lowShelfGain, mul: lowShelfOn);
+		sigOut = MidEQ.ar( in: sig, freq: band1Freq, rq: band1Q, db: band1Gain, mul: band1On);
+		sigOut = MidEQ.ar( in: sig, freq: band2Freq, rq: band2Q, db: band2Gain, mul: band2On);
+		sigOut = MidEQ.ar( in: sig, freq: band3Freq, rq: band3Q, db: band3Gain, mul: band3On);
+		sigOut = MidEQ.ar( in: sig, freq: band4Freq, rq: band4Q, db: band4Gain, mul: band4On);
+		sigOut = BHiShelf.ar( in: sig, freq: hiShelfFreq, rs: hiShelfQ, db: hiShelfGain, mul: hiShelfOn);
+		sigOut = LPF.ar( in: sig, freq: hiCutFreq, mul: hiCutOn);
 		sigOut = sigIn * (1 - dryWet) + sigOut * dryWet;
 		Out.ar(busOut, sig);
 		Out.kr(busOutCtrl, sig);
