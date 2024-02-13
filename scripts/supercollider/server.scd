@@ -141,24 +141,26 @@
 ~prepareSynths = {
 
 	SynthDef(\inGain, {
-		arg busIn, busOut, busOutCtrl, gain = 1;
+		arg busIn, busOut, busOutCtrl, gain = 1.0;
 		var sig;
 
-		sig = In.ar(busIn, 1) * gain;
-		Out.ar(busOut, sig);
-		Out.kr(busOutCtrl, sig);
+		sig = In.ar( busIn, 1 ) * gain;
+
+		Out.ar( busOut, sig );
+		Out.kr( busOutCtrl, sig );
 	}).add;
 
 	SynthDef(\inGate, {
 		arg busIn, busOut, busOutCtrl,
-		threshold = 0.01, ratio = 10, attack = 0.01, release = 0.01, dryWet = 1;
+		threshold = 0.01, ratio = 10, attack = 0.01, release = 0.01, dryWet = 1.0;
 		var sig;
 
 		sig = In.ar(busIn, 1);
-		sig = Compander.ar( in: sig, control: sig, thresh: threshold, slopeBelow: ratio, slopeAbove: 1,
-			clampTime: attack, relaxTime: release) * dryWet + sig * (1 - dryWet);
-		Out.ar(busOut, sig);
-		Out.kr(busOutCtrl, sig);
+		sig = Compander.ar( in: sig, control: sig, thresh: threshold, slopeBelow: ratio, slopeAbove: 1.0,
+			clampTime: attack, relaxTime: release ) * dryWet + sig * (1 - dryWet);
+
+		Out.ar( busOut, sig );
+		Out.kr( busOutCtrl, sig );
 	}).add;
 
 	SynthDef(\inEQ, {
@@ -174,20 +176,97 @@
 		dryWet = 1.0;
 		var sigIn, sigOut;
 
-		sigIn = In.ar(busIn, 1);
-		sigOut = HPF.ar( in: sigIn, freq: lowCutFreq, mul: lowCutOn);
-		sigOut = BLowShelf.ar( in: sig, freq: lowShelfFreq, rs: lowShelfQ, db: lowShelfGain, mul: lowShelfOn);
-		sigOut = MidEQ.ar( in: sig, freq: band1Freq, rq: band1Q, db: band1Gain, mul: band1On);
-		sigOut = MidEQ.ar( in: sig, freq: band2Freq, rq: band2Q, db: band2Gain, mul: band2On);
-		sigOut = MidEQ.ar( in: sig, freq: band3Freq, rq: band3Q, db: band3Gain, mul: band3On);
-		sigOut = MidEQ.ar( in: sig, freq: band4Freq, rq: band4Q, db: band4Gain, mul: band4On);
-		sigOut = BHiShelf.ar( in: sig, freq: hiShelfFreq, rs: hiShelfQ, db: hiShelfGain, mul: hiShelfOn);
-		sigOut = LPF.ar( in: sig, freq: hiCutFreq, mul: hiCutOn);
+		sigIn = In.ar( busIn, 1 );
+		sigOut = HPF.ar( in: sigIn, freq: lowCutFreq, mul: lowCutOn );
+		sigOut = BLowShelf.ar( in: sigOut, freq: lowShelfFreq, rs: lowShelfQ, db: lowShelfGain, mul: lowShelfOn );
+		sigOut = MidEQ.ar( in: sigOut, freq: band1Freq, rq: band1Q, db: band1Gain, mul: band1On );
+		sigOut = MidEQ.ar( in: sigOut, freq: band2Freq, rq: band2Q, db: band2Gain, mul: band2On );
+		sigOut = MidEQ.ar( in: sigOut, freq: band3Freq, rq: band3Q, db: band3Gain, mul: band3On );
+		sigOut = MidEQ.ar( in: sigOut, freq: band4Freq, rq: band4Q, db: band4Gain, mul: band4On );
+		sigOut = BHiShelf.ar( in: sigOut, freq: hiShelfFreq, rs: hiShelfQ, db: hiShelfGain, mul: hiShelfOn );
+		sigOut = LPF.ar( in: sigOut, freq: hiCutFreq, mul: hiCutOn );
 		sigOut = sigIn * (1 - dryWet) + sigOut * dryWet;
-		Out.ar(busOut, sig);
-		Out.kr(busOutCtrl, sig);
+
+		Out.ar( busOut, sigOut );
+		Out.kr( busOutCtrl, sigOut );
 	}).add;
 
+	SynthDef(\inDynEQ, {
+			arg busIn, busOut, busOutCtrl,
+			band1On = 1.0, band1Freq = 800, band1Q = 1.0, band1Treshold = 0.25, band1Attack = 0.1, band1Ratio = 1.0,
+			band2On = 1.0, band2Freq = 800, band2Q = 1.0, band2Treshold = 0.25, band2Attack = 0.1, band2Ratio = 1.0,
+			dryWet = 1.0;
+			var sigIn, sigOut, sigCtrl1,sigCtrl2, band1db, band2db;
+
+			sigIn = In.ar( busIn,1 );
+
+			sigCtrl1 = BPF.kr( in: sigIn, freq: band1Freq, rq: band1Q );
+			sigCtrl2 = BPF.kr( in: sigIn, freq: band2Freq, rq: band2Q );
+
+			if(sigCtrl1 > band1Treshold) {
+				band1db = Lag.kr( in: ( sigCtrl1.abs - band1Treshold) / band1Ratio, lagTime: band1Attack );
+			}
+			{ band1db = 0; };
+			if(sigCtrl2 > band2Treshold) {
+				band2db = Lag.kr( in: ( sigCtrl2.abs - band2Treshold) / band2Ratio, lagTime: band2Attack );
+			}
+			{ band2db = 0; };
+
+			sigOut = MidEQ.ar( in: sigIn, freq: band1Freq, rq: band1Q, db: band1db, mul: band1On );
+			sigOut = MidEQ.ar( in: sigOut, freq: band2Freq, rq: band2Q, db: band2db, mul: band2On );
+			sigOut = sigIn * (1 - dryWet) + sigOut * dryWet;
+
+			Out.ar( busOut, sigOut );
+			Out.kr( busOutCtrl, sigOut );
+		}).add;
+
+	SynthDef(\inComp, {
+			arg busIn, busOut, busOutCtrl,
+			threshold = 0.25, ratio = 3, attack = 0.01, release = 0.01, dryWet = 1.0;
+			var sig;
+
+			sig = In.ar( busIn, 1 );
+			sig = Compander.ar( in: sig, control: sig, thresh: threshold, slopeBelow: 1.0, slopeAbove: 1 / ratio,
+				clampTime: attack, relaxTime: release ) * dryWet + sig * (1 - dryWet);
+
+			Out.ar( busOut, sig );
+			Out.kr( busOutCtrl, sig );
+		}).add;
+
+	SynthDef(\inLimit, {
+			arg busIn, busOut, busOutCtrl,
+			threshold = 0.5, ratio = 1000, attack = 0.01, release = 0.01, dryWet = 1.0, unmute = 1.0;
+			var sig;
+
+			sig = In.ar( busIn, 1 );
+			sig = Compander.ar( in: sig, control: sig, thresh: threshold, slopeBelow: 1.0, slopeAbove: 1.0 / ratio,
+				clampTime: attack, relaxTime: release ) * dryWet + sig * (1 - dryWet);
+
+			Out.ar( busOut, sig );
+			Out.kr( busOutCtrl, sig );
+		}).add;
+
+	SynthDef(\chanOut, {
+			arg busIn, busOutPre, busOutPreCtrl, busOut, busOutCtrl, volume = 1.0, unmute = 1.0;
+			var sig;
+
+			sig = In.ar( busIn, 1 );
+
+			Out.ar( busOutPre, sig * unmute );
+			Out.ar( busOut, sig * volume * unmute );
+			Out.kr( busOutPre, sig );
+			Out.kr( busOut,sig * volume );
+		}).add;
+
+	SynthDef(\chanSend, {
+			arg busIn, busOut, busOutCtrl, volume = 1.0, unmute = 1.0;
+			var sig;
+
+			sig = In.ar( busIn, 1 );
+
+			Out.ar( busOut, sig * volume * unmute );
+			Out.kr( busOut,sig * volume );
+		}).add;
 
 	SynthDef(\outVolume, {
 		arg busIn, busOut, busOutCtrl, isAmb = 0, amp = 0;

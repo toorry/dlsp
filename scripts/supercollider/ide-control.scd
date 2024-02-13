@@ -39,6 +39,8 @@ Platform.
 
 ServerOptions.devices;
 
+"jackd --no-realtime -d alsa -d hw:MKII".unixCmd;
+
 "jack_control stop".unixCmdGetStdOut;
 
 ~fromCons = "jack_control dpd device".unixCmdGetStdOut;
