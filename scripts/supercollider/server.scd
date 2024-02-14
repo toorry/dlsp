@@ -2,18 +2,17 @@
 ~initConfig = Routine {
 
 	'declaring server environment'.postln;
-	~serverConf = new Dictionary();
-	~serverConf.put('hwInputs;
-	~hwOutputs;
+	~serverConf = Dictionary.new();
+	~serverConf.put( \hwInputs, 2 );
+	~serverConf.put( \hwOutputs, 2 );
 
-	~sourcesAmount;
-	~inputsAmount;
-	~mixesAmount;
-	~pointsAmount;
-	~fieldsAmount;
-	~spacesAmount;
-	~outputsAmount;
-	~decodersAmount;
+	~serverConf.put( \inputsAmount, 36 );
+	~serverConf.put( \mixesAmount, 12 );
+	~serverConf.put( \pointsAmount, 24 );
+	~serverConf.put( \fieldsAmount, 4 );
+	~serverConf.put( \spacesAmount, 2 );
+	~serverConf.put( \decodersAmount, 4 );
+	~serverConf.put( \outputsAmount, 24 );
 
 	~ambTransformerSlots;
 
