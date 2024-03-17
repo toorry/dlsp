@@ -19,23 +19,22 @@ async function drawMixes( mixesAmount, mixesOnPage, pagesInGroup ) {
 
   var msgDelay = 500;
 
-  var pnlMixes = [];
+  var pnlMixes = new Object();
 
   if (mixesPagesAmount == 1) {//One page case
     //
     await new Promise(done => setTimeout(() => done(), msgDelay));
-    receive('/EDIT/MERGE', 'pnlMixes', {
-      tabs: null,
-      widgets: [{
-        type: 'panel',
-        id: 'pnlMixesPage1',
-        //Geometry
-        expand: true,
-        //Panel Style
-        layout: 'horizontal',
-        scroll: false,
-        innerPadding: false
-      }]
+    pnlMixes.tabs = null;
+    pnlMixes.widgets = [];
+    pnlMixes.widgets.push({
+      type: 'panel',
+      id: 'pnlMixesPage1',
+      //Geometry
+      expand: true,
+      //Panel Style
+      layout: 'horizontal',
+      scroll: false,
+      innerPadding: false
     });
 
   } else {//Several pages case
@@ -54,11 +53,9 @@ async function drawMixes( mixesAmount, mixesOnPage, pagesInGroup ) {
 
       //Create Tabs
       await new Promise(done => setTimeout(() => done(), msgDelay));
-      receive('/EDIT/MERGE', 'pnlMixes', {
-        tabsPosition: 'left',
-        widgets: null,
-        tabs: pnlMixesTabs
-      });
+      pnlMixes.tabsPosition = 'left';
+      pnlMixes.widgets = null;
+      pnlMixes.tabs = pnlMixesTabs;
 
       //Configure Tabs
       for (let i = 1; i <= mixesPagesAmount; i++) {
