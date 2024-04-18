@@ -577,6 +577,31 @@ module.exports = {
           }
         }
 
+        if ( address === '/sendtldr' ) {
+
+          try {
+
+            let count = args[0].value;
+
+            let tfile = '';
+
+            for ( let c = 1; c <= count; c++ ) {
+
+              tfile += c + '-th string. Some content to weight by.\n';
+
+            }
+
+            receive('/EDIT/MERGE', 'txtIDELog', {
+
+              value: tfile
+
+            });
+
+          } catch (e) {
+            //
+          }
+        }
+
         return {address, args, host, port}
     },
 

@@ -191,7 +191,7 @@
 	}).add;
 
 	SynthDef(\inDynEQ, {
-			arg busIn, busOut, busOutCtrl,
+			arg busIn, busOut, busOutCtrl, busCtrl1, busCtrl2,
 			band1On = 1.0, band1Freq = 800, band1Q = 1.0, band1Treshold = 0.25, band1Attack = 0.1, band1Ratio = 1.0,
 			band2On = 1.0, band2Freq = 800, band2Q = 1.0, band2Treshold = 0.25, band2Attack = 0.1, band2Ratio = 1.0,
 			dryWet = 1.0;
