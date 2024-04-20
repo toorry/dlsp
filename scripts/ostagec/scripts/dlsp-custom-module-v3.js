@@ -8,26 +8,40 @@
 
 var selfAddress = '127.0.0.1:8080';
 
-function CreateMixes( mixesAmount, mixesOnPage, pagesInGroup ) {
+function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGroup ) {
 
-  console.log('Creating Mixes..');
+  var singularName = '';
+  var pluralName = '';
 
-  var mixesPagesAmount = Math.ceil(mixesAmount / mixesOnPage);
-  var mixesGroupsAmount = Math.ceil(mixesPagesAmount / pagesInGroup);
-  var groupsLevels = Math.ceil( Math.log(mixesPagesAmount) / Math.log(pagesInGroup) );
-  console.log('Groups Levels = ' + groupsLevels);
+  switch (channelType) {
+    case input:
+      console.log('Creating Inputs..');
+      singularName = 'Input';
+      pluralName = 'Inputs';
+      break;
+  
+    case mix:
+      console.log('Creating Mixes..');
+      singularName = 'Mix';
+      pluralName = 'Mixes';
+      break;
+    
+    default:
+      break;
+  }
 
-  var pnlMixesTabs = [];
+  var pagesAmount = Math.ceil(channelsAmount / channelsOnPage);
+  var groupsAmount = Math.ceil(pagesAmount / pagesInGroup);
+  var groupsLevels = Math.ceil( Math.log(pagesAmount) / Math.log(pagesInGroup) );
+  var pnlChannelsTabs = [];
 
-  let topLevelGroupsCount = Math.ceil( mixesPagesAmount / Math.pow( pagesInGroup, groupsLevels - 1 ) );
+  let topLevelGroupsCount = Math.ceil( pagesAmount / Math.pow( pagesInGroup, groupsLevels - 1 ) );
   if ( topLevelGroupsCount == 1 ) { groupsLevels-- };
-  console.log('Top level Groups count = ' + topLevelGroupsCount);
-
-  if ( mixesPagesAmount == 1 ) {//One Page case
+  if ( pagesAmount == 1 ) {//One Page case
     //
-    pnlMixesPage = {
+    pnlChannelsPage = {
       type: 'panel',
-      id: 'pnlMixesPage1',
+      id: 'pnl' + pluralName + 'Page1',
       //Geometry
       expand: true,
       //Panel Style
@@ -35,23 +49,24 @@ function CreateMixes( mixesAmount, mixesOnPage, pagesInGroup ) {
       scroll: false,
       innerPadding: false
     };
-    CreateMixesPage( pnlMixesPage, 1, mixesAmount, mixesOnPage );
-    console.log('Mix Page ' + 1 + ' created.');
-    receive( '/EDIT/MERGE', 'pnlMixes', {
+
+    CreateChannelsPage( channelType, pnlChannelsPage, 1, channelsAmount, channelsOnPage );
+
+    receive( '/EDIT/MERGE', 'pnl' + pluralName, {
       tabs: null,
-      widgets: [pnlMixesPage]
-    })
+      widgets: [pnlChannelsPage]
+    });
   }
-  else if ( mixesGroupsAmount == 1 ) {//One Group case
+  else if ( groupsAmount == 1 ) {//One Group case
 
-    for ( let i = 1; i <= mixesPagesAmount; i++ ) {
+    for ( let i = 1; i <= pagesAmount; i++ ) {
 
-      let tabNumFirst = (i - 1)*mixesOnPage + 1;
-      let tabNumLast =  Math.min(i*mixesOnPage, mixesAmount);
+      let tabNumFirst = (i - 1)*channelsOnPage + 1;
+      let tabNumLast =  Math.min(i*channelsOnPage, channelsAmount);
 
-      let pnlMixesPage = {
+      let pnlChannelsPage = {
         type: 'panel',
-        id: 'pnlMixesPage' + i,
+        id: 'pnl' + pluralName + 'Page' + i,
         //Geometry
         expand: true,
         //Panel Style
@@ -60,9 +75,9 @@ function CreateMixes( mixesAmount, mixesOnPage, pagesInGroup ) {
         innerPadding: false
       };
 
-      pnlMixesTabs.push({
+      pnlChannelsTabs.push({
         type: 'tab',
-        id: 'tabMixesPage' + i,
+        id: 'tab' + pluralName + 'Page' + i,
         //Panel Style
         layout: 'vertical',
         scroll: false,
@@ -70,42 +85,60 @@ function CreateMixes( mixesAmount, mixesOnPage, pagesInGroup ) {
         //Tab Style
         label: tabNumFirst + '-' + tabNumLast,
 
-        widgets: [pnlMixesPage]
+        widgets: [pnlChannelsPage]
       });
 
-      CreateMixesPage( pnlMixesPage, i, mixesAmount, mixesOnPage );
+      CreateChannelsPage( channelType, pnlChannelsPage, i, channelsAmount, channelsOnPage );
     }
 
-    receive('/EDIT/MERGE', 'pnlMixes', {
+    receive('/EDIT/MERGE', 'pnl' + pluralName, {
       tabsPosition: 'left',
       widgets: null,
-      tabs: pnlMixesTabs
+      tabs: pnlChannelsTabs
     });
 
   } else {//Several Groups case
-    console.log('Several groups case..');
-    mixGroup = {
+
+    channelsGroup = {
       tabs: null
     };
-    console.log('Before recursive..');
-    CreateMixesGroupTab( mixGroup, groupsLevels - 1, 1, mixesAmount, mixesAmount, mixesOnPage, pagesInGroup, 'tabMixesGroup' );
-    receive('/EDIT/MERGE', 'pnlMixes', mixGroup);
+
+    CreateChannelsGroupTab( channelType, channelsGroup, groupsLevels - 1, 1, channelsAmount, channelsAmount, channelsOnPage, pagesInGroup, 'tab' + pluralName + 'Group' );
+
+    receive('/EDIT/MERGE', 'pnl' + pluralName, channelsGroup);
   }
 }
 
-function CreateMixesGroupTab( mixGroup, groupsLevel, numFirst, numLast, mixesAmount, mixesOnPage, pagesInGroup, tabNameDef ) {
-  //
-  console.log('Creating groups at ' + groupsLevel + '-th level.');
+function CreateChannelsGroupTab( channelType, channelsGroup, groupsLevel, numFirst, numLast, channelsAmount, channelsOnPage, pagesInGroup, tabNameDef ) {
+
+  let singularName = '';
+  let pluralName = '';
+
+  switch (channelType) {
+    case input:
+      console.log('Creating Inputs..');
+      singularName = 'Input';
+      pluralName = 'Inputs';
+      break;
+  
+    case mix:
+      console.log('Creating Mixes..');
+      singularName = 'Mix';
+      pluralName = 'Mixes';
+      break;
+    
+    default:
+      break;
+  }
 
   let currentGroupTabs = [];
-  let tabsAmount = Math.ceil( (numLast - numFirst + 1) / mixesOnPage / Math.pow(pagesInGroup, groupsLevel) );
-  console.log('tabsAmount = ' + tabsAmount);
+  let tabsAmount = Math.ceil( (numLast - numFirst + 1) / channelsOnPage / Math.pow(pagesInGroup, groupsLevel) );
+  
   for ( let tabNum = 1; tabNum <= tabsAmount; tabNum++ ) {
-    //
-    //console.log(tabNum + '-th tab');
-    let tabNumFirst = (tabNum - 1)*Math.pow(pagesInGroup, groupsLevel)*mixesOnPage + numFirst;
-    let tabNumLast = Math.min(tabNum*Math.pow(pagesInGroup, groupsLevel)*mixesOnPage + numFirst - 1, numLast);
-    //console.log(tabNum + '-th tabtab');
+
+    let tabNumFirst = (tabNum - 1)*Math.pow(pagesInGroup, groupsLevel)*channelsOnPage + numFirst;
+    let tabNumLast = Math.min(tabNum*Math.pow(pagesInGroup, groupsLevel)*channelsOnPage + numFirst - 1, numLast);
+
     let tab = {
       type: 'tab',
       id: tabNameDef + tabNum,
@@ -120,49 +153,71 @@ function CreateMixesGroupTab( mixGroup, groupsLevel, numFirst, numLast, mixesAmo
       widgets: null,
       tabs: null
     };
-    //console.log(tabNum + '-th tabtabtab');
 
     currentGroupTabs.push(tab);
-    //console.log(tabNum + ' tab');
+
     if ( groupsLevel > 0 ) {
-      console.log('recursive tab ' + tabNumFirst + '-' + tabNumLast);
-      CreateMixesGroupTab( tab, groupsLevel - 1, tabNumFirst, tabNumLast, mixesAmount, mixesOnPage, pagesInGroup, tabNameDef + tabNum + '-');
+
+      CreateChannelsGroupTab( channelType, tab, groupsLevel - 1, tabNumFirst, tabNumLast, channelsAmount, channelsOnPage, pagesInGroup, tabNameDef + tabNum + '-');
+
     } else {
-      let pageNum = (tabNumFirst - 1)/mixesOnPage + 1;
-      console.log('creating page ' + pageNum);
+
+      let pageNum = (tabNumFirst - 1)/channelsOnPage + 1;
+
       let panel = {
         type: 'panel',
-        id:'pnlMixesPage' + pageNum,
+        id:'pnl' + pluralName + 'Page' + pageNum,
         //Geometry
         expand: true,
         //Panel Style
         scroll: false,
         innerPadding: false
       };
-      //console.log('now pages 2');
-      CreateMixesPage( panel, pageNum, mixesAmount, mixesOnPage );
-      //console.log('now pages 3');
+
+      CreateChannelsPage( channelType, panel, pageNum, channelsAmount, channelsOnPage );
+
       tab.widgets = [panel];
     }
   }
-  mixGroup.tabs = currentGroupTabs;
+  channelsGroup.tabs = currentGroupTabs;
 }
 
-function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
+function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount, channelsOnPage ) {
 
-  console.log('Creating Mixes Page ' + PageNum);
-  let mixMin = (PageNum - 1)*MixesOnPage + 1;
-  let mixMax = Math.min(PageNum*MixesOnPage, MixesAmount);
+  let singularName = '' , singularNameCaps = '';
+  let pluralName = '';
 
-  //Create Tabs in Mixes Page
-  let mixesPageTabs = [];
-  MixesPage.tabs = mixesPageTabs;
+  switch (channelType) {
+    case input:
+      console.log('Creating Inputs..');
+      singularName = 'Input';
+      singularNameCaps = 'INPUT';
+      pluralName = 'Inputs';
+      break;
+  
+    case mix:
+      console.log('Creating Mixes..');
+      singularName = 'Mix';
+      singularNameCaps = 'MIX';
+      pluralName = 'Mixes';
+      break;
+    
+    default:
+      break;
+  }
+
+  let channelMin = (pageNum - 1)*channelsOnPage + 1;
+  let channelMax = Math.min(pageNum*channelsOnPage, channelsAmount);
+
+  //Create Tabs in Channels Page
+  let channelsPageTabs = [];
+  channelsPage.tabs = channelsPageTabs;
 
   let allViewWidgets = [];
 
-  mixesPageTabs.push({
+  channelsPageTabs.push({
     type: 'tab',
-    id: 'tabMixesPage' + PageNum + 'All',
+    id: 'tab' + pluralName + 'Page' + pageNum + 'All',
     //Panel Style
     layout: 'vertical',
     scroll: false,
@@ -172,7 +227,7 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
 
     widgets: [{
       type: 'panel',
-      id: 'pnlMixesPage' + PageNum + 'All',
+      id: 'pnl' + pluralName + 'Page' + pageNum + 'All',
       //Geometry
       expand: true,
       //Style
@@ -189,24 +244,24 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     }]
   });
 
-  //Create Individual Mix Tabs
-  for (let mixNum = mixMin; mixNum <= mixMax; mixNum++) {
-    //
-    let mixOptionsTabs = [];
+  //Create Individual Channel Tabs
+  for (let channelNum = channelMin; channelNum <= channelMax; channelNum++) {
 
-    mixesPageTabs.push({
+    let channelOptionsTabs = [];
+
+    channelsPageTabs.push({
       type: 'tab',
-      id: 'tabMix' + mixNum,
+      id: 'tab' + singularName + channelNum,
       //Panel Style
       layout: 'vertical',
       scroll: false,
       innerPadding: false,
       //Tab Style
-      label: mixNum,
+      label: channelNum,
 
       widgets: [{
           type: 'panel',
-          id:'pnlMix' + mixNum,
+          id:'pnl' + singularName + channelNum,
           //Geometry
           expand: true,
           //Panel Style
@@ -214,17 +269,17 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
           scroll: false,
           innerPadding: false,
 
-          tabs: mixOptionsTabs
+          tabs: channelOptionsTabs
         }]
     });
 
-    //Create Mix Options Tabs
-    let mixPage = [];
+    //Create Channel Options Tabs
+    let channelPage = [];
 
-    //Mix Main Tab
-    mixOptionsTabs.push({
+    //Channel Main Tab
+    channelOptionsTabs.push({
       type: 'tab',
-      id: 'tabMix' + mixNum + 'Main',
+      id: 'tab' + singularName + mixNum + 'Main',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -233,10 +288,10 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
       label: 'MAIN'
     });
 
-    //Mix EQ Tab
-    mixOptionsTabs.push({
+    //Channel EQ Tab
+    channelOptionsTabs.push({
       type: 'tab',
-      id: 'tabMix' + mixNum + 'EQ',
+      id: 'tab' + singularName + mixNum + 'EQ',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -245,10 +300,10 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
       label: 'EQ'
     });
 
-    //Mix Gate Tab
-    mixOptionsTabs.push({
+    //Channel Gate Tab
+    channelOptionsTabs.push({
       type: 'tab',
-      id: 'tabMix' + mixNum + 'Gate',
+      id: 'tab' + singularName + mixNum + 'Gate',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -257,10 +312,10 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
       label: 'GATE'
     });
 
-    //Mix Compressor Tab
-    mixOptionsTabs.push({
+    //Channel Compressor Tab
+    channelOptionsTabs.push({
       type: 'tab',
-      id: 'tabMix' + mixNum + 'Comp',
+      id: 'tab' + singularName + mixNum + 'Comp',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -269,10 +324,10 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
       label: 'COMPRESSOR'
     });
 
-    //Mix Limiter Tab
-    mixOptionsTabs.push({
+    //Channel Limiter Tab
+    channelOptionsTabs.push({
       type: 'tab',
-      id: 'tabMix' + mixNum + 'Limit',
+      id: 'tab' + singularName + mixNum + 'Limit',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -281,10 +336,10 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
       label: 'LIMITER'
     });
 
-    //Mix Sends Tab
-    mixOptionsTabs.push({
+    //Channel Sends Tab
+    channelOptionsTabs.push({
       type: 'tab',
-      id: 'tabMix' + mixNum + 'Sends',
+      id: 'tab' + singularName + mixNum + 'Sends',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -294,14 +349,14 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     });
   }
 
-  //Create 'ALL' Mixes Page View
+  //Create 'ALL' Channels Page View
   let allPanelWidgets = [];
 
   //'Select All' Button
   allPanelWidgets.push({
     //
     type: 'button',
-    id: 'btnMixAllSelect',
+    id: 'btn' + pluralName + 'Page' + pageNum + 'AllSelect',
     //Geometry
     width: 60,
     height: 50,
@@ -318,7 +373,7 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
   allPanelWidgets.push({
     //Widget
     type: 'panel',
-    id: 'pnlMixAllVolume',
+    id: 'pnl' + pluralName + 'Page' + pageNum + 'AllVolume',
     //Geometry
     height: 340,
     //Panel Style
@@ -328,7 +383,7 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     widgets: [{
       //Widget
       type: 'text',
-      id: 'lblMixAllVolume',
+      id: 'lbl' + pluralName + 'Page' + pageNum + 'AllVolume',
       //Geometry
       left: 0,
       top: 0,
@@ -341,7 +396,7 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     },{
       //Widget
       type: 'fader',
-      id: 'fdrMixAllVolume',
+      id: 'fdr' + pluralName + 'Page' + pageNum + 'AllVolume',
       //Geometry
       left: 0,
       top: 40,
@@ -364,7 +419,7 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     },{
       //Widget
       type: 'fader',
-      id: 'fdrMixAllVU',
+      id: 'fdr' + pluralName + 'Page' + pageNum + 'AllVU',
       interaction: false,
       //Geometry
       left: 25,
@@ -387,7 +442,7 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
   allPanelWidgets.push({
     //
     type: 'button',
-    id: 'btnMixAllMute',
+    id: 'btn' + pluralName + 'Page' + pageNum + 'AllMute',
     //Geometry
     width: 60,
     height: 50,
@@ -404,7 +459,7 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
   allPanelWidgets.push({
     //
     type: 'button',
-    id: 'btnMixAll0dB',
+    id: 'btn' + pluralName + 'Page' + pageNum + 'All0dB',
     //Geometry
     width: 60,
     height: 40,
@@ -416,14 +471,14 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     //Button
     mode: 'momentary',
     //Scripting
-    onValue: "for(let i = " + mixMin + "; i <= " + mixMax + "; i++){set('fdrMix' + i + 'Volume', 0.716)};"
+    onValue: `for(let i = ${channelMin}; i <= ${channelMax}; i++){set('fdr${singularName}' + i + 'Volume', 0.716)};`
   });
 
   //'-inf All' Button
   allPanelWidgets.push({
     //
     type: 'button',
-    id: 'btnMixAll-Inf',
+    id: 'btn' + pluralName + 'Page' + pageNum + 'All-Inf',
     //Geometry
     width: 60,
     height: 40,
@@ -435,12 +490,12 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     //Button
     mode: 'momentary',
     //Scripting
-    onValue: "for(let i = " + mixMin + "; i <= " + mixMax + "; i++){set('fdrMix' + i + 'Volume', 0)};"
+    onValue: `for(let i = ${channelMin}; i <= ${channelMax}; i++){set('fdr${singularName}' + i + 'Volume', 0)};`
   });
 
   allViewWidgets.push({
     type: 'panel',
-    id:'pnlAllMixAll',
+    id:`pnlAll${singularName}All`,
     //Geometry
     width: 60,
     //Style
@@ -453,16 +508,16 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
 
     widgets: allPanelWidgets
   });
-  console.log('all view widgets');
-  for (let mixNum = mixMin; mixNum <= mixMax; mixNum++) {
+
+  for (let channelNum = channelMin; channelNum <= channelMax; channelNum++) {
     //
-    let mixPanelWidgets = [];
+    let channelPanelWidgets = [];
 
     //'Select' Button
-    mixPanelWidgets.push({
+    channelPanelWidgets.push({
       //
       type: 'button',
-      id: 'btnMix' + mixNum + 'Select',
+      id: `btn${singularName}${channelNum}Select`,
       //Geometry
       width: 60,
       height: 50,
@@ -476,10 +531,10 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     });
 
     //Volume Panel
-    mixPanelWidgets.push({
+    channelPanelWidgets.push({
       //Widget
       type: 'panel',
-      id: 'pnlMix' + mixNum + 'Volume',
+      id: `pnl${singularName}${channelNum}Volume`,
       //Geometry
       height: 340,
       //Panel Style
@@ -489,7 +544,7 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
       widgets: [{
         //Widget
         type: 'text',
-        id: 'lblMix' + mixNum + 'Volume',
+        id: `lbl${singularName}${channelNum}Volume`,
         //Geometry
         left: 0,
         top: 0,
@@ -498,11 +553,11 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
         //Style
         colorText: '#ffffff',
         //Value
-        default: 'MIX\n' + mixNum
+        default: `${singularNameCaps}\n'${channelNum}`
       },{
         //Widget
         type: 'fader',
-        id: 'fdrMix' + mixNum + 'Volume',
+        id: `fdr${singularName}${channelNum}Volume`,
         //Geometry
         left: 0,
         top: 40,
@@ -525,7 +580,7 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
       },{
         //Widget
         type: 'fader',
-        id: 'fdrMix' + mixNum + 'VU',
+        id: `fdr${singularName}${channelNum}VU`,
         interaction: false,
         //Geometry
         left: 25,
@@ -545,10 +600,10 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     });
 
     //'Mute' Button
-    mixPanelWidgets.push({
+    channelPanelWidgets.push({
       //
       type: 'button',
-      id: 'btnMix' + mixNum + 'Mute',
+      id: `btn${singularName}${channelNum}Mute`,
       //Geometry
       width: 60,
       height: 50,
@@ -562,10 +617,10 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
     });
 
     //'0 dB' Button
-    mixPanelWidgets.push({
+    channelPanelWidgets.push({
       //
       type: 'button',
-      id: 'btnMix' + mixNum + '0dB',
+      id: `btn${singularName}${channelNum}0dB`,
       //Geometry
       width: 60,
       height: 40,
@@ -577,14 +632,14 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
       //Button
       mode: 'momentary',
       //Scripting
-      onValue: "set('fdrMix" + mixNum + "Volume', 0.716);"
+      onValue: `set('fdr${singularName}${channelNum}Volume', 0.716);`
     });
 
     //'-inf' Button
-    mixPanelWidgets.push({
+    channelPanelWidgets.push({
       //
       type: 'button',
-      id: 'btnMix' + mixNum + '-Inf',
+      id: `btn${singularName}${channelNum}-Inf`,
       //Geometry
       width: 60,
       height: 40,
@@ -596,12 +651,12 @@ function CreateMixesPage( MixesPage, PageNum, MixesAmount, MixesOnPage ) {
       //Button
       mode: 'momentary',
       //Scripting
-      onValue: "set('fdrMix" + mixNum + "Volume', 0);"
+      onValue: `set('fdr${singularName}${channelNum}Volume', 0);`
     });
 
     allViewWidgets.push({
       type: 'panel',
-      id:'pnlAllMix' + mixNum,
+      id:'pnlAll' + singularName + mixNum,
       //Geometry
       width: 60,
       //Style
@@ -628,22 +683,19 @@ module.exports = {
 
         var {address, args, host, port} = data
 
-        if ( address === '/drawMix' ) {
-
-          console.log('task to draw Mixes received');
-          console.log(args);
+        if ( address === '/drawChans' ) {
 
           try {
 
-            let mixesAmount = args[0].value;
-            let mixesOnPage = args[1].value;
-            let pagesInGroup = args[2].value;
+            let channelType = args[0].value;
+            let channelsAmount = args[1].value;
+            let channelsOnPage = args[2].value;
+            let pagesInGroup = args[3].value;
 
-            console.log('Mixes Amount = ' + mixesAmount);
-            console.log('Mixes on Page = ' + mixesOnPage);
-            console.log('Pages in Group = ' + pagesInGroup);
-
-            CreateMixes( mixesAmount, mixesOnPage, pagesInGroup );
+            console.log(`Task to Draw Channels. Type=${channelType} Amount=${channelsAmount} OnPage=${channelsOnPage} PagesInGroup=${pagesInGroup}`);
+            //console.log('Mixes on Page = ' + mixesOnPage);
+            //console.log('Pages in Group = ' + pagesInGroup);
+            CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGroup );
 
           } catch (e) {
 
