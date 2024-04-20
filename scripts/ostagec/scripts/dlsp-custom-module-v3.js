@@ -14,19 +14,26 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
   var pluralName = '';
 
   switch (channelType) {
-    case input:
+    case 'input':
       console.log('Creating Inputs..');
       singularName = 'Input';
       pluralName = 'Inputs';
       break;
   
-    case mix:
+    case 'mix':
       console.log('Creating Mixes..');
       singularName = 'Mix';
       pluralName = 'Mixes';
       break;
+
+    case 'point':
+      console.log('Creating Points..');
+      singularName = 'Point';
+      pluralName = 'Points';
+      break;
     
     default:
+      console.log('Default name');
       break;
   }
 
@@ -39,6 +46,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
   if ( topLevelGroupsCount == 1 ) { groupsLevels-- };
   if ( pagesAmount == 1 ) {//One Page case
     //
+    console.log('One Page case');
     pnlChannelsPage = {
       type: 'panel',
       id: 'pnl' + pluralName + 'Page1',
@@ -115,16 +123,19 @@ function CreateChannelsGroupTab( channelType, channelsGroup, groupsLevel, numFir
   let pluralName = '';
 
   switch (channelType) {
-    case input:
-      console.log('Creating Inputs..');
+    case 'input':
       singularName = 'Input';
       pluralName = 'Inputs';
       break;
   
-    case mix:
-      console.log('Creating Mixes..');
+    case 'mix':
       singularName = 'Mix';
       pluralName = 'Mixes';
+      break;
+
+    case 'point':
+      singularName = 'Point';
+      pluralName = 'Points';
       break;
     
     default:
@@ -184,22 +195,27 @@ function CreateChannelsGroupTab( channelType, channelsGroup, groupsLevel, numFir
 
 function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount, channelsOnPage ) {
 
+  console.log('Create Channels Page func');
   let singularName = '' , singularNameCaps = '';
   let pluralName = '';
 
   switch (channelType) {
-    case input:
-      console.log('Creating Inputs..');
+    case 'input':
       singularName = 'Input';
       singularNameCaps = 'INPUT';
       pluralName = 'Inputs';
       break;
   
-    case mix:
-      console.log('Creating Mixes..');
+    case 'mix':
       singularName = 'Mix';
       singularNameCaps = 'MIX';
       pluralName = 'Mixes';
+      break;
+
+    case 'point':
+      singularName = 'Point';
+      singularNameCaps = 'POINT';
+      pluralName = 'Points';
       break;
     
     default:
@@ -209,6 +225,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
   let channelMin = (pageNum - 1)*channelsOnPage + 1;
   let channelMax = Math.min(pageNum*channelsOnPage, channelsAmount);
 
+  console.log("Create Tabs in Channels Page");
   //Create Tabs in Channels Page
   let channelsPageTabs = [];
   channelsPage.tabs = channelsPageTabs;
@@ -244,6 +261,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     }]
   });
 
+  console.log('Create Individual Channel Tabs');
   //Create Individual Channel Tabs
   for (let channelNum = channelMin; channelNum <= channelMax; channelNum++) {
 
@@ -273,13 +291,14 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
         }]
     });
 
+    console.log(`Create Channel ${channelNum} Options Tabs`);
     //Create Channel Options Tabs
     let channelPage = [];
 
     //Channel Main Tab
     channelOptionsTabs.push({
       type: 'tab',
-      id: 'tab' + singularName + mixNum + 'Main',
+      id: 'tab' + singularName + channelNum + 'Main',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -291,7 +310,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     //Channel EQ Tab
     channelOptionsTabs.push({
       type: 'tab',
-      id: 'tab' + singularName + mixNum + 'EQ',
+      id: 'tab' + singularName + channelNum + 'EQ',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -303,7 +322,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     //Channel Gate Tab
     channelOptionsTabs.push({
       type: 'tab',
-      id: 'tab' + singularName + mixNum + 'Gate',
+      id: 'tab' + singularName + channelNum + 'Gate',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -315,7 +334,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     //Channel Compressor Tab
     channelOptionsTabs.push({
       type: 'tab',
-      id: 'tab' + singularName + mixNum + 'Comp',
+      id: 'tab' + singularName + channelNum + 'Comp',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -327,7 +346,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     //Channel Limiter Tab
     channelOptionsTabs.push({
       type: 'tab',
-      id: 'tab' + singularName + mixNum + 'Limit',
+      id: 'tab' + singularName + channelNum + 'Limit',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -339,7 +358,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     //Channel Sends Tab
     channelOptionsTabs.push({
       type: 'tab',
-      id: 'tab' + singularName + mixNum + 'Sends',
+      id: 'tab' + singularName + channelNum + 'Sends',
       //Panel Style
       layout: 'vertical',
       scroll: false,
@@ -349,6 +368,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     });
   }
 
+  console.log('All Channels Page View');
   //Create 'ALL' Channels Page View
   let allPanelWidgets = [];
 
@@ -364,11 +384,12 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     colorText: '#ffffff',
     //css: "font-size:125%;",
     //Button Style
-    label: 'SEL',
+    label: 'SEL\nALL',
     //Scripting
     onValue: ''
   });
 
+  console.log('All button');
   //Volume All Panel
   allPanelWidgets.push({
     //Widget
@@ -392,7 +413,8 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
       //Style
       colorText: '#ffffff',
       //Value
-      default: 'ALL'
+      default: 'ALL\nPage',
+      value: 'ALL\nPage'
     },{
       //Widget
       type: 'fader',
@@ -438,6 +460,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     }]
   });
 
+  console.log('VolumeAll panel');
   //'Mute All' Button
   allPanelWidgets.push({
     //
@@ -450,7 +473,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     colorText: '#ffffff',
     //css: "font-size:125%;",
     //Button Style
-    label: 'MUTE',
+    label: 'MUTE\nALL',
     //Scripting
     onValue: ''
   });
@@ -467,7 +490,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     colorText: '#ffffff',
     //css: "font-size:125%;",
     //Button Style
-    label: 'set\n0 dB',
+    label: 'set ALL\n0 dB',
     //Button
     mode: 'momentary',
     //Scripting
@@ -486,13 +509,14 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
     colorText: '#ffffff',
     //css: "font-size:125%;",
     //Button Style
-    label: 'set\n-inf',
+    label: 'set ALL\n-inf',
     //Button
     mode: 'momentary',
     //Scripting
     onValue: `for(let i = ${channelMin}; i <= ${channelMax}; i++){set('fdr${singularName}' + i + 'Volume', 0)};`
   });
 
+  console.log('All buttons');
   allViewWidgets.push({
     type: 'panel',
     id:`pnlAll${singularName}All`,
@@ -508,6 +532,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
 
     widgets: allPanelWidgets
   });
+  console.log('adding widgets');
 
   for (let channelNum = channelMin; channelNum <= channelMax; channelNum++) {
     //
@@ -529,6 +554,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
       //Scripting
       onValue: ''
     });
+    console.log(`Individual Buttons ${channelNum}`);
 
     //Volume Panel
     channelPanelWidgets.push({
@@ -553,7 +579,8 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
         //Style
         colorText: '#ffffff',
         //Value
-        default: `${singularNameCaps}\n'${channelNum}`
+        default: `${singularNameCaps}\n${channelNum}`,
+        value: `${singularNameCaps}\n${channelNum}`
       },{
         //Widget
         type: 'fader',
@@ -598,6 +625,7 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
         decimals: 14
       }]
     });
+    console.log('Mute');
 
     //'Mute' Button
     channelPanelWidgets.push({
@@ -653,10 +681,11 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
       //Scripting
       onValue: `set('fdr${singularName}${channelNum}Volume', 0);`
     });
+    console.log('Before adding panel widgets');
 
     allViewWidgets.push({
       type: 'panel',
-      id:'pnlAll' + singularName + mixNum,
+      id:'pnlAll' + singularName + channelNum,
       //Geometry
       width: 60,
       //Style
@@ -667,8 +696,9 @@ function CreateChannelsPage( channelType, channelsPage, pageNum, channelsAmount,
       scroll: false,
       innerPadding: false,
 
-      widgets: mixPanelWidgets
+      widgets: channelPanelWidgets
     });
+    console.log('Adding panel widgets');
   }
 }
 
@@ -696,6 +726,7 @@ module.exports = {
             //console.log('Mixes on Page = ' + mixesOnPage);
             //console.log('Pages in Group = ' + pagesInGroup);
             CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGroup );
+            console.log('after func');
 
           } catch (e) {
 
