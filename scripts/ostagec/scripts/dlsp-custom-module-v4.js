@@ -43,12 +43,14 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
     console.log(`groupsLevels=${groupsLevels}`);
     let topLevelGroupsCount = Math.ceil( pagesAmount / Math.pow( pagesInGroup, groupsLevels ) );
     //if ( topLevelGroupsCount == 1 ) { groupsLevels-- };
+    receive(`/varUI${pluralName}GroupsLevels`, groupsLevels);
+    receive(`/varUI${pluralName}GroupsAmount`, groupsAmount);
     
     let fldrUIChannelsPages = {
         widgets: []
     };
 
-    for ( let pageNum = 1; pageNum <= pagesAmount; pageNum++ ) {
+    /*for ( let pageNum = 1; pageNum <= pagesAmount; pageNum++ ) {
 
         let tabNumFirst = (pageNum - 1)*channelsOnPage + 1;
         let tabNumLast =  Math.min(pageNum*channelsOnPage, channelsAmount);
@@ -64,7 +66,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                 label: `${tabNumFirst}-${tabNumLast}`
             }
         });
-    }
+    }*/
 
     receive( '/EDIT/MERGE', `fldrUI${pluralName}Pages`, fldrUIChannelsPages);
 
@@ -72,10 +74,42 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
     let pnlRowsGroupsWidgets = [];
     let currentLevelGroupsAmount = 0;
     console.log(`groupsAmount=${groupsAmount} pagesInGroup=${pagesInGroup}`);
+
     for ( let groupsLevel = groupsLevels; groupsLevel > 0; groupsLevel-- ) {
         //
+        let currentLevelGroupsButtons = [];
+
         currentLevelGroupsAmount = Math.ceil( pagesAmount / Math.pow( pagesInGroup, groupsLevel ) );
         console.log(`level ${groupsLevel}. ${currentLevelGroupsAmount} groups`);
+
+        fldrUIGroupsWidgets.push({
+            //
+            type: 'variable',
+            id: `varUI${pluralName}Lvl${groupsLevel}GroupsAmount`,
+            value: currentLevelGroupsAmount
+        });
+
+        fldrUIGroupsWidgets.push({
+            //
+            type: 'variable',
+            id: `varUI${pluralName}Lvl${groupsLevel}GroupSelected`,
+            value: 1
+        });
+
+        currentLevelGroupsButtons = [];
+
+        for ( let groupNum = 1; groupNum <= pagesInGroup; groupNum++ ) {
+            //
+            currentLevelGroupsButtons.push({
+                //
+                type: 'button',
+                id: `btn${pluralName}Group${groupsLevel}-${groupNum}`,
+                visible: "VAR{'visibility', 1}",
+                label: "VAR{'btnLabel', ''}",
+                wrap: 'soft'
+            });
+        }
+
         pnlRowsGroupsWidgets.push({
             //
             type: 'panel',
@@ -88,7 +122,9 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             justify: 'start',
             contain: true,
             scroll: false,
-            innerPadding: false
+            innerPadding: false,
+
+            widgets: currentLevelGroupsButtons
         });
     }
 
@@ -97,13 +133,15 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
         widgets: pnlRowsGroupsWidgets
     });
 
+    receive( '/EDIT/MERGE', `fldrUI${pluralName}Groups`, {
+        //
+        widgets: fldrUIGroupsWidgets
+    });
+
     if ( pagesAmount > 1 ) {//Several Pages Case
     
         if ( groupsAmount == 1 ) {//One Group Case
 
-            /*receive( '/EDIT/MERGE', `pnl${pluralName}RowsGroups`, {
-                widgets: []
-            });*/
             console.log('one group case');
             let pnlChannelsRowsPages = {
                 widgets: []
@@ -126,7 +164,6 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
 
             receive( '/EDIT/MERGE', `pnl${pluralName}RowsPages`, pnlChannelsRowsPages);
 
-            receive( `/varUI${pluralName}GroupsAmount`, groupsAmount);
             receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
             receive( `/varUI${pluralName}PageSelected`, 1);
 
@@ -134,19 +171,39 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
 
         } else {//Several Groups Case
 
-            channelsGroup = {
-            tabs: null
+            console.log('Several groups case');
+            let pnlChannelsRowsPages = {
+                widgets: []
             };
 
-            CreateChannelsGroupTab( channelType, channelsGroup, groupsLevels - 1, 1, channelsAmount, channelsAmount, channelsOnPage, pagesInGroup, 'tab' + pluralName + 'Group' );
+            for ( let pageNum = 1; pageNum <= pagesInGroup; pageNum++ ) {
+                
+                pnlChannelsRowsPages.widgets.push({
+                    
+                    type: 'button',
+                    id: `btn${pluralName}RowsPage${pageNum}`,
+                    label: "VAR{'btnLabel', ''}",
+                    onValue: `if(value==1){set('varUIInputsPageSelected', ${pageNum})}\n` +
+                    "setVar('scrUIInputsRowsUpdate', 'pagesSelect', true);\n" +
+                    "setVar('scrUIInputsRowsUpdate', 'row', true);\n" +
+                    "set('scrUIInputsRowsUpdate', 1);"
+                });
+                
+            }
 
-            receive('/EDIT/MERGE', 'pnl' + pluralName, channelsGroup);
+            receive( '/EDIT/MERGE', `pnl${pluralName}RowsPages`, pnlChannelsRowsPages);
+
+            receive( `/varUI${pluralName}GroupsAmount`, groupsAmount);
+            receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
+            receive( `/varUI${pluralName}PageSelected`, 1);
+
+            receive('/scrUIInputsRowsUpdate', 1);
         }
     } else {//One Page Case
         
         receive( `/varUI${pluralName}GroupsAmount`, 1);
-            receive( `/varUI${pluralName}PagesAmount`, 1);
-            receive( `/varUI${pluralName}PageSelected`, 1);
+        receive( `/varUI${pluralName}PagesAmount`, 1);
+        receive( `/varUI${pluralName}PageSelected`, 1);
 
         receive( '/EDIT/MERGE', `pnl${pluralName}RowsGroups`, {
             widgets: []
