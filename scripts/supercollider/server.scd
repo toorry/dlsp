@@ -83,7 +83,7 @@
 	~windowHeight = mainWindowHeight;
 	~windowWidth = mainWindowWidth;
 
-	~vuRate = 0.1;
+	~vmRate = 0.1;
 
 	s.options.numInputBusChannels = ~hwInputs;
 	s.options.numOutputBusChannels = ~hwOutputs;
@@ -463,13 +463,13 @@
 		item.put(\inCtrl, Bus.control(s, 1));
 		item.put(\out,Bus.audio(s,1));
 		item.put(\outCtrl, Bus.control(s, 1));
-		item.put(\fieldPan, Array.new(~fieldsAmount);
+		item.put(\fieldPan, Array.new(~fieldsAmount));
 		item[\fieldPan].do ({ arg item = Bus.audio(s, ~ambChansAmount)});
-		item.put(\fieldPanCtrl, Array.new(~fieldsAmount);
+		item.put(\fieldPanCtrl, Array.new(~fieldsAmount));
 		item[\fieldPanCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
-		item.put(\spacePan, Array.new(~spacesAmount);
+		item.put(\spacePan, Array.new(~spacesAmount));
 		item[\spacePan].do ({ arg item = Bus.audio(s, ~ambChansAmount)});
-		item.put(\spacePanCtrl, Array.new(~spacesAmount);
+		item.put(\spacePanCtrl, Array.new(~spacesAmount));
 		item[\spacePanCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
 		item.put(\outSendCtrl, Array.new(~outputsAmount));
 		item[\outSendCtrl].do ({ arg item = Bus.control(s, 1); });
@@ -489,9 +489,9 @@
 		item[\slotCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount); });
 		item.put(\out,Bus.audio(s,~ambChansAmount));
 		item.put(\outCtrl, Bus.control(s, ~ambChansAmount));
-		item.put(\spaceSendCtrl, Array.new(~spacesAmount);
+		item.put(\spaceSendCtrl, Array.new(~spacesAmount));
 		item[\spaceSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
-		item.put(\decSendCtrl, Array.new(~decodersAmount);
+		item.put(\decSendCtrl, Array.new(~decodersAmount));
 		item[\decSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
 		item.put(\outSendCtrl, Bus.control(s, ~ambChansAmount));
 		~buses[\field][num] = item;
@@ -510,7 +510,7 @@
 		item[\slotCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount); });
 		item.put(\out,Bus.audio(s,~ambChansAmount));
 		item.put(\outCtrl, Bus.control(s, ~ambChansAmount));
-		item.put(\decSendCtrl, Array.new(~decodersAmount);
+		item.put(\decSendCtrl, Array.new(~decodersAmount));
 		item[\decSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
 		item.put(\outSendCtrl, Bus.control(s, ~ambChansAmount));
 		~buses[\space][num] = item;
@@ -557,7 +557,7 @@
 	~inputsAmount.do({
 		arg num;
 		var input = Dictionary();
-		input.put(\bus, ~buses[\input][num];
+		input.put(\bus, ~buses[\input][num]);
 		~inputs[num] = input;
 	});
 	~inputs.postln;
@@ -569,7 +569,7 @@
 	~mixesAmount.do({
 		arg num;
 		var mix = Dictionary();
-		mix.put(\bus, ~buses[\mix][num];
+		mix.put(\bus, ~buses[\mix][num]);
 		~mixes[num] = mix;
 	});
 	~mixes.postln;
@@ -581,7 +581,7 @@
 	~pointsAmount.do({
 		arg num;
 		var point = Dictionary();
-		point.put(\bus, ~buses[\point][num];
+		point.put(\bus, ~buses[\point][num]);
 		~points[num] = point;
 	});
 	~points.postln;
@@ -592,7 +592,7 @@
 	~fieldsAmount.do({
 		arg num;
 		var field = Dictionary();
-		field.put(\bus, ~buses[\field][num];
+		field.put(\bus, ~buses[\field][num]);
 		~fields[num] = field;
 	});
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for Fields dictionary');
@@ -602,7 +602,7 @@
 	~spacesAmount.do({
 		arg num;
 		var space = Dictionary();
-		space.put(\bus, ~buses[\space][num];
+		space.put(\bus, ~buses[\space][num]);
 		~spaces[num] = space;
 	});
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for Spaces dictionary');
@@ -612,7 +612,7 @@
 	~decodersAmount.do({
 		arg num;
 		var decoder = Dictionary();
-		decoder.put(\bus, ~buses[\decoder][num];
+		decoder.put(\bus, ~buses[\decoder][num]);
 		~decoders[num] = space;
 	});
 
@@ -621,7 +621,7 @@
 	~outputsAmount.do({
 		arg num;
 		var output = Dictionary();
-		output.put(\bus, ~buses[\output][num];
+		output.put(\bus, ~buses[\output][num]);
 		~outputs[num] = output;
 	});
 	~outputs.postln;
@@ -827,20 +827,19 @@
 };
 
 ~initVM = {
-	~vm = Dictionary.new();
-	~vm.put(\rate, 0.2);
-	~vm.put(\hwIn, Array.new(~hwInputs));
-	~vm.put(\sources, Array.new(~sourcesAmount));
-	~vm.put(\inputs, Array.new(~inputsAmount));
-	~vm.put(\mixes, Array.new(~mixesAmount));
-	~vm.put(\points, Array.new(~pointsAmount));
-	~vm.put(\fields, Array.new(~fieldsAmount));
-	~vm.put(\spaces, Array.new(~spacesAmount));
-	~vm.put(\decoders, Array.new(~decodersAmount));
-	~vm.put(\outputs, Array.new(~outputsAmount));
-	~vm.put(\hwOut, Array.new(~hwOutputs));
+	~vm = List.newClear();
+	~vm.put(\hwIn, List.newClear()); //hwIn
+	~vm.put(\sources, List.newClear()); //Sources
+	~vm.put(\inputs, List.newClear());  //Inputs
+	~vm.put(\mixes, List.newClear()); //Mixes
+	~vm.put(\points, List.newClear()); //Points
+	~vm.put(\fields, List.newClear()); //Fields
+	~vm.put(\spaces, List.newClear()); //Spaces
+	~vm.put(\decoders, List.newClear()); //Decoders
+	~vm.put(\outputs, List.newClear()); //Outputs
+	~vm.put(\hwOut, List.newClear()); //hwOut
 
-	~inputsAmount.do {
+	~vm[\inputs].do ({
 		arg item;
 		~vm[\inputs][item] = Dictionary.new();
 		~vm[\inputs][item].put(\in, 0);
@@ -852,56 +851,48 @@
 		~vm[\inputs][item].put(\limit, 0);
 		~vm[\inputs][item].put(\outPre, 0);
 		~vm[\inputs][item].put(\out, 0);
-		~vm[\inputs][item].put(\mixSendsPre, Array.newClear(~mixesAmount));
-		~vm[\inputs][item].put(\mixSends, Array.newClear(~mixesAmount));
-		~vm[\inputs][item].put(\pointSendsPre, Array.newClear(~pointsAmount));
-		~vm[\inputs][item].put(\pointSends, Array.newClear(~pointsAmount));
-		~vm[\inputs][item].put(\outSendsPre, Array.newClear(~outputsAmount));
-		~vm[\inputs][item].put(\outSends, Array.newClear(~outputsAmount));
-	};
+		~vm[\inputs][item].put(\mixSendsPre, List.newClear());
+		~vm[\inputs][item].put(\mixSends, List.newClear());
+		~vm[\inputs][item].put(\pointSendsPre, List.newClear());
+		~vm[\inputs][item].put(\pointSends, List.newClear());
+		~vm[\inputs][item].put(\outSendsPre, List.newClear());
+		~vm[\inputs][item].put(\outSends, List.newClear());
+	});
 
-	~vu[\mixes].put(\in, Dictionary.new());
-	~vu[\mixes].put(\eq, Dictionary.new());
-	~vu[\mixes].put(\com, Dictionary.new());
-	~vu[\mixes].put(\ins, Dictionary.new());
-	~vu[\mixes].put(\limit, Dictionary.new());
-	~vu[\mixes].put(\outPre, Dictionary.new());
-	~vu[\mixes].put(\out, Dictionary.new());
-	~vu[\mixes].put(\in, Dictionary.new());
-
-	~vu[\hwIn].put(\track, Array.new(~hwInputs);
-	~vu[\hwIn].put(\vu, Array.newClear(~hwInputs));
-	~vu[\inputs].put(\track, Array.new(~inputsAmount));
-	~vu[\inputs].put(\vu, Array.newClear(~inputsAmount));
-	~vu[\mixes].put(\track, Array.new(~mixesAmount));
-	~vu[\mixes].put(\vu, Array.newClear(~mixesAmount));
-	~vu[\points].put(\track, Array.new(~pointsAmount));
-	~vu[\points].put(\vu, Array.newClear(~pointsAmount));
-	~vu[\fields].put(\track, Array.new(~fieldsAmount));
-	~vu[\fields].put(\vu, Array.newClear(~fieldsAmount));
-	~vu[\spaces].put(\track, Array.new(~spacesAmount));
-	~vu[\spaces].put(\vu, Array.newClear(~spacesAmount));
-	~vu[\decoders].put(\track, Array.new(~decodersAmount));
-	~vu[\decoders].put(\vu, Array.newClear(~decodersAmount));
-	~vu[\outputs].put(\track, Array.new(~outputsAmount));
-	~vu[\outputs].put(\vu, Array.newClear(~outputsAmount));
-	~vu[\hwOut].put(\track, Array.new(~hwOutputs));
-	~vu[\hwOut].put(\vu, Array.newClear(~hwOutputs));
-	~vu.postln;
+	~vm.postln;
 };
 
-~vuSend = Routine {
+~vmSend = Routine {
 	var value;
 	loop {
-		~vu[\inputs][\in][\toTrack].asString.post;
-		~vu[\inputs][\in][\toTrack].do({
+		~vm[\inputs][\in][\toTrack].asString.post;
+		~vm[\inputs][\in][\toTrack].do({
 			arg item;
-			~vu[\inputs][\in][\vu][item] =
+			~vm[\inputs][\in][\vu][item] =
 			~buses[\input][item][\inCtrl].getSynchronous.abs;
-			~ostagec.sendMsg('/vu', 'in', item, 'out', ~vu[\inputs][\in][\vu][item]);
+			~ostagec.sendMsg('/vu', 'in', item, 'out', ~vm[\inputs][\in][\vu][item]);
 		});
-		~vu[\inputs][\vu].postln;
-		~vuRate.wait;
+		~vm[\inputs][\vu].postln;
+		~vm.keys.do ({
+			arg chanType;
+			~vm[\chanType].do ({
+				arg channel;
+				channel.keys.do ({
+					arg busType;
+					switch (busType,
+						\in, {
+							//
+						},
+						\mixSends, {
+							channel[busType].do ({
+								//
+							});
+						},
+					);
+				});
+			});
+		});
+		~vmRate.wait;
 	};
 };
 

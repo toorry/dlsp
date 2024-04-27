@@ -90,3 +90,14 @@ FreqScope.new(400, 200, 0, server: s);
 
 // all harmonics
 { Blip.ar(200, Line.kr(1, 100, 10), 0.2) }.play(s);
+
+
+
+//
+~dict1 = Dictionary.newClear();
+~dict1.put(\key1,'value1');
+~dict1.put(\key2,'value2');
+~dict1.do({
+	arg item;
+	item.postln;
+});
