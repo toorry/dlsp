@@ -154,10 +154,11 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                     type: 'button',
                     id: `btn${pluralName}RowsPage${pageNum}`,
                     label: "VAR{'btnLabel', ''}",
-                    onValue: `if(value==1){set('varUIInputsPageSelected', ${pageNum})}\n` +
-                    "setVar('scrUIInputsRowsUpdate', 'pagesSelect', true);\n" +
-                    "setVar('scrUIInputsRowsUpdate', 'row', true);\n" +
-                    "set('scrUIInputsRowsUpdate', 1);"
+                    onValue: `if(value==1){\n  set('varUIInputsPageSelected', ${pageNum});\n` +
+                    `  setVar('pnlInputsRows', 'currentPage', ${pageNum});\n` +
+                    "  setVar('scrUIInputsRowsUpdate', 'pagesSelect', true);\n" +
+                    "  setVar('scrUIInputsRowsUpdate', 'row', true);\n" +
+                    "  set('scrUIInputsRowsUpdate', 1);\n}"
                 });
                 
             }
@@ -183,10 +184,11 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                     type: 'button',
                     id: `btn${pluralName}RowsPage${pageNum}`,
                     label: "VAR{'btnLabel', ''}",
-                    onValue: `if(value==1){set('varUIInputsPageSelected', ${pageNum})}\n` +
-                    "setVar('scrUIInputsRowsUpdate', 'pagesSelect', true);\n" +
-                    "setVar('scrUIInputsRowsUpdate', 'row', true);\n" +
-                    "set('scrUIInputsRowsUpdate', 1);"
+                    onValue: `if(value==1){\n  set('varUIInputsPageSelected', ${pageNum});\n` +
+                    `  setVar('pnlInputsRows', 'currentPage', ${pageNum});\n` +
+                    "  setVar('scrUIInputsRowsUpdate', 'pagesSelect', true);\n" +
+                    "  setVar('scrUIInputsRowsUpdate', 'row', true);\n" +
+                    "  set('scrUIInputsRowsUpdate', 1);\n}"
                 });
                 
             }
@@ -332,6 +334,29 @@ function CreateChannelsPage( channelType, pageWidgets, channelsOnPage ) {
     for (let channelNum = 1; channelNum <= channelsOnPage; channelNum++) {
         //
         let channelPanelWidgets = [];
+
+        //'Open' Button
+        channelPanelWidgets.push({
+          //
+          type: 'button',
+          id: `btnUIRow${singularName}${channelNum}Open`,
+          //Geometry
+          width: 60,
+          height: 50,
+          //Style
+          colorText: '#ffffff',
+          //css: "font-size:125%;",
+          //Button Style
+          label: 'OPEN',
+          //Button
+          mode: 'momentary',
+          //Scripting
+          onValue: "setVar('pnlInputsToolbar','visibility',0);\n"+
+            "set('btnInputsShowRows',0);\n"+
+            "setVar('pnlInputOptions','visibility',1);\n"+
+            "setVar('pnlInputSelectedTop','visibility',1);\n"+
+            `set('inpInputSelected',(getVar('pnlInputsRows','currentPage')-1)*${channelsOnPage}+${channelNum});`
+        });
 
         //'Select' Button
         channelPanelWidgets.push({

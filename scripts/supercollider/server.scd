@@ -30,8 +30,8 @@
 	~windowHeight;
 	~windowWidth;
 
-	~vu;
-	~vuRate;
+	~vm;
+	~vmRate;
 };
 
 ~bootConfig = {
@@ -826,43 +826,39 @@
 	//s.sync();
 };
 
-~initVU = {
-	~vu = Dictionary.new();
-	~vu.put(\rate, 0.2);
-	~vu.put(\hwIn, Dictionary.new());
-	~vu.put(\sources, Dictionary.new());
-	~vu.put(\inputs, Dictionary.new());
-	~vu.put(\mixes, Dictionary.new());
-	~vu.put(\points, Dictionary.new());
-	~vu.put(\fields, Dictionary.new());
-	~vu.put(\spaces, Dictionary.new());
-	~vu.put(\decoders, Dictionary.new());
-	~vu.put(\outputs, Dictionary.new());
-	~vu.put(\hwOut, Dictionary.new());
+~initVM = {
+	~vm = Dictionary.new();
+	~vm.put(\rate, 0.2);
+	~vm.put(\hwIn, Array.new(~hwInputs));
+	~vm.put(\sources, Array.new(~sourcesAmount));
+	~vm.put(\inputs, Array.new(~inputsAmount));
+	~vm.put(\mixes, Array.new(~mixesAmount));
+	~vm.put(\points, Array.new(~pointsAmount));
+	~vm.put(\fields, Array.new(~fieldsAmount));
+	~vm.put(\spaces, Array.new(~spacesAmount));
+	~vm.put(\decoders, Array.new(~decodersAmount));
+	~vm.put(\outputs, Array.new(~outputsAmount));
+	~vm.put(\hwOut, Array.new(~hwOutputs));
 
-	~vu[\inputs].put(\in, Dictionary.new());
-	~vu[\inputs].put(\gain, Dictionary.new());
-	~vu[\inputs].put(\gate, Dictionary.new());
-	~vu[\inputs].put(\eq, Dictionary.new());
-	~vu[\inputs].put(\comp, Dictionary.new());
-	~vu[\inputs].put(\ins, Dictionary.new());
-	~vu[\inputs].put(\limit, Dictionary.new());
-	~vu[\inputs].put(\outPre, Dictionary.new());
-	~vu[\inputs].put(\out, Dictionary.new());
-	~vu[\inputs].put(\mixSends, Dictionary.new());
-	~vu[\inputs].put(\pointSends, Dictionary.new());
-	~vu[\inputs].put(\outSends, Dictionary.new());
-	~vu[\inputs].do {
+	~inputsAmount.do {
 		arg item;
-		item.put(\track, Array.new(~inputsAmount));
-		item.put(\vu, Array.new(~inputsAmount));
+		~vm[\inputs][item] = Dictionary.new();
+		~vm[\inputs][item].put(\in, 0);
+		~vm[\inputs][item].put(\gain, 0);
+		~vm[\inputs][item].put(\gate, 0);
+		~vm[\inputs][item].put(\eq, 0);
+		~vm[\inputs][item].put(\comp, 0);
+		~vm[\inputs][item].put(\ins, 0);
+		~vm[\inputs][item].put(\limit, 0);
+		~vm[\inputs][item].put(\outPre, 0);
+		~vm[\inputs][item].put(\out, 0);
+		~vm[\inputs][item].put(\mixSendsPre, Array.newClear(~mixesAmount));
+		~vm[\inputs][item].put(\mixSends, Array.newClear(~mixesAmount));
+		~vm[\inputs][item].put(\pointSendsPre, Array.newClear(~pointsAmount));
+		~vm[\inputs][item].put(\pointSends, Array.newClear(~pointsAmount));
+		~vm[\inputs][item].put(\outSendsPre, Array.newClear(~outputsAmount));
+		~vm[\inputs][item].put(\outSends, Array.newClear(~outputsAmount));
 	};
-	~vu[\inputs][\mixSends][\track].do { arg item = Array.new(~mixesAmount); };
-	~vu[\inputs][\mixSends][\vu].do { arg item = Array.newClear(~mixesAmount); };
-	~vu[\inputs][\pointSends][\track].do { arg item = Array.new(~pointsAmount); };
-	~vu[\inputs][\pointSends][\vu].do { arg item = Array.newClear(~pointsAmount); };
-	~vu[\inputs][\outSends][\track].do { arg item = Array.new(~outputsAmount); };
-	~vu[\inputs][\outSends][\vu].do { arg item = Array.newClear(~outputsAmount); };
 
 	~vu[\mixes].put(\in, Dictionary.new());
 	~vu[\mixes].put(\eq, Dictionary.new());
