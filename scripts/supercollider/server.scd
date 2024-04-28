@@ -32,6 +32,51 @@
 
 	~vm;
 	~vmRate;
+
+	~defaultValues = Dictionary.new();
+
+	~defaultValues.put( \inGain, Dictionary.new() );
+	~defaultValues[\inGain].put( \gain, 1.0 );
+
+	~defaultValues.put( \inGate, Dictionary.new() );
+	~defaultValues[\inGate].put( \threshold, 0.01 );
+	~defaultValues[\inGate].put( \ratio, 10 );
+	~defaultValues[\inGate].put( \attack, 0.01 );
+	~defaultValues[\inGate].put( \release, 0.01 );
+	~defaultValues[\inGate].put( \dryWet, 1.0 );
+
+	~defaultValues.put( \inEQ, Dictionary.new() );
+
+	~defaultValues[\inEQ].put( \lowCutOn, 0 );
+	~defaultValues[\inEQ].put( \lowCutFreq, 100 );
+	~defaultValues[\inEQ].put( \lowShelfOn, 1 );
+	~defaultValues[\inEQ].put( \lowShelfFreq, 250 );
+	~defaultValues[\inEQ].put( \lowShelfQ, 1.0 );
+	~defaultValues[\inEQ].put( \lowShelfGain, 0 );
+	~defaultValues[\inEQ].put( \band1On, 1 );
+	~defaultValues[\inEQ].put( \band1Freq, 250 );
+	~defaultValues[\inEQ].put( \band1Q, 1.0 );
+	~defaultValues[\inEQ].put( \band1Gain, 0 );
+	~defaultValues[\inEQ].put( \band2On, 1 );
+	~defaultValues[\inEQ].put( \band2Freq, 600 );
+	~defaultValues[\inEQ].put( \band2Q, 1.0 );
+	~defaultValues[\inEQ].put( \band2Gain, 0 );
+	~defaultValues[\inEQ].put( \band3On, 1 );
+	~defaultValues[\inEQ].put( \band3Freq, 1500 );
+	~defaultValues[\inEQ].put( \band3Q, 1.0 );
+	~defaultValues[\inEQ].put( \band3Gain, 0 );
+	~defaultValues[\inEQ].put( \band4On, 1 );
+	~defaultValues[\inEQ].put( \band4Freq, 4000 );
+	~defaultValues[\inEQ].put( \band4Q, 1.0 );
+	~defaultValues[\inEQ].put( \band4Gain, 0 );
+	~defaultValues[\inEQ].put( \hiShelfOn, 1 );
+	~defaultValues[\inEQ].put( \hiShelfFreq, 4000 );
+	~defaultValues[\inEQ].put( \hiShelfQ, 1.0 );
+	~defaultValues[\inEQ].put( \hiShelfGain, 0 );
+	~defaultValues[\inEQ].put( \hiCutOn, 0 );
+	~defaultValues[\inEQ].put( \hiCutFreq, 10000 );
+	~defaultValues[\inEQ].put( \dryWet, 1.0 );
+
 };
 
 ~bootConfig = {
@@ -83,7 +128,7 @@
 	~windowHeight = mainWindowHeight;
 	~windowWidth = mainWindowWidth;
 
-	~vmRate = 0.1;
+	~vmRate = 0.5;
 
 	s.options.numInputBusChannels = ~hwInputs;
 	s.options.numOutputBusChannels = ~hwOutputs;
@@ -122,10 +167,10 @@
 		~initSynths.value;
 		s.sync();
 		//1.0.wait;
-		~initVU.value;
+		~initVM.value;
 		s.sync();
-		'starting vuMeter'.postln;
-		~vuSend.play;
+		'starting VolumeMeter'.postln;
+		~vmSend.play;
 	});
 };
 
@@ -164,14 +209,14 @@
 
 	SynthDef(\inEQ, {
 		arg busIn, busOut, busOutCtrl,
-		lowCutOn = 1.0, lowCutFreq = 100,
-		lowShelfOn = 1.0, lowShelfFreq = 250, lowShelfQ = 1.0, lowShelfGain = 0,
-		band1On = 1.0, band1Freq = 250, band1Q = 1.0, band1Gain = 0,
-		band2On = 1.0, band2Freq = 600, band2Q = 1.0, band2Gain = 0,
-		band3On = 1.0, band3Freq = 1500, band3Q = 1.0, band3Gain = 0,
-		band4On = 1.0, band4Freq = 4000, band4Q = 1.0, band4Gain = 0,
-		hiShelfOn = 1.0, hiShelfFreq = 4000, hiShelfQ = 1.0, hiShelfGain = 0,
-		hiCutOn = 1.0, hiCutFreq = 10000,
+		lowCutOn = 0, lowCutFreq = 100,
+		lowShelfOn = 1, lowShelfFreq = 250, lowShelfQ = 1.0, lowShelfGain = 0,
+		band1On = 1, band1Freq = 250, band1Q = 1.0, band1Gain = 0,
+		band2On = 1, band2Freq = 600, band2Q = 1.0, band2Gain = 0,
+		band3On = 1, band3Freq = 1500, band3Q = 1.0, band3Gain = 0,
+		band4On = 1, band4Freq = 4000, band4Q = 1.0, band4Gain = 0,
+		hiShelfOn = 1, hiShelfFreq = 4000, hiShelfQ = 1.0, hiShelfGain = 0,
+		hiCutOn = 0, hiCutFreq = 10000,
 		dryWet = 1.0;
 		var sigIn, sigOut;
 
@@ -191,33 +236,48 @@
 	}).add;
 
 	SynthDef(\inDynEQ, {
-			arg busIn, busOut, busOutCtrl, busCtrl1, busCtrl2,
-			band1On = 1.0, band1Freq = 800, band1Q = 1.0, band1Treshold = 0.25, band1Attack = 0.1, band1Ratio = 1.0,
-			band2On = 1.0, band2Freq = 800, band2Q = 1.0, band2Treshold = 0.25, band2Attack = 0.1, band2Ratio = 1.0,
-			dryWet = 1.0;
-			var sigIn, sigOut, sigCtrl1,sigCtrl2, band1db, band2db;
+		arg busIn, busOut, busOutCtrl, busCtrl1, busCtrl2,
+		band1On = 1, band1Freq = 800, band1Q = 1.0, band1Treshold = 0.25, band1Attack = 0.1, band1Ratio = 1.0,
+		band2On = 1, band2Freq = 800, band2Q = 1.0, band2Treshold = 0.25, band2Attack = 0.1, band2Ratio = 1.0,
+		dryWet = 1.0;
+		var sigIn, sigInCtrl, sigOut, sigCtrl1, sigCtrl2, sigEdit, band1db, band2db;
 
-			sigIn = In.ar( busIn,1 );
+		sigIn = In.ar( busIn, 1 );
+		sigInCtrl = In.kr( busIn, 1 );
 
-			sigCtrl1 = BPF.kr( in: sigIn, freq: band1Freq, rq: band1Q );
-			sigCtrl2 = BPF.kr( in: sigIn, freq: band2Freq, rq: band2Q );
+		sigCtrl1 = BPF.kr( in: sigInCtrl, freq: band1Freq, rq: band1Q );
+		sigCtrl2 = BPF.kr( in: sigInCtrl, freq: band2Freq, rq: band2Q );
 
-			if(sigCtrl1 > band1Treshold) {
-				band1db = Lag.kr( in: ( sigCtrl1.abs - band1Treshold) / band1Ratio, lagTime: band1Attack );
-			}
-			{ band1db = 0; };
-			if(sigCtrl2 > band2Treshold) {
-				band2db = Lag.kr( in: ( sigCtrl2.abs - band2Treshold) / band2Ratio, lagTime: band2Attack );
-			}
+		//trig1 = Amplitude.kr(sigInCtrl) > band1Treshold;
+
+		band1db = Lag.kr( in: ( sigCtrl1.abs - band1Treshold) / band1Ratio, lagTime: band1Attack );
+		band2db = Lag.kr( in: ( sigCtrl2.abs - band2Treshold) / band2Ratio, lagTime: band2Attack );
+
+		sigOut = sigIn;
+		sigEdit = MidEQ.ar( in: sigIn, freq: band1Freq, rq: band1Q, db: K2A.ar(band1db), mul: band1On );
+
+		sigOut = Select.ar( sigCtrl1.abs > band1Treshold, [ sigEdit, sigOut ] );
+
+		sigEdit = MidEQ.ar( in: sigOut, freq: band2Freq, rq: band2Q, db: K2A.ar(band2db), mul: band2On );
+
+		sigOut = Select.ar( sigCtrl2.abs > band2Treshold, [ sigEdit, sigOut ]	);
+
+		/*if(trig1, //
+			{ band1db = Lag.kr( in: ( sigCtrl1.abs - band1Treshold) / band1Ratio, lagTime: band1Attack ); },
+			{ band1db = 0; }
+		);
+		if(1 > 0, //sigCtrl2 > band2Treshold
+			{ band2db = Lag.kr( in: ( sigCtrl2.abs - band2Treshold) / band2Ratio, lagTime: band2Attack ); },
 			{ band2db = 0; };
+		);
 
-			sigOut = MidEQ.ar( in: sigIn, freq: band1Freq, rq: band1Q, db: band1db, mul: band1On );
-			sigOut = MidEQ.ar( in: sigOut, freq: band2Freq, rq: band2Q, db: band2db, mul: band2On );
-			sigOut = sigIn * (1 - dryWet) + sigOut * dryWet;
+		sigOut = MidEQ.ar( in: sigIn, freq: band1Freq, rq: band1Q, db: band1db, mul: band1On );
+		sigOut = MidEQ.ar( in: sigOut, freq: band2Freq, rq: band2Q, db: band2db, mul: band2On );*/
+		sigOut = sigIn * (1 - dryWet) + sigOut * dryWet;
 
-			Out.ar( busOut, sigOut );
-			Out.kr( busOutCtrl, sigOut );
-		}).add;
+		Out.ar( busOut, sigOut );
+		Out.kr( busOutCtrl, sigOut );
+	}).add;
 
 	SynthDef(\inComp, {
 			arg busIn, busOut, busOutCtrl,
@@ -258,7 +318,7 @@
 		}).add;
 
 	SynthDef(\chanSend, {
-			arg busIn, busOut, busOutCtrl, volume = 1.0, unmute = 1.0;
+			arg busIn, busOut, busOutCtrl, volume = 1.0, unmute = 0;
 			var sig;
 
 			sig = In.ar( busIn, 1 );
@@ -370,12 +430,10 @@
 	~buses.put(\output, Array.newClear(~outputsAmount));
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for buses dictionary');
 	//s.sync();
-	~buses[\hwIn].do {
-		arg item;
-		item = Dictionary.new();
-	};
+
 	~hwInputs.do ({
 		arg num;
+		~buses[\hwIn][num] = Dictionary.new();
 		~buses[\hwIn][num].put(\in, ~hwOutputs + num);
 		~buses[\hwIn][num].put(\inCtrl, Bus.control(s, 1));
 		~buses[\hwIn][num].put(\out, Bus.audio(s, 1));
@@ -384,12 +442,10 @@
 	~buses[\hwIn].postln;
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for hwInputs buses');
 	//s.sync();
-	~buses[\hwOut].do {
-		arg item;
-		item = Dictionary.new();
-	};
+
 	~hwOutputs.do ({
 		arg num;
+		~buses[\hwOut][num] = Dictionary.new();
 		~buses[\hwOut][num].put(\in, Bus.audio(s, 1));
 		~buses[\hwOut][num].put(\inCtrl, Bus.control(s, 1));
 		~buses[\hwOut][num].put(\out, num);
@@ -409,6 +465,10 @@
 		item.put(\gateCtrl, Bus.control(s, 1));
 		item.put(\eq,Bus.audio(s,1));
 		item.put(\eqCtrl, Bus.control(s, 1));
+		item.put(\dynEQ,Bus.audio(s,1));
+		item.put(\dynEQCtrl, Bus.control(s, 1));
+		item.put(\dynEQCtrl1, Bus.control(s, 1));
+		item.put(\dynEQCtrl2, Bus.control(s, 1));
 		item.put(\comp,Bus.audio(s,1));
 		item.put(\compCtrl, Bus.control(s, 1));
 		item.put(\ins,Bus.audio(s,1));
@@ -437,6 +497,10 @@
 		item.put(\inCtrl, Bus.control(s, 1));
 		item.put(\eq,Bus.audio(s,1));
 		item.put(\eqCtrl, Bus.control(s, 1));
+		item.put(\dynEQ,Bus.audio(s,1));
+		item.put(\dynEQCtrl, Bus.control(s, 1));
+		item.put(\dynEQCtrl1, Bus.control(s, 1));
+		item.put(\dynEQCtrl2, Bus.control(s, 1));
 		item.put(\comp,Bus.audio(s,1));
 		item.put(\compCtrl, Bus.control(s, 1));
 		item.put(\ins,Bus.audio(s,1));
@@ -464,13 +528,13 @@
 		item.put(\out,Bus.audio(s,1));
 		item.put(\outCtrl, Bus.control(s, 1));
 		item.put(\fieldPan, Array.new(~fieldsAmount));
-		item[\fieldPan].do ({ arg item = Bus.audio(s, ~ambChansAmount)});
+		item[\fieldPan].do ({ arg item = Bus.audio(s, ~ambChansAmount); });
 		item.put(\fieldPanCtrl, Array.new(~fieldsAmount));
-		item[\fieldPanCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item[\fieldPanCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount); });
 		item.put(\spacePan, Array.new(~spacesAmount));
-		item[\spacePan].do ({ arg item = Bus.audio(s, ~ambChansAmount)});
+		item[\spacePan].do ({ arg item = Bus.audio(s, ~ambChansAmount); });
 		item.put(\spacePanCtrl, Array.new(~spacesAmount));
-		item[\spacePanCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item[\spacePanCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount); });
 		item.put(\outSendCtrl, Array.new(~outputsAmount));
 		item[\outSendCtrl].do ({ arg item = Bus.control(s, 1); });
 		~buses[\point][num]=item;
@@ -490,9 +554,9 @@
 		item.put(\out,Bus.audio(s,~ambChansAmount));
 		item.put(\outCtrl, Bus.control(s, ~ambChansAmount));
 		item.put(\spaceSendCtrl, Array.new(~spacesAmount));
-		item[\spaceSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item[\spaceSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount); });
 		item.put(\decSendCtrl, Array.new(~decodersAmount));
-		item[\decSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item[\decSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount); });
 		item.put(\outSendCtrl, Bus.control(s, ~ambChansAmount));
 		~buses[\field][num] = item;
 	});
@@ -511,7 +575,7 @@
 		item.put(\out,Bus.audio(s,~ambChansAmount));
 		item.put(\outCtrl, Bus.control(s, ~ambChansAmount));
 		item.put(\decSendCtrl, Array.new(~decodersAmount));
-		item[\decSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount)});
+		item[\decSendCtrl].do ({ arg item = Bus.control(s, ~ambChansAmount); });
 		item.put(\outSendCtrl, Bus.control(s, ~ambChansAmount));
 		~buses[\space][num] = item;
 	});
@@ -557,7 +621,28 @@
 	~inputsAmount.do({
 		arg num;
 		var input = Dictionary();
-		input.put(\bus, ~buses[\input][num]);
+		input.put(\busIn, ~buses[\input][num][\in]);
+		input.put(\busInCtrl, ~buses[\input][num][\inCtrl]);
+		input.put(\busGain, ~buses[\input][num][\gain]);
+		input.put(\busGainCtrl, ~buses[\input][num][\gainCtrl]);
+		input.put(\busGate, ~buses[\input][num][\gate]);
+		input.put(\busGateCtrl, ~buses[\input][num][\gateCtrl]);
+		input.put(\busEQ, ~buses[\input][num][\eq]);
+		input.put(\busEQCtrl, ~buses[\input][num][\eqCtrl]);
+		input.put(\busDynEQ, ~buses[\input][num][\dynEQ]);
+		input.put(\busDynEQCtrl, ~buses[\input][num][\dynEQCtrl]);
+		input.put(\busDynEQCtrl1, ~buses[\input][num][\dynEQCtrl1]);
+		input.put(\busDynEQCtrl2, ~buses[\input][num][\dynEQCtrl2]);
+		input.put(\busComp, ~buses[\input][num][\comp]);
+		input.put(\busCompCtrl, ~buses[\input][num][\compCtrl]);
+		input.put(\busIns, ~buses[\input][num][\ins]);
+		input.put(\busInsLimit, ~buses[\input][num][\insCtrl]);
+		input.put(\busLimit, ~buses[\input][num][\limit]);
+		input.put(\busLimitCtrl, ~buses[\input][num][\limit]);
+		input.put(\busOutPre, ~buses[\input][num][\outPre]);
+		input.put(\busOutPreCtrl, ~buses[\input][num][\outPreCtrl]);
+		input.put(\busOut, ~buses[\input][num][\out]);
+		input.put(\busOutCtrl, ~buses[\input][num][\outCtrl]);
 		~inputs[num] = input;
 	});
 	~inputs.postln;
@@ -569,7 +654,7 @@
 	~mixesAmount.do({
 		arg num;
 		var mix = Dictionary();
-		mix.put(\bus, ~buses[\mix][num]);
+		mix.put(\busIn, ~buses[\mix][num][\in]);
 		~mixes[num] = mix;
 	});
 	~mixes.postln;
@@ -613,7 +698,7 @@
 		arg num;
 		var decoder = Dictionary();
 		decoder.put(\bus, ~buses[\decoder][num]);
-		~decoders[num] = space;
+		~decoders[num] = decoder;
 	});
 
 	//Initialise OUTPUTS
@@ -697,11 +782,82 @@
 	~inputsAmount.do({
 		arg num;
 		var item = ~inputs[num];
+
+		item.put('synthGain', Synth(\inGain,
+			[\busIn, item[\busIn],
+				\busOut, item[\busGain],
+				\busOutCtrl, item[\busGainCtrl]
+			],
+			~grpInput[num],
+			\addToTail)
+		);
+		item.put('synthGate', Synth(\inGate,
+			[\busIn, item[\busGain],
+				\busOut, item[\busGate],
+				\busOutCtrl, item[\busGateCtrl],
+			],
+			~grpInput[num],
+			\addToTail)
+		);
+		item.put('synthEQ', Synth(\inEQ,
+			[\busIn, item[\busGate],
+				\busOut, item[\busEQ],
+				\busOutCtrl, item[\busEQCtrl]
+			],
+			~grpInput[num],
+			\addToTail)
+		);
+		item.put('synthDynEQ', Synth(\inDynEQ,
+			[\busIn, item[\busEQ],
+				\busOut, item[\busDynEQ],
+				\busOutCtrl, item[\busDynEQCtrl],
+				\busCtrl1, item[\busDynEQCtrl1],
+				\busCtrl2, item[\busDynEQCtrl2]
+			],
+			~grpInput[num],
+			\addToTail)
+		);
+		item.put('synthComp', Synth(\inComp,
+			[\busIn, item[\busDynEQ],
+				\busOut, item[\busComp],
+				\busOutCtrl, item[\busCompCtrl]
+			],
+			~grpInput[num],
+			\addToTail)
+		);
+		item.put('synthLimit', Synth(\inLimit,
+			[\busIn, item[\busComp],
+				\busOut, item[\busLimit],
+				\busOutCtrl, item[\busLimitCtrl]
+			],
+			~grpInput[num],
+			\addToTail)
+		);
+
+		item.put('synthOut', Synth(\chanOut,
+			[\busIn, item[\busLimit],
+				\busOutPre, item[\busOutPre],
+				\busOutPreCtrl, item[\busOutPreCtrl],
+				\busOut, item[\busOut],
+				\busOutCtrl, item[\busOutCtrl]
+			],
+			~grpInput[num],
+			\addToTail)
+		);
+
 		~mixesAmount.do({
 			arg count;
-			var name = 'mix' ++ count ++ 'sendSynth';
-			item.put(name, Synth(\outVolume,
-				[\busIn, item.at(\busIn),
+
+			item.put('synthSendPreMix' ++ count, Synth(\chanSend,
+				[\busIn, item[\busOutPre],
+					\busOut, ~mixes[count][\busIn],
+					\busOutCtrl, ~mixes[count][\busInCtrl]
+				],
+				~grpInput[num],
+				\addToTail)
+			);
+			item.put('synthSendMix' ++ count, Synth(\chanSend,
+				[\busIn, item[\busOut],
 					\busOut, ~mixes[count][\busIn],
 					\busOutCtrl, ~mixes[count][\busInCtrl]
 				],
@@ -827,64 +983,61 @@
 };
 
 ~initVM = {
-	~vm = List.newClear();
-	~vm.put(\hwIn, List.newClear()); //hwIn
-	~vm.put(\sources, List.newClear()); //Sources
-	~vm.put(\inputs, List.newClear());  //Inputs
-	~vm.put(\mixes, List.newClear()); //Mixes
-	~vm.put(\points, List.newClear()); //Points
-	~vm.put(\fields, List.newClear()); //Fields
-	~vm.put(\spaces, List.newClear()); //Spaces
-	~vm.put(\decoders, List.newClear()); //Decoders
-	~vm.put(\outputs, List.newClear()); //Outputs
-	~vm.put(\hwOut, List.newClear()); //hwOut
+	~vm = Dictionary.new();
+	~vm.put(\hwIn, Dictionary.new()); //hwIn
+	~vm.put(\sources, Dictionary.new()); //Sources
+	~vm.put(\inputs, Dictionary.new());  //Inputs
+	~vm.put(\mixes, Dictionary.new()); //Mixes
+	~vm.put(\points, Dictionary.new()); //Points
+	~vm.put(\fields, Dictionary.new()); //Fields
+	~vm.put(\spaces, Dictionary.new()); //Spaces
+	~vm.put(\decoders, Dictionary.new()); //Decoders
+	~vm.put(\outputs, Dictionary.new()); //Outputs
+	~vm.put(\hwOut, Dictionary.new()); //hwOut
 
-	~vm[\inputs].do ({
-		arg item;
-		~vm[\inputs][item] = Dictionary.new();
-		~vm[\inputs][item].put(\in, 0);
-		~vm[\inputs][item].put(\gain, 0);
-		~vm[\inputs][item].put(\gate, 0);
-		~vm[\inputs][item].put(\eq, 0);
-		~vm[\inputs][item].put(\comp, 0);
-		~vm[\inputs][item].put(\ins, 0);
-		~vm[\inputs][item].put(\limit, 0);
-		~vm[\inputs][item].put(\outPre, 0);
-		~vm[\inputs][item].put(\out, 0);
-		~vm[\inputs][item].put(\mixSendsPre, List.newClear());
-		~vm[\inputs][item].put(\mixSends, List.newClear());
-		~vm[\inputs][item].put(\pointSendsPre, List.newClear());
-		~vm[\inputs][item].put(\pointSends, List.newClear());
-		~vm[\inputs][item].put(\outSendsPre, List.newClear());
-		~vm[\inputs][item].put(\outSends, List.newClear());
-	});
+	~vm[\inputs].put(\in, List.newClear());
+	~vm[\inputs].put(\gain, List.newClear());
+	~vm[\inputs].put(\gate, List.newClear());
+	~vm[\inputs].put(\eq, List.newClear());
+	~vm[\inputs].put(\comp, List.newClear());
+	~vm[\inputs].put(\ins, List.newClear());
+	~vm[\inputs].put(\limit, List.newClear());
+	~vm[\inputs].put(\outPre, List.newClear());
+	~vm[\inputs].put(\out, List.newClear());
+	~vm[\inputs].put(\mixSendsPre, List.newClear());
+	~vm[\inputs].put(\mixSends, List.newClear());
+	~vm[\inputs].put(\pointSendsPre, List.newClear());
+	~vm[\inputs].put(\pointSends, List.newClear());
+	~vm[\inputs].put(\outSendsPre, List.newClear());
+	~vm[\inputs].put(\outSends, List.newClear());
 
 	~vm.postln;
+
+	~vm[\inputs][\in].add(1);
+	~vm[\inputs][\in].add(2);
+	~vm[\inputs][\in].add(3);
+	~vm[\inputs][\in].add(4);
 };
 
 ~vmSend = Routine {
 	var value;
 	loop {
-		~vm[\inputs][\in][\toTrack].asString.post;
-		~vm[\inputs][\in][\toTrack].do({
-			arg item;
-			~vm[\inputs][\in][\vu][item] =
-			~buses[\input][item][\inCtrl].getSynchronous.abs;
-			~ostagec.sendMsg('/vu', 'in', item, 'out', ~vm[\inputs][\in][\vu][item]);
-		});
-		~vm[\inputs][\vu].postln;
+		'vm'.postln;
 		~vm.keys.do ({
 			arg chanType;
-			~vm[\chanType].do ({
-				arg channel;
-				channel.keys.do ({
-					arg busType;
+			//(' '++chanType).postln;
+			~vm[chanType].keys.do ({
+				arg busType;
+				//('  '++busType).postln;
+				~vm[chanType][busType].do ({
+					arg value;
+					value.post;
 					switch (busType,
 						\in, {
-							//
+							~ostagec.sendMsg('/v', 'i', 'in', value, ~buses[\input][value-1][\inCtrl].getSynchronous.abs.postln); //getSynchronous.abs
 						},
 						\mixSends, {
-							channel[busType].do ({
+							value.do ({
 								//
 							});
 						},
@@ -931,16 +1084,16 @@
 //~mixes;
 
 
-(
+{
 // z and y are the same object
 var y, z;
 z = [1, 2, 3];
 y = z.add(4);
 z.postln;
 y.postln;
-)
+};
 
-(
+{
 // in this case a new object is returned
 var y, z;
 z = [1, 2, 3, 4, 6];
@@ -950,4 +1103,4 @@ z.postln;
 y.postln;
 z.removeAt(2);
 z.postln;
-)
+}

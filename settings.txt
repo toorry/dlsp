@@ -1,4 +1,4 @@
 DestraLSP-settings-file format-v1.0
-work-path /home/timmy/git/dlsp/work
+work-path C:/meganz/dlsp/work
 osc-in-port 57120
 web-ui-port 8080

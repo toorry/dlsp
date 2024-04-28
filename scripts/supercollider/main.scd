@@ -31,6 +31,7 @@ if(File.exists(~path ++ "/settings.txt")) {
 ~dlspSettingsArray.do ({
 	arg item;
 	var stringPair;
+	item.postln;
 	stringPair = item.split($ );
 	~dlspSettings.put(stringPair[0].asSymbol,stringPair[1]);
 });

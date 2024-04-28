@@ -94,10 +94,13 @@ FreqScope.new(400, 200, 0, server: s);
 
 
 //
-~dict1 = Dictionary.newClear();
+~dict1 = Dictionary.new();
 ~dict1.put(\key1,'value1');
 ~dict1.put(\key2,'value2');
-~dict1.do({
-	arg item;
-	item.postln;
+~dict1.keys.do({
+	arg huy;
+	huy.postln;
 });
+~dict1.keys;
+
+~path;
