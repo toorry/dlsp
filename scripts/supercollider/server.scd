@@ -1022,7 +1022,7 @@
 ~vmSend = Routine {
 	var value;
 	loop {
-		'vm'.postln;
+		"vm".postln;
 		~vm.keys.do ({
 			arg chanType;
 			//(' '++chanType).postln;
@@ -1031,10 +1031,10 @@
 				//('  '++busType).postln;
 				~vm[chanType][busType].do ({
 					arg value;
-					value.post;
+					(value " ").post;
 					switch (busType,
 						\in, {
-							~ostagec.sendMsg('/v', 'i', 'in', value, ~buses[\input][value-1][\inCtrl].getSynchronous.abs.postln); //getSynchronous.abs
+							~ostagec.sendMsg("/v", "i", "in", value, ~buses[\input][value-1][\inCtrl].getSynchronous.abs.postln); //getSynchronous.abs
 						},
 						\mixSends, {
 							value.do ({
