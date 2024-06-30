@@ -1,7 +1,7 @@
 
 ~initConfig = Routine {
 
-	'declaring server environment'.postln;
+	"Declaring server environment".postln;
 	~serverConf = Dictionary.new();
 	~serverConf.put( \hwInputs, 2 );
 	~serverConf.put( \hwOutputs, 2 );
@@ -104,7 +104,7 @@
 	mainWindowWidth = 1024,
 	mainWindowHeight = 768;
 
-	'setting server variables'.postln;
+	"Setting server variables".postln;
 	~hwInputs = hwInputs;
 	~hwOutputs = hwOutputs;
 	~inputsAmount = inputsAmount;
@@ -137,39 +137,39 @@
 	s.options.sampleRate = hwSampleRate;
 	s.options.memSize = memSize;
 	s.waitForBoot({
-		'initializing kernels'.postln;
-		~ostagec.sendMsg('/dlsp/log', 'Initializing kernels');
+		"Initializing kernels".postln;
+		~ostagec.sendMsg("/dlsp/log", Date.getDate.format("%Y-%m-%d %H:%M:%S") ++ "   Initializing kernels");
 		~initKernels.value;
 		s.sync();
 		//1.0.wait;
-		'preparing Synth'.postln;
-		~ostagec.sendMsg('/dlsp/log', 'Preparing Synth');
+		"Preparing Synth".postln;
+		~ostagec.sendMsg("/dlsp/log", Date.getDate.format("%Y-%m-%d %H:%M:%S") ++ "   Preparing Synth");
 		~prepareSynths.value;
 		s.sync();
 		//1.0.wait;
-		'initializing Busses'.postln;
-		~ostagec.sendMsg('/dlsp/log', 'Initializing Busses');
+		"Initializing Busses".postln;
+		~ostagec.sendMsg("/dlsp/log", Date.getDate.format("%Y-%m-%d %H:%M:%S") ++ "   Initializing Busses");
 		~initBuses.value;
 		s.sync();
 		//1.0.wait;
-		'initializing Channels'.postln;
-		~ostagec.sendMsg('/dlsp/log', 'Initializing Channels');
+		"Initializing Channels".postln;
+		~ostagec.sendMsg("/dlsp/log", Date.getDate.format("%Y-%m-%d %H:%M:%S") ++ "   Initializing Channels");
 		~initChannels.value;
 		s.sync();
 		//1.0.wait;
-		'initializing Groups'.postln;
-		~ostagec.sendMsg('/dlsp/log', 'Initializing Groups');
+		"Initializing Groups".postln;
+		~ostagec.sendMsg("/dlsp/log", Date.getDate.format("%Y-%m-%d %H:%M:%S") ++ "   Initializing Groups");
 		~initGroups.value;
 		s.sync();
 		//1.0.wait;
-		'initializing Synths'.postln;
-		~ostagec.sendMsg('/dlsp/log', 'Initializing Synths');
+		"Initializing Synths".postln;
+		~ostagec.sendMsg("/dlsp/log", Date.getDate.format("%Y-%m-%d %H:%M:%S") ++ "   Initializing Synths");
 		~initSynths.value;
 		s.sync();
 		//1.0.wait;
 		~initVM.value;
 		s.sync();
-		'starting VolumeMeter'.postln;
+		"Starting VolumeMeter".postln;
 		~vmSend.play;
 	});
 };
@@ -1031,7 +1031,7 @@
 				//('  '++busType).postln;
 				~vm[chanType][busType].do ({
 					arg value;
-					(value " ").post;
+					(value ++ " ").post;
 					switch (busType,
 						\in, {
 							~ostagec.sendMsg("/v", "i", "in", value, ~buses[\input][value-1][\inCtrl].getSynchronous.abs.postln); //getSynchronous.abs

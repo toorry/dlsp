@@ -1,11 +1,13 @@
-~sample1 = Buffer.read(s,"/home/sndadmin/dlsp/work/sources/nature-essentials/QP01 0127 Canyon dove.wav" );
-~sample2 = Buffer.read(s, "/home/sndadmin/dlsp/work/sources/nature-essentials/QP01 0127 Canyon dove.wav");
+//~sample1 = Buffer.read(s,"/home/sndadmin/dlsp/work/sources/nature-essentials/QP01 0127 Canyon dove.wav" );
+//~sample2 = Buffer.read(s, "/home/sndadmin/dlsp/work/sources/nature-essentials/QP01 0127 Canyon dove.wav");
+~sample1 = Buffer.read(s, "C:/Users/timmy/YandexDisk/Лавр/Хороводная.mp3" );
+~sample2 = Buffer.read(s, "C:/Users/timmy/YandexDisk/Лавр/Хороводная.mp3" );
 
 SynthDef.new(\sample, {
 	var sig;
 	sig = PlayBuf.ar(2, ~sample1, loop: 0.0);
-	//Out.kr(~buses[\input][0][\inCtrl], Mix.kr(sig) * 10);
-	Out.ar(~buses[\hwOut][0], Mix.ar(sig) * 0.5);
+	Out.kr(~buses[\input][0][\inCtrl], Mix.kr(sig) * 1);
+	Out.ar(~buses[\input][0][\in], Mix.ar(sig) * 0.5);
 }).add;
 
 SynthDef.new(\sampleCtrl, {
@@ -15,10 +17,14 @@ SynthDef.new(\sampleCtrl, {
 	//Out.ar(~buses[\hwOut][0], Mix.ar(sig) * 0.5);
 }).add;
 
-Synth.new(\sample);
-Synth.new(\sampleCtrl);
+~synth1 = Synth.new(\sample);
+~synth2 = Synth.new(\sampleCtrl);
+
+~synth1.free;
+~synth2.free;
 
 s.meter;
+s.plotTree;
 
 -1.abs.postln;
 
@@ -31,7 +37,7 @@ OSCFunc.trace(false);
 
 ~myoscaddr.sendMsg('/vu/in', 6, 3);
 ~vu;
-~vuSend.stop;
+~vmSend.stop;
 
 Platform.ideName.postln;
 Platform.architecture.postln;
@@ -104,3 +110,9 @@ FreqScope.new(400, 200, 0, server: s);
 ~dict1.keys;
 
 ~path;
+
+~vmSend.play;
+~vmSend.stop;
+~vmSend.reset;
+OSCFunc.trace(false);
+OSCFunc.trace(true);
