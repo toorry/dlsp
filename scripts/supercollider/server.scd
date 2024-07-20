@@ -294,7 +294,7 @@
 
 	SynthDef(\inLimit, {
 			arg busIn, busOut, busOutCtrl,
-			threshold = 0.5, ratio = 1000, attack = 0.01, release = 0.01, dryWet = 1.0, unmute = 1.0;
+			threshold = 0.5, ratio = 1000, attack = 0.01, release = 0.01, dryWet = 1.0;
 			var sig;
 
 			sig = In.ar( busIn, 1 );
@@ -318,7 +318,7 @@
 		}).add;
 
 	SynthDef(\chanSend, {
-			arg busIn, busOut, busOutCtrl, volume = 1.0, unmute = 0;
+			arg busIn, busOut, busOutCtrl, volume = 0.0, unmute = 1.0;
 			var sig;
 
 			sig = In.ar( busIn, 1 );
