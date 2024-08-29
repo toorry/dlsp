@@ -15,32 +15,32 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
 
     switch (channelType) {
         case 'input':
-        console.log('Creating Inputs..');
+        console.log('CM Creating Inputs..');
         singularName = 'Input';
         pluralName = 'Inputs';
         break;
     
         case 'mix':
-        console.log('Creating Mixes..');
+        console.log('CM Creating Mixes..');
         singularName = 'Mix';
         pluralName = 'Mixes';
         break;
 
         case 'point':
-        console.log('Creating Points..');
+        console.log('CM Creating Points..');
         singularName = 'Point';
         pluralName = 'Points';
         break;
         
         default:
-        console.log('Default name');
+        console.log('CM Default name');
         break;
     }
 
     var pagesAmount = Math.ceil(channelsAmount / channelsOnPage);
     var groupsAmount = Math.ceil(pagesAmount / pagesInGroup);
     var groupsLevels = Math.ceil( Math.log(groupsAmount) / Math.log(pagesInGroup) );
-    console.log(`groupsLevels=${groupsLevels}`);
+    console.log(`CM ${pluralName} groupsLevels=${groupsLevels}`);
     let topLevelGroupsCount = Math.ceil( pagesAmount / Math.pow( pagesInGroup, groupsLevels ) );
     //if ( topLevelGroupsCount == 1 ) { groupsLevels-- };
     receive(`/varUI${pluralName}GroupsLevels`, groupsLevels);
@@ -73,7 +73,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
     let fldrUIGroupsWidgets = [];
     let pnlRowsGroupsWidgets = [];
     let currentLevelGroupsAmount = 0;
-    console.log(`groupsAmount=${groupsAmount} pagesInGroup=${pagesInGroup}`);
+    console.log(`CM ${pluralName} groupsAmount=${groupsAmount} pagesInGroup=${pagesInGroup}`);
 
     for ( let groupsLevel = groupsLevels; groupsLevel > 0; groupsLevel-- ) {
         //
@@ -156,9 +156,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                     label: "VAR{'btnLabel', ''}",
                     onValue: `if(value==1){\n  set('varUIInputsPageSelected', ${pageNum});\n` +
                     `  setVar('pnlInputsRows', 'currentPage', ${pageNum});\n` +
-                    "  setVar('scrUIInputsRowsUpdate', 'pagesSelect', true);\n" +
-                    "  setVar('scrUIInputsRowsUpdate', 'row', true);\n" +
-                    "  set('scrUIInputsRowsUpdate', 1);\n}"
+                    "  set('scrUIInputsRowsUpdatePage', 1);\n}"
                 });
                 
             }
@@ -168,7 +166,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
             receive( `/varUI${pluralName}PageSelected`, 1);
 
-            receive('/scrUIInputsRowsUpdate', 1);
+            receive('/scrUIInputsRowsUpdatePage', 1);
 
         } else {//Several Groups Case
 
@@ -186,9 +184,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                     label: "VAR{'btnLabel', ''}",
                     onValue: `if(value==1){\n  set('varUIInputsPageSelected', ${pageNum});\n` +
                     `  setVar('pnlInputsRows', 'currentPage', ${pageNum});\n` +
-                    "  setVar('scrUIInputsRowsUpdate', 'pagesSelect', true);\n" +
-                    "  setVar('scrUIInputsRowsUpdate', 'row', true);\n" +
-                    "  set('scrUIInputsRowsUpdate', 1);\n}"
+                    "  set('scrUIInputsRowsUpdatePage', 1);\n}"
                 });
                 
             }
@@ -199,7 +195,8 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
             receive( `/varUI${pluralName}PageSelected`, 1);
 
-            receive('/scrUIInputsRowsUpdate', 1);
+            receive('/scrUIInputsRowsUpdatePage', 1);
+            receive('/scrUIInputsRowsUpdateGroupButtons', 1);
         }
     } else {//One Page Case
         
@@ -335,6 +332,22 @@ function CreateChannelsPage( channelType, pageWidgets, channelsOnPage ) {
         //
         let channelPanelWidgets = [];
 
+        //Label
+        channelPanelWidgets.push({
+          type: 'text',
+          id: `lblUIRow${singularName}${channelNum}`,
+          //Geometry
+          left: 0,
+          top: 0,
+          width: 60,
+          height: 40,
+          //Style
+          colorText: '#ffffff',
+          //Value
+          default: channelNum,
+          value: channelNum
+        });
+
         //'Open' Button
         channelPanelWidgets.push({
           //
@@ -360,55 +373,61 @@ function CreateChannelsPage( channelType, pageWidgets, channelsOnPage ) {
 
         //'Select' Button
         channelPanelWidgets.push({
-        //
-        type: 'button',
-        id: `btnUIRow${singularName}${channelNum}Select`,
-        //Geometry
-        width: 60,
-        height: 50,
-        //Style
-        colorText: '#ffffff',
-        //css: "font-size:125%;",
-        //Button Style
-        label: 'SEL',
-        //Scripting
-        onValue: ''
+          //
+          type: 'button',
+          id: `btnUIRow${singularName}${channelNum}Select`,
+          //Geometry
+          width: 60,
+          height: 50,
+          //Style
+          colorText: '#ffffff',
+          //css: "font-size:125%;",
+          //Button Style
+          label: 'SEL',
+          //Scripting
+          onValue: ''
+        });
+
+        //'Mute' Button
+        channelPanelWidgets.push({
+          //
+          type: 'button',
+          id: `btnUIRow${singularName}${channelNum}Mute`,
+          //Geometry
+          width: 60,
+          height: 50,
+          //Style
+          colorText: '#ffffff',
+          //css: "font-size:125%;",
+          //Button Style
+          label: 'MUTE',
+          //Scripting
+          onValue: ''
         });
 
         //Volume Panel
         channelPanelWidgets.push({
-        //Widget
-        type: 'panel',
-        id: `pnlUIRow${singularName}${channelNum}Volume`,
-        //Geometry
-        height: 340,
-        //Panel Style
-        scroll: false,
-        innerPadding: false,
+          //Widget
+          type: 'panel',
+          id: `pnlUIRow${singularName}${channelNum}Volume`,
+          //Geometry
+          height: 340,
+          expand: true,
+          //Style
+          alphaStroke: 0,
+          //Panel Style
+          scroll: false,
+          innerPadding: false,
 
-        widgets: [{
-            //Widget
-            type: 'text',
-            id: `lblUIRow${singularName}${channelNum}Volume`,
-            //Geometry
-            left: 0,
-            top: 0,
-            width: 60,
-            height: 40,
-            //Style
-            colorText: '#ffffff',
-            //Value
-            default: channelNum,
-            value: channelNum
-        },{
+          widgets: [{
             //Widget
             type: 'fader',
             id: `fdrUIRow${singularName}${channelNum}Volume`,
             //Geometry
             left: 0,
-            top: 40,
+            top: "0%",
             width: 60,
-            height: 300,
+            height: "100%",
             //Style
             colorText: '#ffffff',
             //Fader Style
@@ -417,103 +436,128 @@ function CreateChannelsPage( channelType, pageWidgets, channelsOnPage ) {
             dashed: true,
             //Fader
             doubleTap: true,
-            range: "{\"max\": { \"+10\": 0.949481 },\"91%\": { \"+5\": 0.828787 },\"82%\": { \"0.0\": 0.716 },\"73%\": { \"-5\": 0.612454 },\"64%\": { \"-10\": 0.518539 },\"55%\": { \"-15\": 0.435375 },\"46%\": { \"-20\": 0.363271 },\"37%\": { \"-30\": 0.25009 },\"28%\": { \"-40\": 0.170984 },\"19%\": { \"-50\": 0.116622 },\"10%\": { \"-60\": 0.079482 },\"min\": { \"-inf\": 0 }}",
-            sensitivity: "@{varInput1SendsfdrSensitivity}",
+            range: "{\"max\": { \"+10\": 0.790569 }," +
+              "\"91%\": { \"+5\": 0.44457 }," +
+              "\"82%\": { \"0.0\": 0.25 }," +
+              "\"73%\": { \"-5\": 0.140585 }," +
+              "\"64%\": { \"-10\": 0.079057 }," +
+              "\"55%\": { \"-15\": 0.044457 }," +
+              "\"46%\": { \"-20\": 0.025 }," +
+              "\"37%\": { \"-30\": 0.007906 }," +
+              "\"28%\": { \"-40\": 0.0025 }," +
+              "\"19%\": { \"-50\": 0.000791 }," +
+              "\"10%\": { \"-60\": 0.00025 }," +
+              "\"min\": { \"-inf\": 0.0 }}",
+            sensitivity: "@{varUIFaderSensitivity}",
             //Value
             default: 0.25,
             //OSC
             decimals: 6
-        },{
-            //Widget
-            type: 'fader',
-            id: `fdrUIRow${singularName}${channelNum}VU`,
-            interaction: false,
+          },{
+            //VM Panel
+            type: 'panel',
+            id: `pnlUIRow${singularName}${channelNum}VM`,
             //Geometry
             left: 25,
-            top: 52,
+            top: "0%",
             width: 15,
-            height: 278,
+            height: "100%",
             //Style
-            colorText: '#ffffff',
-            colorFill: '#97ff6a',
-            //Fader Style
-            design: 'compact',
-            //Fader
-            range: "{\"max\": { \"+10\": 0.949481 },\"91%\": { \"+5\": 0.828787 },\"82%\": { \"0.0\": 0.716 },\"73%\": { \"-5\": 0.612454 },\"64%\": { \"-10\": 0.518539 },\"55%\": { \"-15\": 0.435375 },\"46%\": { \"-20\": 0.363271 },\"37%\": { \"-30\": 0.25009 },\"28%\": { \"-40\": 0.170984 },\"19%\": { \"-50\": 0.116622 },\"10%\": { \"-60\": 0.079482 },\"min\": { \"-inf\": 0 }}",
-            //OSC
-            decimals: 14
-        }]
+            alphaStroke: 0,
+            padding: 0,
+            //Panel Style
+            layout: 'vertical',
+
+            widgets: [{
+              //VM Up Block
+              type: 'panel',
+              id: `pnlUIRow${singularName}${channelNum}VMUp`,
+              //Geometry
+              height: 12,
+              //Style
+              alphaStroke: 0,
+            },{
+              //Widget
+              type: 'fader',
+              id: `fdrUIRow${singularName}${channelNum}VM`,
+              interaction: false,
+              //Geometry
+              expand: 'true',
+              //Style
+              colorText: '#ffffff',
+              colorFill: '#97ff6a',
+              //Fader Style
+              design: 'compact',
+              //Fader
+              range: "{\"max\": { \"+10\": 0.949481 },\"91%\": { \"+5\": 0.828787 },\"82%\": { \"0.0\": 0.716 },\"73%\": { \"-5\": 0.612454 },\"64%\": { \"-10\": 0.518539 },\"55%\": { \"-15\": 0.435375 },\"46%\": { \"-20\": 0.363271 },\"37%\": { \"-30\": 0.25009 },\"28%\": { \"-40\": 0.170984 },\"19%\": { \"-50\": 0.116622 },\"10%\": { \"-60\": 0.079482 },\"min\": { \"-inf\": 0 }}",
+              //OSC
+              decimals: 14
+            },{
+              //VM Down Block
+              type: 'panel',
+              id: `pnlUIRow${singularName}${channelNum}VMDown`,
+              //Geometry
+              height: 10,
+              //Style
+              alphaStroke: 0,
+            }]
+
+            
+          }]
         });
 
-        //'Mute' Button
+        /*//'0 dB' Button
         channelPanelWidgets.push({
-        //
-        type: 'button',
-        id: `btnUIRow${singularName}${channelNum}Mute`,
-        //Geometry
-        width: 60,
-        height: 50,
-        //Style
-        colorText: '#ffffff',
-        //css: "font-size:125%;",
-        //Button Style
-        label: 'MUTE',
-        //Scripting
-        onValue: ''
-        });
-
-        //'0 dB' Button
-        channelPanelWidgets.push({
-        //
-        type: 'button',
-        id: `btnUIRow${singularName}${channelNum}0dB`,
-        //Geometry
-        width: 60,
-        height: 40,
-        //Style
-        colorText: '#ffffff',
-        //css: "font-size:125%;",
-        //Button Style
-        label: 'set\n0 dB',
-        //Button
-        mode: 'momentary',
-        //Scripting
-        onValue: `set('fdr${singularName}${channelNum}Volume', 0.716);`
+          //
+          type: 'button',
+          id: `btnUIRow${singularName}${channelNum}0dB`,
+          //Geometry
+          width: 60,
+          height: 40,
+          //Style
+          colorText: '#ffffff',
+          //css: "font-size:125%;",
+          //Button Style
+          label: 'set\n0 dB',
+          //Button
+          mode: 'momentary',
+          //Scripting
+          onValue: `set('fdr${singularName}${channelNum}Volume', 0.716);`
         });
 
         //'-inf' Button
         channelPanelWidgets.push({
-        //
-        type: 'button',
-        id: `btnUIRow${singularName}${channelNum}-Inf`,
-        //Geometry
-        width: 60,
-        height: 40,
-        //Style
-        colorText: '#ffffff',
-        //css: "font-size:125%;",
-        //Button Style
-        label: 'set\n-inf',
-        //Button
-        mode: 'momentary',
-        //Scripting
-        onValue: `set('fdr${singularName}${channelNum}Volume', 0);`
-        });
+          //
+          type: 'button',
+          id: `btnUIRow${singularName}${channelNum}-Inf`,
+          //Geometry
+          width: 60,
+          height: 40,
+          //Style
+          colorText: '#ffffff',
+          //css: "font-size:125%;",
+          //Button Style
+          label: 'set\n-inf',
+          //Button
+          mode: 'momentary',
+          //Scripting
+          onValue: `set('fdr${singularName}${channelNum}Volume', 0);`
+        });*/
 
         pageWidgets.push({
-        type: 'panel',
-        id:'pnlUIRow' + singularName + channelNum,
-        //Geometry
-        width: 60,
-        //Style
-        alphaStroke: 0,
-        //Panel Style
-        layout: 'vertical',
-        justify: 'space-around',
-        scroll: false,
-        innerPadding: false,
+          type: 'panel',
+          id:'pnlUIRow' + singularName + channelNum,
+          //Geometry
+          width: 60,
+          //Style
+          alphaStroke: 0,
+          //Panel Style
+          layout: 'vertical',
+          justify: 'space-around',
+          scroll: false,
+          innerPadding: false,
 
-        widgets: channelPanelWidgets
+          widgets: channelPanelWidgets
         });
     }
 }

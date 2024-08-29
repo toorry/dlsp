@@ -128,7 +128,7 @@
 	~windowHeight = mainWindowHeight;
 	~windowWidth = mainWindowWidth;
 
-	~vmRate = 0.5;
+	~vmRate = 0.1;
 
 	s.options.numInputBusChannels = ~hwInputs;
 	s.options.numOutputBusChannels = ~hwOutputs;
@@ -1031,7 +1031,7 @@
 				//('  '++busType).postln;
 				~vm[chanType][busType].do ({
 					arg value;
-					(value ++ " ").post;
+					(value + " ").post;
 					switch (busType,
 						\in, {
 							~ostagec.sendMsg("/v", "i", "in", value, ~buses[\input][value-1][\inCtrl].getSynchronous.abs.postln); //getSynchronous.abs

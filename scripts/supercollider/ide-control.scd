@@ -1,12 +1,30 @@
 //~sample1 = Buffer.read(s,"/home/sndadmin/dlsp/work/sources/nature-essentials/QP01 0127 Canyon dove.wav" );
 //~sample2 = Buffer.read(s, "/home/sndadmin/dlsp/work/sources/nature-essentials/QP01 0127 Canyon dove.wav");
-~sample1 = Buffer.read(s, "C:/Users/timmy/YandexDisk/Лавр/Хороводная.mp3" );
-~sample2 = Buffer.read(s, "C:/Users/timmy/YandexDisk/Лавр/Хороводная.mp3" );
+~sample1 = Buffer.read(s, "D:/Samples/Dreaming-Under-The-Stars-MP3(chosic.com).mp3" );
+~sample2 = Buffer.read(s, "D:/Samples/Dreaming-Under-The-Stars-MP3(chosic.com).mp3" );
 
-SynthDef.new(\sample, {
+SynthDef.new(\sample1, {
 	var sig;
 	sig = PlayBuf.ar(2, ~sample1, loop: 0.0);
-	Out.kr(~buses[\input][0][\inCtrl], Mix.kr(sig) * 1);
+	Out.kr(~buses[\input][0][\inCtrl], Mix.kr(sig) * 0.5);
+	Out.ar(~buses[\input][0][\in], Mix.ar(sig) * 0.5);
+}).add;
+SynthDef.new(\sample2, {
+	var sig;
+	sig = PlayBuf.ar(2, ~sample1, loop: 0.0);
+	Out.kr(~buses[\input][1][\inCtrl], Mix.kr(sig) * 0.5);
+	Out.ar(~buses[\input][0][\in], Mix.ar(sig) * 0.5);
+}).add;
+SynthDef.new(\sample3, {
+	var sig;
+	sig = PlayBuf.ar(2, ~sample1, loop: 0.0);
+	Out.kr(~buses[\input][2][\inCtrl], Mix.kr(sig) * 0.5);
+	Out.ar(~buses[\input][0][\in], Mix.ar(sig) * 0.5);
+}).add;
+SynthDef.new(\sample4, {
+	var sig;
+	sig = PlayBuf.ar(2, ~sample1, loop: 0.0);
+	Out.kr(~buses[\input][3][\inCtrl], Mix.kr(sig) * 0.5);
 	Out.ar(~buses[\input][0][\in], Mix.ar(sig) * 0.5);
 }).add;
 
@@ -17,11 +35,15 @@ SynthDef.new(\sampleCtrl, {
 	//Out.ar(~buses[\hwOut][0], Mix.ar(sig) * 0.5);
 }).add;
 
-~synth1 = Synth.new(\sample);
-~synth2 = Synth.new(\sampleCtrl);
+~synth1 = Synth.new(\sample1);
+~synth2 = Synth.new(\sample2);
+~synth3 = Synth.new(\sample3);
+~synth4 = Synth.new(\sample4);
 
 ~synth1.free;
 ~synth2.free;
+~synth3.free;
+~synth4.free;
 
 s.meter;
 s.plotTree;
