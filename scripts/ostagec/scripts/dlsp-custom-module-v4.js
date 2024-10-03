@@ -182,9 +182,9 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                     type: 'button',
                     id: `btn${pluralName}RowsPage${pageNum}`,
                     label: "VAR{'btnLabel', ''}",
-                    onValue: `if(value==1){\n  set('varUIInputsPageSelected', ${pageNum});\n` +
-                    `  setVar('pnlInputsRows', 'currentPage', ${pageNum});\n` +
-                    "  set('scrUIInputsRowsUpdatePage', 1);\n}"
+                    onValue: `if(value==1){\n  set('varUI${pluralName}PageSelected', ${pageNum});\n` +
+                    `  setVar('pnl${pluralName}Rows', 'currentPage', ${pageNum});\n` +
+                    `  set('scrUI${pluralName}RowsUpdatePage', 1);\n}`
                 });
                 
             }
@@ -195,8 +195,8 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
             receive( `/varUI${pluralName}PageSelected`, 1);
 
-            receive('/scrUIInputsRowsUpdatePage', 1);
-            receive('/scrUIInputsRowsUpdateGroupButtons', 1);
+            receive(`/scrUI${pluralName}RowsUpdatePage`, 1);
+            receive(`/scrUI${pluralName}RowsUpdateGroupButtons`, 1);
         }
     } else {//One Page Case
         
@@ -211,6 +211,25 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
         receive( '/EDIT/MERGE', `pnl${pluralName}RowsPages`, {
             widgets: []
         });
+    }
+
+    //Create Variables for Input Channels
+    let fldrInputsWidgets = [];
+
+    for ( let channelNum = 1; channelNum <= channelsAmount; channelNum++ ) {
+      
+      fldrInputsWidgets.push({
+        
+        type: 'folder',
+        id: `fldr${singularName}${channelNum}`,
+        widgets: [
+          //
+          {
+            type: 'variable',
+            id: 'cha'
+          }
+        ]
+      });
     }
 
     let rowPanelWidgets = [];
