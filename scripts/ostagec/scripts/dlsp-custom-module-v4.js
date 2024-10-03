@@ -154,9 +154,9 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                     type: 'button',
                     id: `btn${pluralName}RowsPage${pageNum}`,
                     label: "VAR{'btnLabel', ''}",
-                    onValue: `if(value==1){\n  set('varUIInputsPageSelected', ${pageNum});\n` +
+                    onValue: `if(value==1){\n  set('varUI${pluralName}PageSelected', ${pageNum});\n` +
                     `  setVar('pnlInputsRows', 'currentPage', ${pageNum});\n` +
-                    "  set('scrUIInputsRowsUpdatePage', 1);\n}"
+                    `  set('scrUI${pluralName}RowsUpdatePage', 1);\n}`
                 });
                 
             }
@@ -166,7 +166,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
             receive( `/varUI${pluralName}PageSelected`, 1);
 
-            receive('/scrUIInputsRowsUpdatePage', 1);
+            receive(`/scrUI${pluralName}RowsUpdatePage`, 1);
 
         } else {//Several Groups Case
 
@@ -213,24 +213,282 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
         });
     }
 
-    //Create Variables for Input Channels
-    let fldrInputsWidgets = [];
+    //Create Variables for Channels
+    let typeFolderWidgets = [];
 
     for ( let channelNum = 1; channelNum <= channelsAmount; channelNum++ ) {
       
-      fldrInputsWidgets.push({
-        
+      let channelFolder = {
+
         type: 'folder',
         id: `fldr${singularName}${channelNum}`,
-        widgets: [
-          //
-          {
+      };
+
+      switch (channelType) {
+
+        case 'input':
+
+          //GAIN
+          channelFolder.widgets.push({
+
             type: 'variable',
-            id: 'cha'
+            id: `var${singularName}${channelNum}Gain`,
+
+          });
+
+          //GATE
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}GateOn`,
+            
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}GateTreshold`,
+            
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}GateRatio`,
+            
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}GateAttack`,
+            
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}GateRelease`,
+            
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}GateDryWet`,
+            
+          });
+
+          //EQ
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQOn`,
+            
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQDryWet`,
+
+          });
+
+          //EQ LOW CUT
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQLowCutOn`,
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQLowCutFreq`,
+
+          });
+
+          //EQ HI CUT
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQHiCutOn`,
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQHiCutFreq`,
+
+          });
+
+          //EQ LOW SHELF
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQLowShelfOn`,
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQLowShelfFreq`,
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQLowShelfQ`,
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQLowShelfGain`,
+
+          });
+
+          //EQ HI SHELF
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQHiShelfOn`,
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQHiShelfFreq`,
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQLHiShelfQ`,
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQHiShelfGain`,
+
+          });
+
+          //EQ BANDS
+          for (let bandNum = 1; bandNum < 5; bandNum++) {
+            
+            channelFolder.widgets.push({
+
+              type: 'variable',
+              id: `var${singularName}${channelNum}EQBand${bandNum}On`,
+  
+            });
+
+            channelFolder.widgets.push({
+
+              type: 'variable',
+              id: `var${singularName}${channelNum}EQBand${bandNum}Freq`,
+  
+            });
+
+            channelFolder.widgets.push({
+
+              type: 'variable',
+              id: `var${singularName}${channelNum}EQBand${bandNum}Q`,
+  
+            });
+
+            channelFolder.widgets.push({
+
+              type: 'variable',
+              id: `var${singularName}${channelNum}EQBand${bandNum}Gain`,
+  
+            });
           }
-        ]
-      });
+          break;
+      
+        default:
+          break;
+      }
+
+      typeFolderWidgets.push(channelFolder);
     }
+
+    receive( '/EDIT/MERGE', `fldr${pluralName}`, {
+      widgets: [typeFolderWidgets]
+    });
+
+    //VOLUME METERS
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusInVM`,
+      
+    });
+    
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusGainVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusGateVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusEQVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusDynEQVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusCompVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusLimitVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusOutPreVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusOutVM`,
+      
+    });
 
     let rowPanelWidgets = [];
     

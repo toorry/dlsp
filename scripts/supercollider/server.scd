@@ -999,17 +999,18 @@
 	~vm[\inputs].put(\gain, List.newClear());
 	~vm[\inputs].put(\gate, List.newClear());
 	~vm[\inputs].put(\eq, List.newClear());
+	~vm[\inputs].put(\dynEQ, List.newClear());
 	~vm[\inputs].put(\comp, List.newClear());
 	~vm[\inputs].put(\ins, List.newClear());
 	~vm[\inputs].put(\limit, List.newClear());
 	~vm[\inputs].put(\outPre, List.newClear());
 	~vm[\inputs].put(\out, List.newClear());
-	~vm[\inputs].put(\mixSendsPre, List.newClear());
-	~vm[\inputs].put(\mixSends, List.newClear());
-	~vm[\inputs].put(\pointSendsPre, List.newClear());
-	~vm[\inputs].put(\pointSends, List.newClear());
-	~vm[\inputs].put(\outSendsPre, List.newClear());
-	~vm[\inputs].put(\outSends, List.newClear());
+	~vm[\inputs].put(\mixSendPre, List.newClear());
+	~vm[\inputs].put(\mixSend, List.newClear());
+	~vm[\inputs].put(\pointSendPre, List.newClear());
+	~vm[\inputs].put(\pointSend, List.newClear());
+	~vm[\inputs].put(\outSendPre, List.newClear());
+	~vm[\inputs].put(\outSend, List.newClear());
 
 	~vm.postln;
 
@@ -1017,6 +1018,21 @@
 	~vm[\inputs][\in].add(2);
 	~vm[\inputs][\in].add(3);
 	~vm[\inputs][\in].add(4);
+	~vm[\inputs][\gain].add(1);
+	~vm[\inputs][\gain].add(2);
+	~vm[\inputs][\gain].add(3);
+	~vm[\inputs][\gain].add(4);
+	~vm[\inputs][\gate].add(1);
+	~vm[\inputs][\gate].add(2);
+	~vm[\inputs][\gate].add(3);
+	~vm[\inputs][\gate].add(4);
+	~vm[\inputs][\eq].add(1);
+	~vm[\inputs][\dynEQ].add(1);
+	~vm[\inputs][\comp].add(1);
+	~vm[\inputs][\limit].add(1);
+	~vm[\inputs][\outPre].add(1);
+	~vm[\inputs][\out].add(1);
+	~vm[\inputs][\mixSend].add([1,1]);
 };
 
 ~vmSend = Routine {
@@ -1025,19 +1041,43 @@
 		"vm".postln;
 		~vm.keys.do ({
 			arg chanType;
-			//(' '++chanType).postln;
+			(' '++chanType).postln;
 			~vm[chanType].keys.do ({
 				arg busType;
-				//('  '++busType).postln;
+				('  '++busType).postln;
 				~vm[chanType][busType].do ({
 					arg value;
 					(value + " ").post;
 					switch (busType,
-						\in, {
-							~ostagec.sendMsg("/v", "i", "in", value, ~buses[\input][value-1][\inCtrl].getSynchronous.abs.postln); //getSynchronous.abs
+						\in, {//INPUT BUS
+							~ostagec.sendMsg("/v", "i", "in", value, ~buses[\input][value-1][\inCtrl].getSynchronous.abs.postln);
 						},
-						\mixSends, {
-							value.do ({
+						\gain, {//GAIN BUS
+							~ostagec.sendMsg("/v", "i", "gn", value, ~buses[\input][value-1][\gainCtrl].getSynchronous.abs.postln);
+						},
+						\gate, {//GATE BUS
+							~ostagec.sendMsg("/v", "i", "gt", value, ~buses[\input][value-1][\gateCtrl].getSynchronous.abs.postln);
+						},
+						\eq, {//EQ BUS
+							~ostagec.sendMsg("/v", "i", "eq", value, ~buses[\input][value-1][\eqCtrl].getSynchronous.abs.postln);
+						},
+						\dynEQ, {//DYN EQ BUS
+							~ostagec.sendMsg("/v", "i", "dq", value, ~buses[\input][value-1][\dynEQCtrl].getSynchronous.abs.postln);
+						},
+						\comp, {//COMP BUS
+							~ostagec.sendMsg("/v", "i", "cp", value, ~buses[\input][value-1][\compCtrl].getSynchronous.abs.postln);
+						},
+						\limit, {//LIMIT BUS
+							~ostagec.sendMsg("/v", "i", "lt", value, ~buses[\input][value-1][\limitCtrl].getSynchronous.abs.postln);
+						},
+						\outPre, {//OUT PRE BUS
+							~ostagec.sendMsg("/v", "i", "op", value, ~buses[\input][value-1][\outPreCtrl].getSynchronous.abs.postln);
+						},
+						\out, {//OUT BUS
+							~ostagec.sendMsg("/v", "i", "ot", value, ~buses[\input][value-1][\outCtrl].getSynchronous.abs.postln);
+						},
+						\mixSend, {
+							value[0].do ({
 								//
 							});
 						},
