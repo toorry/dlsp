@@ -1,18 +1,20 @@
 OSCdef(\ping,
 	{ arg msg;
+		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
 		~ostagec.sendMsg('/dlsp/sclang/status', 1);
-		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' System status OK');
+		~ostagec.sendMsg('/dlsp/log', time ++ " System status OK");
 	},
 	'/dlsp/ping');
 
 OSCdef(\translatePort,
 	{ arg msg;
-		' Request for port number received. Transmitting..'.postln;
-		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Request for port number received. Transmitting..');
+		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
+		time ++ " Request for port number received. Transmitting..".postln;
+		~ostagec.sendMsg('/dlsp/log', time ++ " Request for port number received. Transmitting..");
 		for(1024, 65535) {
 			arg i;
 			~ostagec.port = i;
-			~ostagec.sendMsg('/dlsp/log', "sclang port" + ~myoscaddr.port.asString);
+			~ostagec.sendMsg('/dlsp/log', "sclang port " ++ ~myoscaddr.port.asString);
 
 		};
 		~ostagec.port = ~dlspSettingsDict['web-ui-port'].asInteger;
@@ -21,8 +23,9 @@ OSCdef(\translatePort,
 
 OSCdef(\startServer,
 	{ arg msg;
-		'ostagec msg to boot server'.postln;
-		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Booting sound server..');
+		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
+		time ++ " ostagec msg to boot server".postln;
+		~ostagec.sendMsg('/dlsp/log', time + " Booting sound server..");
 		~vmSend.reset;
 		~regularBoot.next;
 	},
@@ -30,8 +33,9 @@ OSCdef(\startServer,
 
 OSCdef(\stopServer,
 	{ arg msg;
-		'ostagec msg to quit server'.postln;
-		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Quitting sound server..');
+		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
+		time ++ " ostagec msg to quit server".postln;
+		~ostagec.sendMsg('/dlsp/log', time + " Quitting sound server..");
 		~vmSend.stop;
 		//~vuSend.reset;
 		~regularBoot.reset;
@@ -41,15 +45,17 @@ OSCdef(\stopServer,
 
 OSCdef(\reboot,
 	{ arg msg;
-		'ostagec msg to reboot system'.postln;
-		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Rebooting..');
+		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
+		time ++ " ostagec msg to reboot system".postln;
+		~ostagec.sendMsg('/dlsp/log', time + " Rebooting..");
 		"systemctl reboot -i".unixCmd; },
 	'/dlsp/reboot');
 
 OSCdef(\shutdown,
 	{ arg msg;
-		'ostagec msg to shutdown system'.postln;
-		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Shutting down..');
+		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
+		time ++ " ostagec msg to shutdown system".postln;
+		~ostagec.sendMsg('/dlsp/log', time + " Shutting down..");
 		"systemctl poweroff -i".unixCmd; },
 	'/dlsp/shutdown');
 
@@ -98,3 +104,243 @@ OSCdef(\vuSetIn,
 		~vu[\inputs][\channelsAmount] = channelsAmount;
 	},
 	'/vu/in');
+
+OSCdef(\volumeMeter,
+	{ arg msg;
+		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
+		msg.postln;
+		msg[0].postln;
+		msg[1].postln;
+		msg[2].postln;
+		msg[3].postln;
+		msg[4].postln;
+		switch (msg[1],
+			\clear, {
+				~vm.keys.do ({
+					arg chanType;
+					~vm[chanType].keys.do ({
+						arg busType;
+						~vm[chanType][busType].clear;
+					});
+				});
+			},
+			\rate, {
+				if (
+					msg[2] != nil,
+					{
+						try {
+							~vmRate = msg[2].asFloat;
+						} { |error|
+							~ostagec.sendMsg('/dlsp/log',
+								time ++ "\n" + error.dump);
+						};
+						~ostagec.sendMsg('/dlsp/log',
+							time ++ " Volume Metering Rate changed to " + ~vmRate);
+					}, {}
+				);
+			},
+			\packMaxSize, {
+				if (
+					msg[2] != nil,
+					{
+						try {
+							~vmRate = msg[2].asInteger;
+						} { |error|
+							~ostagec.sendMsg('/dlsp/log',
+								time ++ "\n" + error.dump);
+						};
+						~ostagec.sendMsg('/dlsp/log',
+							time ++ " Max Package Size changed to " + ~vmPackMaxSize);
+					}, {}
+				);
+			},
+			\all, {
+				//
+			},
+			\none, {
+				//
+			},
+			\start, {
+				var channelType, busType;
+				var allBuses = false;
+				var uniqueBus = true;
+				var busesAmount = 0;
+				var wrongMsg = false;
+				"'start' case".postln;
+				(
+					"searching channel type".postln;
+					switch (msg[2],
+						\s, {//SOURCE CHANNEL
+							channelType = \sources;
+						},
+						\i, {//INPUT CHANNEL
+							channelType = \inputs;
+							if (msg[3] > ~inputsAmount) { wrongMsg = true; } {}
+						},
+						\m, {//MIX CHANNEL
+							channelType = \mixes;
+							if (msg[3] > ~mixesAmount) { wrongMsg = true; } {}
+						},
+						\p, {//POINT CHANNEL
+							channelType = \points;
+							if (msg[3] > ~pointsAmount) { wrongMsg = true; } {}
+						},
+						\f, {//FIELD FLOW
+							channelType = \fields;
+							if (msg[3] > ~fieldsAmount) { wrongMsg = true; } {}
+						},
+						\s, {//SPACE FLOW
+							channelType = \spaces;
+							if (msg[3] > ~spacesAmount) { wrongMsg = true; } {}
+						},
+						\o, {//OUTPUT CHANNEL
+							channelType = \outputs;
+							if (msg[3] > ~outputsAmount) { wrongMsg = true; } {}
+						},
+						nil, {
+							wrongMsg = true;
+						}
+					);
+					"channel found".postln;
+				);
+				if ( msg[3] == nil, {
+					wrongMsg = true;
+				}, {}
+				);
+				(
+					switch (msg[4],
+						\in, {//INPUT BUS
+							busType = \in;
+						},
+						\gn, {//GAIN BUS
+							busType = \gain;
+						},
+						\gt, {//GATE BUS
+							busType = \gate;
+						},
+						\eq, {//EQ BUS
+							busType = \eq;
+						},
+						\dq, {//DYN EQ BUS
+							busType = \dynEQ;
+						},
+						\cp, {//COMP BUS
+							busType = \comp;
+						},
+						\is, {//INSERT BUS
+							busType = \ins;
+						},
+						\lt, {//LIMIT BUS
+							busType = \limit;
+						},
+						\ms, {//ALL MIX SENDS
+							busType = \mixSend;
+							uniqueBus = false;
+							allBuses = true;
+							busesAmount = ~mixesAmount;
+						},
+						\md, {//MIX SEND BUS
+							busType = \mixSend;
+							uniqueBus = false;
+							case
+							{ msg[5] == nil } { wrongMsg = true; }
+							{ msg[5] > ~mixesAmount } { wrongMsg = true; };
+						},
+						\ps, {//ALL POINT SENDS
+							busType = \pointSend;
+							uniqueBus = false;
+							allBuses = true;
+							busesAmount = ~pointsAmount;
+						},
+						\pd, {//POINT SEND BUS
+							busType = \pointSend;
+							uniqueBus = false;
+							{ msg[5] == nil } { wrongMsg = true; }
+							{ msg[5] > ~pointsAmount } { wrongMsg = true; };
+						},
+						\os, {//ALL OUTPUT SENDS
+							busType = \outSend;
+							uniqueBus = false;
+							allBuses = true;
+							busesAmount = ~outputsAmount;
+						},
+						\od, {//OUTPUT SEND BUS
+							busType = \outSend;
+							uniqueBus = false;
+							{ msg[5] == nil } { wrongMsg = true; }
+							{ msg[5] > ~outputsAmount } { wrongMsg = true; };
+						},
+						\fs, {//ALL FIELD PAN BUSES
+							busType = \fieldPan;
+							uniqueBus = false;
+							allBuses = true;
+							busesAmount = ~fieldsAmount;
+						},
+						\fd, {//FIELD PAN BUS
+							busType = \fieldPan;
+							uniqueBus = false;
+							{ msg[5] == nil } { wrongMsg = true; }
+							{ msg[5] > ~fieldsAmount } { wrongMsg = true; };
+						},
+						\ss, {//ALL SPACE PAN BUSES
+							busType = \spacePan;
+							uniqueBus = false;
+							allBuses = true;
+							busesAmount = ~spacesAmount;
+						},
+						\sc, {//SPACE PAN BUS
+							busType = \spacePan;
+							uniqueBus = false;
+							{ msg[5] == nil } { wrongMsg = true; }
+							{ msg[5] > ~spacesAmount } { wrongMsg = true; };
+						},
+						\ls, {//ALL AMB TRANSFORM BUSES
+							busType = \slot;
+							uniqueBus = false;
+							allBuses = true;
+							busesAmount = ~ambTransformerSlots;
+						},
+						\lt, {//AMB TRANSFORM BUS
+							busType = \slot;
+							uniqueBus = false;
+							{ msg[5] == nil } { wrongMsg = true; }
+							{ msg[5] > ~ambTransformerSlots } { wrongMsg = true; };
+						},
+						\nf, {//NEAR FIELD CONTROL BUS
+							busType = \nfc;
+						},
+						\op, {//PRE FADER BUS
+							busType = \outPre;
+						},
+						\ot, {//POST FADER BUS
+							busType = \out;
+						},
+						nil, {
+							wrongMsg = true;
+						}
+					);
+					"bus found".postln;
+				);
+				if (wrongMsg == false) {
+					case
+					{ allBuses } {
+						busesAmount.do ({
+							arg num;
+							~vm[channelType][busType].add( [ msg[3], num ] );
+						});
+					}
+					{ uniqueBus } {
+						~vm[channelType][busType].add( msg[3] );
+					}
+					{ true } {
+						~vm[channelType][busType].add( [ msg[3], msg[5] ] );
+					};
+				} {};
+				(channelType ++ busType ++ msg[3]).postln;
+			},
+			\stop, {
+				//
+			},
+		);
+	},
+	'/v');

@@ -32,6 +32,7 @@
 
 	~vm;
 	~vmRate;
+	~vmPackMaxSize;
 
 	~defaultValues = Dictionary.new();
 
@@ -951,8 +952,8 @@
 			var name = 'space' ++ count ++ 'sendSynth';
 			item.put(name, Synth(\outVolume,
 				[\busIn, item[\busIn],
-				\busOut, ~buses[\space][count][\in],
-				\isAmb, 1],
+					\busOut, ~buses[\space][count][\in],
+					\isAmb, 1],
 				~grpField[num],
 				\addToTail)
 			);
@@ -974,8 +975,23 @@
 			arg count;
 			var name = 'hwOut' ++ count ++ 'sendSynth';
 			var log;
-			if(count == num) { item.put(name, Synth(\outVolume, [\busIn, item.at(\busIn), \busOut, ~buses[\hwOut][count], \amp, 1], ~grpOutput[num], \addToTail)) }
-			{ item.put(name, Synth(\outVolume, [\busIn, item.at(\busIn), \busOut, ~buses[\hwOut][count], \amp, 0], ~grpOutput[num], \addToTail)) };
+			if(count == num) {
+				item.put(name, Synth(\outVolume,
+					[\busIn, item.at(\busIn),
+						\busOut, ~buses[\hwOut][count],
+						\amp, 1],
+					~grpOutput[num],
+					\addToTail)
+				)
+			}
+			{
+				item.put(name, Synth(\outVolume,
+					[\busIn, item.at(\busIn),
+						\busOut, ~buses[\hwOut][count],
+						\amp, 0],
+					~grpOutput[num],
+					\addToTail))
+			};
 		});
 	});
 	//~ostagec.sendMsg('/dlsp/log', 'waiting for outputs synths');
@@ -995,6 +1011,10 @@
 	~vm.put(\outputs, Dictionary.new()); //Outputs
 	~vm.put(\hwOut, Dictionary.new()); //hwOut
 
+	~vm[\hwIn].put(\ctrl, List.newClear());
+
+	~vm[\sources].put(\ctrl, List.newClear());
+
 	~vm[\inputs].put(\in, List.newClear());
 	~vm[\inputs].put(\gain, List.newClear());
 	~vm[\inputs].put(\gate, List.newClear());
@@ -1005,83 +1025,111 @@
 	~vm[\inputs].put(\limit, List.newClear());
 	~vm[\inputs].put(\outPre, List.newClear());
 	~vm[\inputs].put(\out, List.newClear());
-	~vm[\inputs].put(\mixSendPre, List.newClear());
 	~vm[\inputs].put(\mixSend, List.newClear());
-	~vm[\inputs].put(\pointSendPre, List.newClear());
 	~vm[\inputs].put(\pointSend, List.newClear());
-	~vm[\inputs].put(\outSendPre, List.newClear());
 	~vm[\inputs].put(\outSend, List.newClear());
 
-	~vm.postln;
+	~vm[\mixes].put(\in, List.newClear());
+	~vm[\mixes].put(\eq, List.newClear());
+	~vm[\mixes].put(\dynEQ, List.newClear());
+	~vm[\mixes].put(\comp, List.newClear());
+	~vm[\mixes].put(\ins, List.newClear());
+	~vm[\mixes].put(\limit, List.newClear());
+	~vm[\mixes].put(\outPre, List.newClear());
+	~vm[\mixes].put(\out, List.newClear());
+	~vm[\mixes].put(\pointSend, List.newClear());
+	~vm[\mixes].put(\outSend, List.newClear());
 
-	~vm[\inputs][\in].add(1);
-	~vm[\inputs][\in].add(2);
-	~vm[\inputs][\in].add(3);
-	~vm[\inputs][\in].add(4);
-	~vm[\inputs][\gain].add(1);
-	~vm[\inputs][\gain].add(2);
-	~vm[\inputs][\gain].add(3);
-	~vm[\inputs][\gain].add(4);
-	~vm[\inputs][\gate].add(1);
-	~vm[\inputs][\gate].add(2);
-	~vm[\inputs][\gate].add(3);
-	~vm[\inputs][\gate].add(4);
-	~vm[\inputs][\eq].add(1);
-	~vm[\inputs][\dynEQ].add(1);
-	~vm[\inputs][\comp].add(1);
-	~vm[\inputs][\limit].add(1);
-	~vm[\inputs][\outPre].add(1);
-	~vm[\inputs][\out].add(1);
-	~vm[\inputs][\mixSend].add([1,1]);
+	~vm[\points].put(\in, List.newClear());
+	~vm[\points].put(\out, List.newClear());
+	~vm[\points].put(\fieldPan, List.newClear());
+	~vm[\points].put(\spacePan, List.newClear());
+	~vm[\points].put(\outSend, List.newClear());
+
+	~vm[\fields].put(\in, List.newClear());
+	~vm[\fields].put(\slot, List.newClear());
+	~vm[\fields].put(\out, List.newClear());
+	~vm[\fields].put(\spaceSend, List.newClear());
+	~vm[\fields].put(\decSend, List.newClear());
+	~vm[\fields].put(\outSend, List.newClear());
+
+	~vm[\spaces].put(\in, List.newClear());
+	~vm[\spaces].put(\slot, List.newClear());
+	~vm[\spaces].put(\out, List.newClear());
+	~vm[\spaces].put(\decSend, List.newClear());
+	~vm[\spaces].put(\outSend, List.newClear());
+
+	~vm[\decoders].put(\in, List.newClear());
+	~vm[\decoders].put(\nfc, List.newClear());
+	~vm[\decoders].put(\out, List.newClear());
+	~vm[\decoders].put(\outSend, List.newClear());
+
+	~vm[\outputs].put(\in, List.newClear());
+	~vm[\outputs].put(\out, List.newClear());
+	~vm[\outputs].put(\hwOutSend, List.newClear());
+
+	~vm[\hwOut].put(\ctrl, List.newClear());
+
+	~vm.postln;
 };
 
 ~vmSend = Routine {
 	var value;
 	loop {
-		"vm".postln;
+		//"vm".postln;
 		~vm.keys.do ({
 			arg chanType;
-			(' '++chanType).postln;
+			//(' '++chanType).postln;
 			~vm[chanType].keys.do ({
 				arg busType;
-				('  '++busType).postln;
+				//('  '++busType).postln;
 				~vm[chanType][busType].do ({
 					arg value;
-					(value + " ").post;
-					switch (busType,
-						\in, {//INPUT BUS
-							~ostagec.sendMsg("/v", "i", "in", value, ~buses[\input][value-1][\inCtrl].getSynchronous.abs.postln);
-						},
-						\gain, {//GAIN BUS
-							~ostagec.sendMsg("/v", "i", "gn", value, ~buses[\input][value-1][\gainCtrl].getSynchronous.abs.postln);
-						},
-						\gate, {//GATE BUS
-							~ostagec.sendMsg("/v", "i", "gt", value, ~buses[\input][value-1][\gateCtrl].getSynchronous.abs.postln);
-						},
-						\eq, {//EQ BUS
-							~ostagec.sendMsg("/v", "i", "eq", value, ~buses[\input][value-1][\eqCtrl].getSynchronous.abs.postln);
-						},
-						\dynEQ, {//DYN EQ BUS
-							~ostagec.sendMsg("/v", "i", "dq", value, ~buses[\input][value-1][\dynEQCtrl].getSynchronous.abs.postln);
-						},
-						\comp, {//COMP BUS
-							~ostagec.sendMsg("/v", "i", "cp", value, ~buses[\input][value-1][\compCtrl].getSynchronous.abs.postln);
-						},
-						\limit, {//LIMIT BUS
-							~ostagec.sendMsg("/v", "i", "lt", value, ~buses[\input][value-1][\limitCtrl].getSynchronous.abs.postln);
-						},
-						\outPre, {//OUT PRE BUS
-							~ostagec.sendMsg("/v", "i", "op", value, ~buses[\input][value-1][\outPreCtrl].getSynchronous.abs.postln);
-						},
-						\out, {//OUT BUS
-							~ostagec.sendMsg("/v", "i", "ot", value, ~buses[\input][value-1][\outCtrl].getSynchronous.abs.postln);
-						},
-						\mixSend, {
-							value[0].do ({
-								//
-							});
-						},
-					);
+					//(value + " ").post;
+					(
+						switch (busType,
+							\in, {//INPUT BUS
+								~ostagec.sendMsg("/v", "i", "in", value,
+									~buses[\input][value-1][\inCtrl].getSynchronous.abs);
+							},
+							\gain, {//GAIN BUS
+								~ostagec.sendMsg("/v", "i", "gn", value,
+									~buses[\input][value-1][\gainCtrl].getSynchronous.abs);
+							},
+							\gate, {//GATE BUS
+								~ostagec.sendMsg("/v", "i", "gt", value,
+									~buses[\input][value-1][\gateCtrl].getSynchronous.abs);
+							},
+							\eq, {//EQ BUS
+								~ostagec.sendMsg("/v", "i", "eq", value,
+									~buses[\input][value-1][\eqCtrl].getSynchronous.abs);
+							},
+							\dynEQ, {//DYN EQ BUS
+								~ostagec.sendMsg("/v", "i", "dq", value,
+									~buses[\input][value-1][\dynEQCtrl].getSynchronous.abs);
+							},
+							\comp, {//COMP BUS
+								~ostagec.sendMsg("/v", "i", "cp", value,
+									~buses[\input][value-1][\compCtrl].getSynchronous.abs);
+							},
+							\limit, {//LIMIT BUS
+								~ostagec.sendMsg("/v", "i", "lt", value,
+									~buses[\input][value-1][\limitCtrl].getSynchronous.abs);
+							},
+							\outPre, {//OUT PRE BUS
+								~ostagec.sendMsg("/v", "i", "op", value,
+									~buses[\input][value-1][\outPreCtrl].getSynchronous.abs);
+							},
+							\out, {//OUT BUS
+								~ostagec.sendMsg("/v", "i", "ot", value,
+									~buses[\input][value-1][\outCtrl].getSynchronous.abs);
+							},
+							\mixSend, {//MIX SEND BUS
+								~ostagec.sendMsg("/v", "i", "md", value[1], value[0],
+									~buses[\input][value[0]-1][\mixSendCtrl][value[1]].getSynchronous.abs);
+							},
+						);
+					)
 				});
 			});
 		});

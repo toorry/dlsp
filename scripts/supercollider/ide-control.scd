@@ -138,3 +138,21 @@ FreqScope.new(400, 200, 0, server: s);
 ~vmSend.reset;
 OSCFunc.trace(false);
 OSCFunc.trace(true);
+
+'message'.postln;
+
+~prlg;
+try {
+	~prlg = this.inte("4+3{{");
+} { |error|
+	error.dump;
+}
+
+~prlg.post;
+
+~arrayt = [1,2,3];
+~arrayt[3].postln;
+
+~arrayt.isStr
+
+~vm[\inputs][\in].postln;
