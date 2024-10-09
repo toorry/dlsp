@@ -167,6 +167,7 @@ OSCdef(\volumeMeter,
 				var busesAmount = 0;
 				var wrongMsg = false;
 				"'start' case".postln;
+
 				(
 					"searching channel type".postln;
 					switch (msg[2],

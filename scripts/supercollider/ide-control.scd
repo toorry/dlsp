@@ -156,3 +156,12 @@ try {
 ~arrayt.isStr
 
 ~vm[\inputs][\in].postln;
+
+
+~var1 = nil;
+
+~var2 = ~var1.asInteger;
+~var2.postln;
+
+if (~var1 < 3) {~bool1 = true} {~bool1=false}
+~bool1.postln;
