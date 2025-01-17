@@ -165,3 +165,5 @@ try {
 
 if (~var1 < 3) {~bool1 = true} {~bool1=false}
 ~bool1.postln;
+
+Quarks.gui;
