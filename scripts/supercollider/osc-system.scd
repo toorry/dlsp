@@ -243,9 +243,8 @@ OSCdef(\volumeMeter,
 						\md, {//MIX SEND BUS
 							busType = \mixSend;
 							uniqueBus = false;
-							case
-							{ msg[5] == nil } { wrongMsg = true; }
-							{ msg[5] > ~mixesAmount } { wrongMsg = true; };
+							if ( msg[5] == nil , { wrongMsg = true; } );
+							if ( msg[5] > ~mixesAmount , { wrongMsg = true; } );
 						},
 						\ps, {//ALL POINT SENDS
 							busType = \pointSend;
@@ -256,8 +255,8 @@ OSCdef(\volumeMeter,
 						\pd, {//POINT SEND BUS
 							busType = \pointSend;
 							uniqueBus = false;
-							{ msg[5] == nil } { wrongMsg = true; }
-							{ msg[5] > ~pointsAmount } { wrongMsg = true; };
+							if ( msg[5] == nil , { wrongMsg = true; } );
+							if ( msg[5] > ~pointsAmount , { wrongMsg = true; } );
 						},
 						\os, {//ALL OUTPUT SENDS
 							busType = \outSend;
@@ -268,8 +267,8 @@ OSCdef(\volumeMeter,
 						\od, {//OUTPUT SEND BUS
 							busType = \outSend;
 							uniqueBus = false;
-							{ msg[5] == nil } { wrongMsg = true; }
-							{ msg[5] > ~outputsAmount } { wrongMsg = true; };
+							if ( msg[5] == nil , { wrongMsg = true; } );
+							if ( msg[5] > ~outputsAmount , { wrongMsg = true; } );
 						},
 						\fs, {//ALL FIELD PAN BUSES
 							busType = \fieldPan;
@@ -280,8 +279,8 @@ OSCdef(\volumeMeter,
 						\fd, {//FIELD PAN BUS
 							busType = \fieldPan;
 							uniqueBus = false;
-							{ msg[5] == nil } { wrongMsg = true; }
-							{ msg[5] > ~fieldsAmount } { wrongMsg = true; };
+							if ( msg[5] == nil , { wrongMsg = true; } );
+							if ( msg[5] > ~fieldsAmount , { wrongMsg = true; } );
 						},
 						\ss, {//ALL SPACE PAN BUSES
 							busType = \spacePan;
@@ -292,8 +291,8 @@ OSCdef(\volumeMeter,
 						\sc, {//SPACE PAN BUS
 							busType = \spacePan;
 							uniqueBus = false;
-							{ msg[5] == nil } { wrongMsg = true; }
-							{ msg[5] > ~spacesAmount } { wrongMsg = true; };
+							if ( msg[5] == nil , { wrongMsg = true; } );
+							if ( msg[5] > ~spacesAmount , { wrongMsg = true; } );
 						},
 						\ls, {//ALL AMB TRANSFORM BUSES
 							busType = \slot;
@@ -304,8 +303,8 @@ OSCdef(\volumeMeter,
 						\lt, {//AMB TRANSFORM BUS
 							busType = \slot;
 							uniqueBus = false;
-							{ msg[5] == nil } { wrongMsg = true; }
-							{ msg[5] > ~ambTransformerSlots } { wrongMsg = true; };
+							if ( msg[5] == nil , { wrongMsg = true; } );
+							if ( msg[5] > ~ambTransformerSlots , { wrongMsg = true; } );
 						},
 						\nf, {//NEAR FIELD CONTROL BUS
 							busType = \nfc;

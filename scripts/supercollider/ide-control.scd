@@ -65,7 +65,11 @@ Platform.ideName.postln;
 Platform.architecture.postln;
 Platform.
 
-ServerOptions.devices;
+~devicesList = ServerOptions.devices;
+~devicesList.do ({
+	arg item;
+	item.postln;
+});
 
 "jackd --no-realtime -d alsa -d hw:MKII".unixCmd;
 
@@ -167,3 +171,152 @@ if (~var1 < 3) {~bool1 = true} {~bool1=false}
 ~bool1.postln;
 
 Quarks.gui;
+
+VSTPlugin.search;
+
+~vstArray = VSTPlugin.pluginList(s,true);
+
+~vstArray.do({
+	arg item;
+	item.postln;
+});
+
+
+// ------------------------------------------------------------
+// Binaural (synthetic) decoder
+//
+// mono pink noise source
+// omni encoder
+
+
+// define encoder / decoder matrices
+~encoder = FoaEncoderMatrix.newOmni
+~decoder = FoaDecoderKernel.newSpherical // kernel decoders should be freed after use!!
+                                         // free below...
+server.killAll;
+s.boot;
+// inspect
+~encoder.kind
+~encoder.numChannels
+~encoder.dirChannels
+
+~decoder.kind
+~decoder.numChannels
+~decoder.dirChannels.raddeg
+
+(
+{
+    var sig;// audio signal
+    var angle, azim;            // angle and azimuth control
+
+
+    // display encoder and decoder
+    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+
+    // angle ---> top    = push to plane wave
+    //            bottom = omni-directional
+    angle = MouseY.kr(pi/2, 0);
+
+    // azimuth -> hard left     = back
+    //          centre     = centre
+    //          hard right     = back
+    azim = MouseX.kr(pi, -pi);
+
+
+    // ------------------------------------------------------------
+    // test sig
+    sig = PinkNoise.ar;             // mono pink noise
+
+
+    // ------------------------------------------------------------
+    // encode
+    sig = FoaEncode.ar(sig, ~encoder);
+
+    // ------------------------------------------------------------
+    // transform
+    sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+    // ------------------------------------------------------------
+    // decode (to binaural)
+    FoaDecode.ar(sig, ~decoder);
+
+}.scope;
+)
+
+// free kernel
+~decoder.free
+s.quit;
+
+// ------------------------------------------------------------
+
+// ------------------------------------------------------------
+// Binaural (CIPIC) decoder
+//
+// mono pink noise source
+// omni encoder
+
+s.boot;
+// define encoder / decoder matrices
+~encoder = FoaEncoderMatrix.newOmni
+~decoder = FoaDecoderKernel.newCIPIC    // kernel decoders should be freed after use!!
+                                        // free below...
+
+// inspect
+~encoder.kind
+~encoder.numChannels
+~encoder.dirChannels
+
+~decoder.kind
+~decoder.numChannels
+~decoder.dirChannels.raddeg
+
+(
+{
+    var sig;// audio signal
+    var angle, azim;            // angle and azimuth control
+
+
+    // display encoder and decoder
+    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+
+    // angle ---> top         = push to plane wave
+    //            bottom        = omni-directional
+    angle = MouseY.kr(pi/2, 0);
+
+    // azimuth -> hard left     = back
+    //          centre     = centre
+    //          hard right     = back
+    azim = MouseX.kr(pi, -pi);
+
+
+    // ------------------------------------------------------------
+    // test sig
+    sig = PinkNoise.ar;             // mono pink noise
+
+
+    // ------------------------------------------------------------
+    // encode
+    sig = FoaEncode.ar(sig, ~encoder);
+
+    // ------------------------------------------------------------
+    // transform
+    sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+    // ------------------------------------------------------------
+    // decode (to binaural)
+    FoaDecode.ar(sig, ~decoder);
+
+}.scope;
+)
+
+// free kernel
+~decoder.free
+
+// ------------------------------------------------------------
+s.meter;
+~buses.postln;
+~inputsMonoAmount.postln;

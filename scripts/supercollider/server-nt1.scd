@@ -4,17 +4,18 @@
 	"Declaring server environment".postln;
 	~serverConf = Dictionary.new();
 	~serverConf.put( \hwInputs, 32 );
-	~serverConf.put( \hwOutputs, 12 );
+	~serverConf.put( \hwOutputs, 14 );
 
 	~serverConf.put( \inputsMonoAmount, 16 );
 	~serverConf.put( \inputsAmbAmount, 4 );
 	~serverConf.put( \outputsAmount, 16 );
 
-	~ambOrder = 1;
-
-	~vm;
-	~vmRate;
-	~vmPackMaxSize;
+	~serverConf.put( \ambOrder, 1 );
+	~serverConf.put( \ambChansAmount, (~serverConf[\ambOrder] + 1).squared );
+	~serverConf.put( \hoaEncRadius, 7);
+	~serverConf.put( \hoaDirections, [30.0, 135.0, -135.0, -30.0].degrad );
+	~serverConf.put( \hoaBeamShape, \basic );
+	~serverConf.put( \hoaMatch, \amp );
 
 	~defaultValues = Dictionary.new();
 
@@ -63,9 +64,8 @@
 };
 
 ~bootConfig = {
-	arg hwInputs = 32, hwOutputs = 12,
-	hwInDevice = "BlackHole 64ch",
-	hwOutDevice = "BlackHole 64ch",
+	arg hwDevice = "ASIO : Dante Virtual Soundcard (x64)",
+	hwInputs = 32, hwOutputs = 14,
 	hwSampleRate = 48000,
 
 	memSize = 1048576,
@@ -80,22 +80,18 @@
 	mainWindowHeight = 768;
 
 	"Setting server variables".postln;
-	~hwInputs = hwInputs;
-	~hwOutputs = hwOutputs;
-	~inputsMonoAmount = inputsAmount;
-	~inputsAmbAmount = inputsAmbAmount;
-	~outputsAmount = outputsAmount;
+	~serverConf[\hwInputs] = hwInputs;
+	~serverConf[\hwOutputs] = hwOutputs;
+	~serverConf[\inputsMonoAmount] = inputsMonoAmount;
+	~serverConf[\inputsAmbAmount] = inputsAmbAmount;
+	~serverConf[\outputsAmount] = outputsAmount;
 
-	~ambOrder = ambOrder;
-	~ambChansAmount = (~ambOrder + 1).squared;
+	~serverConf[\ambOrder] = ambOrder;
+	~serverConf[\ambChansAmount] = (~serverConf[\ambOrder] + 1).squared;
 
-	~windowHeight = mainWindowHeight;
-	~windowWidth = mainWindowWidth;
-
-	~vmRate = 0.3;
-
-	s.options.numInputBusChannels = ~hwInputs;
-	s.options.numOutputBusChannels = ~hwOutputs;
+	s.options.device = hwDevice;
+	s.options.numInputBusChannels = hwInputs;
+	s.options.numOutputBusChannels = hwOutputs;
 	s.options.sampleRate = hwSampleRate;
 	s.options.memSize = memSize;
 	s.waitForBoot({
@@ -136,13 +132,19 @@
 	});
 };
 
-/*~initKernels = {
+~initKernels = {
 
-	~ambEncBinaural = FoaEncoderMatrix.newHoa1;
+	~decoderBin = FoaDecoderKernel.newCIPIC;
 	s.sync();
-	~ambDecBinaural = FoaDecoderKernel.newCIPIC;
+	~decoderRoom = FoaDecoderMatrix.newPanto(numChans: 10);
 	s.sync();
-};*/
+	~decoderRoom.dirChannels = [30,60,90,120,160,-160,-120,-90,-60,-30].degrad;
+
+	//~ambEncBinaural = FoaEncoderMatrix.newHoa1;
+	//s.sync();
+	//~ambDecBinaural = FoaDecoderKernel.newCIPIC;
+	//s.sync();
+};
 
 ~prepareSynths = {
 
@@ -155,18 +157,6 @@
 		Out.ar( busOut, sig );
 		Out.kr( busOutCtrl, sig );
 	}).add;
-
-	SynthDef(\chanOut, {
-			arg busIn, busOutPre, busOutPreCtrl, busOut, busOutCtrl, volume = 1.0, unmute = 1.0;
-			var sig;
-
-			sig = In.ar( busIn, 1 );
-
-			Out.ar( busOutPre, sig * unmute );
-			Out.ar( busOut, sig * volume * unmute );
-			Out.kr( busOutPre, sig );
-			Out.kr( busOut,sig * volume );
-		}).add;
 
 	SynthDef(\ambPan, {
 		arg busIn, busOut, busOutCtrl, amp=0, angRot = 0, angElev = 0, omni = 0;
@@ -200,6 +190,47 @@
 		Out.kr(busOutCtrl, sndHoa);
 	}).add;
 
+	SynthDef(\decoderRoom, {
+		arg busIn, busOut, busOutCtrl;
+		var sig;
+
+		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
+
+		sig = FoaDecode.ar(sig, ~decoderRoom);
+
+		Out.ar( busOut, sig );
+		//Out.kr( busOutCtrl, sigOut );
+	}).add;
+
+	SynthDef(\decoderBin, {
+		arg busIn, busOut, busOutCtrl;
+		var sig;
+
+		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
+
+		sig = FoaDecode.ar(sig, ~decoderBin);
+
+		Out.ar( busOut, sig );
+		//Out.kr( busOutCtrl, sigOut );
+	}).add;
+
+	SynthDef(\monoSend, {
+		arg busIn, busOut, volume;
+		var sig;
+
+		sig = In.ar( busIn, 1 );
+
+		Out.ar( busOut, sig * volume );
+	}).add;
+
+	SynthDef(\ambSend, {
+		arg busIn, busOut, volume;
+		var sig;
+
+		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
+
+		Out.ar( busOut, sig * volume );
+	}).add;
 };
 
 ~initBuses = {
@@ -213,68 +244,43 @@
 	~busTrashCtrl = Bus.control(s, 1);
 
 	~buses = Dictionary();
-	~buses.put(\hwIn,Array.newClear(~hwInputs));
-	~buses.put(\hwOut,Array.newClear(~hwOutputs));
-	~buses.put(\inputsMono,Array.newClear(~inputsMonoAmount));
-	~buses.put(\inputsAmb,Array.newClear(~inputsAmbAmount));
-	~buses.put(\outputs, Array.newClear(~outputsAmount));
+	~buses.put(\inputsMono,Array.newClear(~serverConf[\inputsMonoAmount]));
+	~buses.put(\inputsAmb,Array.newClear(~serverConf[\inputsAmbAmount]));
+	~buses.put(\ambMain, Bus.audio(s, ~serverConf[\ambChansAmount]));
+	~buses.put(\ambMainCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
+	~buses.put(\outputs,Array.newClear(~serverConf[\outputsAmount]));
 
-	~hwInputs.do ({
-		arg num;
-		~buses[\hwIn][num] = Dictionary.new();
-		~buses[\hwIn][num].put(\in, ~hwOutputs + num);
-		~buses[\hwIn][num].put(\inCtrl, Bus.control(s, 1));
-		~buses[\hwIn][num].put(\out, Bus.audio(s, 1));
-		~buses[\hwIn][num].put(\outCtrl, Bus.control(s, 1));
-	});
-	~buses[\hwIn].postln;
-
-	~hwOutputs.do ({
-		arg num;
-		~buses[\hwOut][num] = Dictionary.new();
-		~buses[\hwOut][num].put(\in, Bus.audio(s, 1));
-		~buses[\hwOut][num].put(\inCtrl, Bus.control(s, 1));
-		~buses[\hwOut][num].put(\out, num);
-		~buses[\hwOut][num].put(\outCtrl, Bus.control(s, 1));
-	});
-	~buses[\hwOut].postln;
-
-	~inputsMonoAmount.do ({
+	~serverConf[\inputsMonoAmount].do ({
 		arg num;
 		var item = Dictionary();
-		item.put(\in,Bus.audio(s,1));
+		item.put(\in, ~serverConf[\hwOutputs] + num - 1);
 		item.put(\inCtrl, Bus.control(s, 1));
-		item.put(\outPre,Bus.audio(s,1));
-		item.put(\outPreCtrl, Bus.control(s, 1));
-		item.put(\out,Bus.audio(s,1));
-		item.put(\outCtrl, Bus.control(s, 1));
-		item.put(\ambPan, Bus.audio(s, ~ambChansAmount));
-		item.put(\ambPanCtrl, Bus.control(s, ~ambChansAmount));
+		item.put(\gain,Bus.audio(s,1));
+		item.put(\gainCtrl, Bus.control(s, 1));
+		item.put(\out, Bus.audio(s, ~serverConf[\ambChansAmount]));
+		item.put(\outCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
 		~buses[\inputsMono][num]=item;
 	});
 	~buses[\inputsMono].postln;
 
-	~inputsAmbAmount.do ({
+	~serverConf[\inputsAmbAmount].do ({
 		arg num;
 		var item = Dictionary();
-		item.put(\in,Bus.audio(s, ~ambChansAmount));
-		item.put(\inCtrl, Bus.control(s, ~ambChansAmount));
-		item.put(\ambTransform, Bus.audio(s, ~ambChansAmount));
-		item.put(\ambTransformCtrl, Bus.control(s, ~ambChansAmount));
-		item.put(\outPre,Bus.audio(s, ~ambChansAmount));
-		item.put(\outPreCtrl, Bus.control(s, ~ambChansAmount));
-		item.put(\out,Bus.audio(s, ~ambChansAmount));
-		item.put(\outCtrl, Bus.control(s, ~ambChansAmount));
+		item.put(\in, ~serverConf[\hwOutputs] + ~serverConf[\inputsMonoAmount] +
+			(num - 1) * ~serverConf[\ambChansAmount]);
+		item.put(\inCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
+		item.put(\out,Bus.audio(s, ~serverConf[\ambChansAmount]));
+		item.put(\outCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
 		~buses[\inputsAmb][num]=item;
 	});
 	~buses[\inputsAmb].postln;
 
-	~outputsAmount.do ({
+	~serverConf[\outputsAmount].do ({
 		arg num;
 		var item = Dictionary();
-		item.put(\in,Bus.newFrom(~buses[\outputs], num, 1));
-		item.put(\inCtrl, Bus.newFrom(~buses[\outputsCtrl], num, 1));
-		item.put(\out,Bus.audio(s, 1));
+		item.put(\in, Bus.audio(s, 1));
+		item.put(\inCtrl, Bus.control(s, 1));
+		item.put(\out, num - 1);
 		item.put(\outCtrl, Bus.control(s, 1));
 		~buses[\outputs][num]=item;
 	});
@@ -285,114 +291,99 @@
 ~initChannels = {
 
 	//Initialise MONO INPUTS
-	~inputsMono = Array.newClear(~inputsMonoAmount);
-	~inputsMonoAmount.do({
+	~inputsMono = Array.newClear(~serverConf[\inputsMonoAmount]);
+	~inputsAmb = Array.newClear(~serverConf[\inputsAmbAmount]);
+
+	~serverConf[\inputsMonoAmount].do({
 		arg num;
 		var input = Dictionary();
 		input.put(\busIn, ~buses[\inputsMono][num][\in]);
 		input.put(\busInCtrl, ~buses[\inputsMono][num][\inCtrl]);
-		input.put(\busOutPre, ~buses[\inputsMono][num][\outPre]);
-		input.put(\busOutPreCtrl, ~buses[\inputsMono][num][\outPreCtrl]);
+		input.put(\busGain, ~buses[\inputsMono][num][\gain]);
+		input.put(\busGainCtrl, ~buses[\inputsMono][num][\gainCtrl]);
 		input.put(\busOut, ~buses[\inputsMono][num][\out]);
 		input.put(\busOutCtrl, ~buses[\inputsMono][num][\outCtrl]);
-		input.put(\busAmbPan, ~buses[\inputsMono][num][\ambPan]);
-		input.put(\busAmbPanCtrl, ~buses[\inputsMono][num][\ambPanCtrl]);
 		~inputsMono[num] = input;
 	});
 	~inputsMono.postln;
 
 	//Initialise AMBISONIC INPUTS
-	~inputsAmb = Array.newClear(~inputsAmbAmount);
-	~inputsAmbAmount.do({
+	~inputsAmb = Array.newClear(~serverConf[\inputsAmbAmount]);
+	~serverConf[\inputsAmbAmount].do({
 		arg num;
 		var input = Dictionary();
 		input.put(\busIn, ~buses[\inputsAmb][num][\in]);
 		input.put(\busInCtrl, ~buses[\inputsAmb][num][\inCtrl]);
-		input.put(\busAmbTransform, ~buses[\inputsAmb][num][\ambTransform]);
-		input.put(\busAmbTransformCtrl, ~buses[\inputsAmb][num][\ambTransformCtrl]);
-		input.put(\busOutPre, ~buses[\inputsAmb][num][\outPre]);
-		input.put(\busOutPreCtrl, ~buses[\inputsAmb][num][\outPreCtrl]);
 		input.put(\busOut, ~buses[\inputsAmb][num][\out]);
 		input.put(\busOutCtrl, ~buses[\inputsAmb][num][\outCtrl]);
 		~inputsAmb[num] = input;
 	});
 	~inputsAmb.postln;
-
-	//Initialise OUTPUTS
-	~outputs = Array.newClear(~outputsAmount);
-	~outputsAmount.do({
-		arg num;
-		var output = Dictionary();
-		output.put(\busIn, ~buses[\outputs][num][\in]);
-		output.put(\busInCtrl, ~buses[\outputs][num][\inCtrl]);
-		output.put(\busOut, ~buses[\outputs][num][\out]);
-		output.put(\busOutCtrl, ~buses[\outputs][num][\outCtrl]);
-		~outputs[num] = output;
-	});
-	~outputs.postln;
 };
 
 //Initialise GROUPS
 
 ~initGroups = {
 
-	~grpInputsMono = Group.new();
+	~grpInputsMono = Group.new(s);
 	~grpInputsAmb = Group.after(~grpInputsMono);
-	~grpOutputs = Group.after(~grpInputsAmb);
+	~grpAmbMain = Group.after(~grpInputsAmb);
 
-	//~grpInputsMono = Array.newClear(~inputsMonoAmount);
-	//~grpInputsAmb = Array.newClear(~inputsAmbAmount);
-	//~grpOutputs = Array.newClear(~outputsAmount);
+	~grpInputMono = Array.newClear(~serverConf[\inputsMonoAmount]);
+	~grpInputAmb = Array.newClear(~serverConf[\inputsAmbAmount]);
 
-	~inputsMonoAmount.do({
+	~serverConf[\inputsMonoAmount].do({
 		arg num;
-		~grpInputMono[num] = Group.new(~grpInputsMono, \addToTail);
+		~grpInputMono[num] = Group.tail(~grpInputsMono);
 	});
 
-	~inputsAmbAmount.do({
+	~serverConf[\inputsAmbAmount].do({
 		arg num;
-		~grpInputAmb[num] = Group.new(~grpInputsAmb, \addToTail);
-	});
-
-	~outputsAmount.do({
-		arg num;
-		~grpOutput[num] = Group.new(~grpOutputs, \addToTail);
+		~grpInputAmb[num] = Group.tail(~grpInputsAmb);
 	});
 };
+
+//~grpInputMono[1].postln;
 
 //Initialise SYNTHS
 
 ~initSynths = {
 
-	~inputsMonoAmount.do({
+	~serverConf[\inputsMonoAmount].do({
 		arg num;
 		var item = ~inputsMono[num];
 
-		item.put('synthOut', Synth(\chanOut,
+		item.put('synthInGain', Synth.new(\inGain,
 			[\busIn, item[\busIn],
-				\busOutPre, item[\busOutPre],
-				\busOutPreCtrl, item[\busOutPreCtrl],
+				\busOut, item[\busGain],
+				\busOutCtrl, item[\busGainCtrl]
+			],
+			~grpInputMono[num],
+			\addToTail)
+		);
+		item.put('synthInAmbPan', Synth.new(\ambPan,
+			[\busIn, item[\busGain],
 				\busOut, item[\busOut],
 				\busOutCtrl, item[\busOutCtrl]
 			],
 			~grpInputMono[num],
 			\addToTail)
 		);
-		item.put('synthAmbPan', Synth(\ambPan,
+		item.put('synthInAmbSend', Synth.new(\ambSend,
 			[\busIn, item[\busOut],
-				\busOut, item[\busAmbPan],
-				\busOutCtrl, item[\busAmbPanCtrl]
+				\busOut, ~buses[\ambMain],
+				\volume, 0
 			],
 			~grpInputMono[num],
 			\addToTail)
 		);
 	});
 
-	~inputsAmbAmount.do({
+	~serverConf[\inputsAmbAmount].do({
 		arg num;
 		var item = ~inputsAmb[num];
 
-		item.put('synthAmbTransform', Synth(\ambTransform,
+		item.put('synthAmbTransform', Synth.new(\ambTransform,
 			[\busIn, item[\busIn],
 				\busOut, item[\busOut],
 				\busOutCtrl, item[\busOutCtrl]
@@ -400,26 +391,38 @@
 			~grpInputAmb[num],
 			\addToTail)
 		);
-	});
-
-	~outputsAmount.do({
-		arg num;
-		var item = ~outputs[num];
-
-		item.put('synthOut', Synth(\chanOut,
-			[\busIn, item[\busIn],
-				\busOut, item[\busOut],
-				\busOutCtrl, item[\busOutCtrl]
+		item.put('synthInAmbSend', Synth.new(\ambSend,
+			[\busIn, item[\busOut],
+				\busOut, ~buses[\ambMain],
+				\volume, 0
 			],
-			~grpOutput[num],
+			~grpInputMono[num],
 			\addToTail)
 		);
 	});
+
+	~synthDecoderBin = Synth.new(\decoderBin,
+		[\busIn, ~buses[\ambMain],
+			\busOut, [0,1],
+		],
+		~grpAmbMain,
+		\addToTail);
+
+	~synthDecoderRoom = Synth.new(\decoderRoom,
+		[\busIn, ~buses[\ambMain],
+			\busOut, [2,3,4,5,6,7,8,9,10,11],
+		],
+		~grpAmbMain,
+		\addToTail);
 
 };
 
 ~initVM = {
 	~vm = Dictionary.new();
+
+	~vm.put(\rate, 0.3);
+	~vm.put(\packMaxSize, 16);
+
 	~vm.put(\inputsMono, Dictionary.new());  //Inputs MONO
 	~vm.put(\inputsAmb, Dictionary.new());  //Inputs AMBISONIC
 	~vm.put(\outputs, Dictionary.new()); //Outputs
@@ -478,58 +481,22 @@
 	};
 };
 
-//~vuSend.play;
-//~vuSend.stop;
-//~vuSend.reset;
-//OSCFunc.trace(false);
 ~regularBoot = Routine {
 
 	~initConfig.value;
 	~bootConfig.value(
-		hwInputs: 2, hwOutputs: 2,
-		//hwInDevice: "Windows WASAPI : Microphone Array (AMD Audio Device)",
-		//hwInDevice: "Windows WASAPI : CABLE Output (VB-Audio Virtual Cable)",
-		//hwOutDevice: "Windows WASAPI : Line (Realphones System-Wide)",
+		hwInputs: 48, hwOutputs: 14,
+		hwDevice: "ASIO : Dante Virtual Soundcard (x64)",
 		hwSampleRate: 48000,
 		memSize: 1048576,
-		inputsAmount: 4,
-		mixesAmount: 4,
-		pointsAmount: 4,
-		fieldsAmount: 1,
-		spacesAmount: 1,
-		outputsAmount: 4,
+		inputsMonoAmount: 24,
+		inputsAmbAmount: 6,
+		outputsAmount: 18,
 
-		ambOrder: 3,
+		ambOrder: 1,
 		hoaEncRadius: 1,
 		hoaDirections: [30.0, 135.0, -135.0, -30.0].degrad,
 		hoaBeamShape: \basic,
-		hoaMatch: \amp,
-
-		mainWindowWidth: 750,
-		mainWindowHeight: 550;
+		hoaMatch: \amp
 	);
 };
-
-//~mixes;
-
-
-{
-// z and y are the same object
-var y, z;
-z = [1, 2, 3];
-y = z.add(4);
-z.postln;
-y.postln;
-};
-
-{
-// in this case a new object is returned
-var y, z;
-z = [1, 2, 3, 4, 6];
-z.add(5);
-
-z.postln;
-y.postln;
-z.removeAt(2);
-z.postln;
-}

@@ -10,40 +10,9 @@
 
 //// FINDING SETTINGS
 
-if(File.exists(~path ++ "/settings.txt")) {
-	'Settings file found'.postln;
-} {
-	'Settings file does not exist. Making one and configuring work folder..'.postln;
-	if(File.exists(~path)) {} { File.mkdir(~path) };
-	~dlspSettingsFile = File.new(~path ++ "/settings.txt", "w");
-	~dlspSettingsFile.write("DestraLSP-settings-file format-v1.0\n");
-	~dlspSettingsFile.write("work-path " ++ ~path ++ "/work\n");
-	~dlspSettingsFile.write("osc-in-port 57120\n");
-	~dlspSettingsFile.write("web-ui-port 8080\n");
-	~dlspSettingsFile.close;
-};
-
-~dlspSettingsFile = File.open(~path ++ "/settings.txt", "r");
-~dlspSettingsArray = ~dlspSettingsFile.readAllString.split($\n);
-~dlspSettingsFile.close;
-
-~dlspSettings = Dictionary.new();
-~dlspSettingsArray.do ({
-	arg item;
-	var stringPair;
-	item.postln;
-	stringPair = item.split($ );
-	~dlspSettings.put(stringPair[0].asSymbol,stringPair[1]);
-});
 
 //// PREPARING FILE SOUND SOURCES ENVIRONMENT
 
-if(File.exists(~dlspSettings['work-path'] ++ "/sources")) {
-	'Sources found'.postln;
-} {
-	'Sources folder does not exist. Making one..'.postln;
-	File.mkdir(~dlspSettings['work-path'] ++ "/sources");
-};
 
 ////FUNCTIONS
 
@@ -61,7 +30,7 @@ ServerBoot.add(~msgserverstart);
 ServerQuit.add(~msgserverstop);
 
 //// SOUND SERVER INITIALIZE
-File.readAllString(~path ++ "/scripts/supercollider/server.scd").interpret.postln;
+File.readAllString(~path ++ "/scripts/supercollider/server-nt1.scd").interpret.postln;
 
 //// SYSTEM OSC MESSAGES HANDLERS
 File.readAllString(~path ++ "/scripts/supercollider/osc-system.scd").interpret.postln;

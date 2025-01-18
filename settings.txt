@@ -1,4 +1,7 @@
-DestraLSP-settings-file format-v1.0
-work-path C:/meganz/dlsp/work
-osc-in-port 57120
-web-ui-port 8080
+<!DOCTYPE html>
+<html>
+<format>DestraLSP-settings-file-1.0</format>
+<workPath>D:/dlsp/dlsp</workPath>
+<oscInPort>57120</oscInPort>
+<webUIPort>8080</webUIPort>
+</html>
