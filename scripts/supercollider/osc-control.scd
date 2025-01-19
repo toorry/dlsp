@@ -1,7 +1,22 @@
-OSCdef(\ctrlInVol,
+OSCdef(\ctrlChannel,
 	{ arg msg;
-		var inputNum = msg[1],
-		volume = msg[2];
-		~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Shutting down..');
-		"systemctl poweroff -i".unixCmd; },
-	'/in/vol');
+		var channelType = msg[1],
+		commandType, channelNumber, value;
+
+		switch (channelType,// CHANNEL TYPE
+			\i,// INPUT
+			{
+				commandType = msg[2];
+
+				switch (commandType,///COMMAND TYPE
+					\v,///VOLUME
+					{
+						channelNumber = msg[3].postln;
+						value = msg[4].postln;
+						~inputsMono[channelNumber-1][\synthInAmbSend].set(\volume, value).postln;
+					},
+				);
+			},
+		);
+	},
+	'/ch');
