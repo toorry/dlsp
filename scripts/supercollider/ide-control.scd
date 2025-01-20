@@ -318,5 +318,21 @@ s.boot;
 
 // ------------------------------------------------------------
 s.meter;
+s.status.postln;
 ~buses.postln;
 ~inputsMonoAmount.postln;
+
+NetAddr.langPort;
+
+thisProcess.openUDPPort(57110);
+thisProcess.openPorts;
+
+OSCFunc.trace(true); // Turn posting on
+OSCFunc.trace(false); // Turn posting off
+
+s.options.device = "ASIO : Dante Virtual Soundcard (x64)";
+s.options.sampleRate = 48000;
+s.boot;
+s.serverRunning;
+s.ping;
+Server.killAll;

@@ -128,7 +128,7 @@
 		~initVM.value;
 		s.sync();
 		"Starting VolumeMeter".postln;
-		~vmSend.play;
+		//~vmSend.play;
 	});
 };
 
@@ -159,35 +159,28 @@
 	}).add;
 
 	SynthDef(\ambPan, {
-		arg busIn, busOut, busOutCtrl, amp=0, angRot = 0, angElev = 0, omni = 0;
-		var sndIn, sndFr, sndBk, sndHoa, amp1, amp2;
-		sndIn = In.ar(busIn, 1);
-		amp1 = amp * (1 -omni);
-		amp2 = omni * amp / 2;
-		sndFr = HoaEncodeDirection.ar(sndIn * amp1, angRot, angElev, ~hoaEncRadius, ~hoaOrder);
-		sndBk = HoaEncodeMatrix.ar((sndIn * amp2)!4, HoaMatrixEncoder.newDirections(
-			[[0,pi/2],[0,-0.6154797],[pi*1.5,-0.6154797],[-pi*1.5,-0.6154797]],
-			~hoaBeamShape, ~hoaMatch, ~hoaOrder));
-		sndHoa = Mix.new([sndFr, sndBk]);
+		arg busIn, busOut, busOutCtrl, azimuth = 0, elevation = 0, shiftToCenter = 90, volume = 1;
+		var sig;
 
-		Out.ar(busOut, sndHoa);
-		Out.kr(busOutCtrl, sndHoa);
+		sig = In.ar(busIn, 1);
+		sig = FoaPanB.ar(sig, azimuth.degrad, elevation.degrad);//DIRECTION
+		FoaDirectO.ar(sig, shiftToCenter.degrad);//SHIFT TO CENTER
+		sig = sig * volume;
+
+		Out.ar(busOut, sig);
+		Out.kr(busOutCtrl, sig);
 	}).add;
 
 	SynthDef(\ambTransform, {
-		arg busIn, busOut, busOutCtrl, amp=0, angRot = 0, angElev = 0, omni = 0;
-		var sndIn, sndFr, sndBk, sndHoa, amp1, amp2;
-		sndIn = In.ar(busIn, 1);
-		amp1 = amp * (1 -omni);
-		amp2 = omni * amp / 2;
-		sndFr = HoaEncodeDirection.ar(sndIn * amp1, angRot, angElev, ~hoaEncRadius, ~hoaOrder);
-		sndBk = HoaEncodeMatrix.ar((sndIn * amp2)!4, HoaMatrixEncoder.newDirections(
-			[[0,pi/2],[0,-0.6154797],[pi*1.5,-0.6154797],[-pi*1.5,-0.6154797]],
-			~hoaBeamShape, ~hoaMatch, ~hoaOrder));
-		sndHoa = Mix.new([sndFr, sndBk]);
+		arg busIn, busOut, busOutCtrl, rotateAngle = 0, tiltAngle = 0, tumbleAngle = 0, volume = 1;
+		var sig;
 
-		Out.ar(busOut, sndHoa);
-		Out.kr(busOutCtrl, sndHoa);
+		sig = In.ar(busIn, 4);
+		sig = FoaRTT.ar(sig, rotateAngle.degrad, tiltAngle.degrad, tumbleAngle.degrad);
+		sig = sig * volume;
+
+		Out.ar(busOut, sig);
+		Out.kr(busOutCtrl, sig);
 	}).add;
 
 	SynthDef(\decoderRoom, {
@@ -224,7 +217,7 @@
 	}).add;
 
 	SynthDef(\ambSend, {
-		arg busIn, busOut, volume;
+		arg busIn, busOut, volume = 0;
 		var sig;
 
 		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
@@ -253,7 +246,7 @@
 	~serverConf[\inputsMonoAmount].do ({
 		arg num;
 		var item = Dictionary();
-		item.put(\in, ~serverConf[\hwOutputs] + num - 1);
+		item.put(\in, ~serverConf[\hwOutputs] + num);
 		item.put(\inCtrl, Bus.control(s, 1));
 		item.put(\gain,Bus.audio(s,1));
 		item.put(\gainCtrl, Bus.control(s, 1));
@@ -372,7 +365,7 @@
 		item.put('synthInAmbSend', Synth.new(\ambSend,
 			[\busIn, item[\busOut],
 				\busOut, ~buses[\ambMain],
-				\volume, 0
+				\volume, 1
 			],
 			~grpInputMono[num],
 			\addToTail)
@@ -485,13 +478,14 @@
 
 	~initConfig.value;
 	~bootConfig.value(
-		hwInputs: 48, hwOutputs: 14,
-		hwDevice: "ASIO : Dante Virtual Soundcard (x64)",
+		hwInputs: 8, hwOutputs: 10,
+		hwDevice: "ASIO : UMC ASIO Driver",
+		//hwDevice: "ASIO : Dante Virtual Soundcard (x64)",
 		hwSampleRate: 48000,
 		memSize: 1048576,
-		inputsMonoAmount: 24,
-		inputsAmbAmount: 6,
-		outputsAmount: 18,
+		inputsMonoAmount: 4,
+		inputsAmbAmount: 1,
+		outputsAmount: 14,
 
 		ambOrder: 1,
 		hoaEncRadius: 1,

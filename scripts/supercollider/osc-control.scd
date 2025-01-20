@@ -13,7 +13,7 @@ OSCdef(\ctrlChannel,
 					{
 						channelNumber = msg[3].postln;
 						value = msg[4].postln;
-						~inputsMono[channelNumber-1][\synthInAmbSend].set(\volume, value).postln;
+						~inputsMono[channelNumber-1][\synthInAmbSend].set(\volume, value);
 					},
 				);
 			},
