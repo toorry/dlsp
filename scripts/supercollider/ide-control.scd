@@ -336,3 +336,5 @@ s.boot;
 s.serverRunning;
 s.ping;
 Server.killAll;
+
+~inputsMono[0].postln;

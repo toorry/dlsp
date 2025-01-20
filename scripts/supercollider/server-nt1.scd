@@ -159,13 +159,13 @@
 	}).add;
 
 	SynthDef(\ambPan, {
-		arg busIn, busOut, busOutCtrl, azimuth = 0, elevation = 0, shiftToCenter = 90, volume = 1;
+		arg busIn, busOut, busOutCtrl, azimuth = 0, elevation = 0, approach = 0, distance = 1, volume = 1;
 		var sig;
 
 		sig = In.ar(busIn, 1);
 		sig = FoaPanB.ar(sig, azimuth.degrad, elevation.degrad);//DIRECTION
-		FoaDirectO.ar(sig, shiftToCenter.degrad);//SHIFT TO CENTER
-		sig = sig * volume;
+		sig = FoaDirectO.ar(sig, approach * pi/2);//APPROACH
+		sig = sig * volume / distance;
 
 		Out.ar(busOut, sig);
 		Out.kr(busOutCtrl, sig);
