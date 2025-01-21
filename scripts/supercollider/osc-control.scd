@@ -9,6 +9,20 @@ OSCdef(\ctrlChannel,
 				commandType = msg[2];
 
 				switch (commandType,///COMMAND TYPE
+					\g,///GAIN
+					{
+						channelNumber = msg[3];
+						value = msg[4];
+						~inputsMono[channelNumber-1][\synthInGain].set(\gain, value);
+						("input " ++ msg[3] ++ " gain " ++ value).postln;
+					},
+					\m,///MUTE
+					{
+						channelNumber = msg[3];
+						value = msg[4];
+						~inputsMono[channelNumber-1][\synthInAmbPan].set(\mute, value);
+						("input " ++ msg[3] ++ " mute " ++ value).postln;
+					},
 					\v,///VOLUME
 					{
 						channelNumber = msg[3];
