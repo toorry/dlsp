@@ -338,3 +338,8 @@ s.ping;
 Server.killAll;
 
 ~inputsMono[0].postln;
+1 - 0.3.clip(0,1).postln;
+AtkFoa.format;
+AtkFoa.ordering;
+AtkFoa.normalisation;
+AtkFoa.
