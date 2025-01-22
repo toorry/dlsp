@@ -52,8 +52,8 @@ OSCdef(\ctrlChannel,
 					{
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(
-							\radius, value.clip(0.1,1),
-							\distance, value.clip(1,1000));
+							\radius, value,
+							\distance, value.clip(~serverConf.put[\hoaEncRadius],1000));
 						("point " ++ channelNumber ++ " distance " ++ value).postln;
 					}
 				);
@@ -61,6 +61,37 @@ OSCdef(\ctrlChannel,
 		);
 	},
 	'/ch');
+
+~decoderChangeMain = Routine {
+
+	SynthDef(\decoderRoom, {
+		arg busIn, busOut, busOutCtrl;
+		var sig;
+
+		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
+
+		//sig = FoaDecode.ar(sig, ~decoderRoom);
+		sig = HoaDecodeMatrix.ar(sig, HoaMatrixDecoder.newModeMatch(
+			~serverConf.[\mainDirections],
+			beamShape: \basic,
+			match: \amp,
+			order: 1)
+		);
+
+		Out.ar( busOut, sig );
+		//Out.kr( busOutCtrl, sigOut );
+	}).add;
+	s.sync();
+
+	~synthDecoderRoom.free;
+	s.sync();
+	~synthDecoderRoom = Synth.new(\decoderRoom,
+		[\busIn, ~buses[\ambMain],
+			\busOut, [2,3,4,5,6,7,8,9,10,11],
+		],
+		~grpAmbMain,
+		\addToTail);
+};
 
 OSCdef(\ctrlDecoder,
 	{ arg msg;
@@ -75,7 +106,8 @@ OSCdef(\ctrlDecoder,
 				("dec " ++ decoderNumber ++ " chan dirs").postln;
 				value = [ msg[3], msg[4], msg[5], msg[6], msg[7], msg[8], msg[9], msg[10] ];
 				~serverConf[\mainDirections] = value.degrad;
-				//~decoderRoom.dirChannels = value.degrad;
+
+				~decoderChangeMain.value;
 			}
 		);
 	},

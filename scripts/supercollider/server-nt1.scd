@@ -133,7 +133,7 @@
 		~initVM.value;
 		s.sync();
 		"Starting VolumeMeter".postln;
-		//~vmSend.play;
+		~vmSend.play;
 	});
 };
 
@@ -170,8 +170,8 @@
 	}).add;
 
 	SynthDef(\ambPan, {
-		arg busIn, busOut, busOutCtrl, azimuth = 0, elevation = 0, radius = 1,
-		approach = 0, distance = 1, mute = 1, volume = 1;
+		arg busIn, busOut, busOutCtrl, azimuth = 0, elevation = 0, radius = ~serverConf.put[\hoaEncRadius],
+		approach = 0, distance = ~serverConf.put[\hoaEncRadius], mute = 1, volume = 1;
 		var sig;
 
 		sig = In.ar(busIn, 1);
@@ -449,7 +449,7 @@
 	~vmOpt = Dictionary.new();
 	~vmBuff = Dictionary.new();
 
-	~vmOpt.put(\rate, 0.5);
+	~vmOpt.put(\rate, 0.3);
 	~vmOpt.put(\packMaxSize, 16);
 
 	~vmBuff.put(\ambBuffer, Array.newClear(~serverConf[\ambChansAmount]));

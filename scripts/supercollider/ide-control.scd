@@ -1,7 +1,7 @@
 //~sample1 = Buffer.read(s,"/home/sndadmin/dlsp/work/sources/nature-essentials/QP01 0127 Canyon dove.wav" );
 //~sample2 = Buffer.read(s, "/home/sndadmin/dlsp/work/sources/nature-essentials/QP01 0127 Canyon dove.wav");
-~sample1 = Buffer.read(s, "D:/Samples/Dreaming-Under-The-Stars-MP3(chosic.com).mp3" );
-~sample2 = Buffer.read(s, "D:/Samples/Dreaming-Under-The-Stars-MP3(chosic.com).mp3" );
+~sample1 = Buffer.read(s, ~path +/+ "work" +/+ "sources" +/+ "Dreaming-Under-The-Stars-MP3(chosic.com).mp3" );
+~sample2 = Buffer.read(s, ~path +/+ "work" +/+ "sources" +/+ "Dreaming-Under-The-Stars-MP3(chosic.com).mp3" );
 
 SynthDef.new(\sample1, {
 	var sig;
@@ -372,3 +372,4 @@ AtkFoa.speedOfSound;
 		~serverConf[\mainDirections][7],
 	]
 );
+Quarks.gui;
