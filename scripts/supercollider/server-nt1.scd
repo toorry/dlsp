@@ -149,10 +149,14 @@
 ~prepareSynths = {
 
 	SynthDef(\inGain, {
-		arg busIn, busOut, busOutCtrl, gain = 1.0;
+		arg busIn, busInCtrl, busOut, busOutCtrl, gain = 1.0;
 		var sig;
 
-		sig = In.ar( busIn, 1 ) * gain;
+		sig = In.ar( busIn, 1 );
+
+		Out.kr( busInCtrl, sig );
+
+		sig = sig * gain;
 
 		Out.ar( busOut, sig );
 		Out.kr( busOutCtrl, sig );
@@ -348,6 +352,7 @@
 
 		item.put('synthInGain', Synth.new(\inGain,
 			[\busIn, item[\busIn],
+				\busInCtrl, item[\busInCtrl],
 				\busOut, item[\busGain],
 				\busOutCtrl, item[\busGainCtrl]
 			],
@@ -412,30 +417,34 @@
 
 ~initVM = {
 	~vm = Dictionary.new();
+	~vmOpt = Dictionary.new();
+	~vmBuff = Dictionary.new();
 
-	~vm.put(\rate, 0.3);
-	~vm.put(\packMaxSize, 16);
+	~vmOpt.put(\rate, 0.5);
+	~vmOpt.put(\packMaxSize, 16);
+
+	~vmBuff.put(\ambBuffer, Array.newClear(~serverConf[\ambChansAmount]));
+	~vmBuff.put(\msg, Array.newClear(1));
 
 	~vm.put(\inputsMono, Dictionary.new());  //Inputs MONO
 	~vm.put(\inputsAmb, Dictionary.new());  //Inputs AMBISONIC
 	~vm.put(\outputs, Dictionary.new()); //Outputs
 
-	~vm[\inputsMono].put(\in, List.newClear());
-	~vm[\inputsMono].put(\outPre, List.newClear());
-	~vm[\inputsMono].put(\out, List.newClear());
-	~vm[\inputsMono].put(\ambPan, List.newClear());
+	~vm[\inputsMono].put(\in, List.newUsing([1,2,3,4]));
+	~vm[\inputsMono].put(\gain, List.newUsing([1,2,3,4]));
+	~vm[\inputsMono].put(\out, List.newUsing([1,2]));
 
 	~vm[\inputsAmb].put(\in, List.newClear());
 	~vm[\inputsAmb].put(\out, List.newClear());
 
 	~vm[\outputs].put(\in, List.newClear());
-	~vm[\outputs].put(\out, List.newClear());
 
 	~vm.postln;
 };
 
 ~vmSend = Routine {
 	var value;
+	"vmSend".postln;
 	loop {
 		//"vm".postln;
 		~vm.keys.do ({
@@ -453,24 +462,21 @@
 								~ostagec.sendMsg("/v", "i", "in", value,
 									~buses[\inputsMono][value-1][\inCtrl].getSynchronous.abs);
 							},
-							\outPre, {//PREFADER OUT BUS
-								~ostagec.sendMsg("/v", "i", "op", value,
-									~buses[\inputsMono][value-1][\outCtrl].getSynchronous.abs);
+							\gain, {//GAIN BUS
+								~ostagec.sendMsg("/v", "i", "gn", value,
+									~buses[\inputsMono][value-1][\gainCtrl].getSynchronous.abs);
 							},
 							\out, {//OUT BUS
-								~ostagec.sendMsg("/v", "i", "ot", value,
-									~buses[\inputsMono][value-1][\outCtrl].getSynchronous.abs);
-							},
-							\ambPan, {//AMBISONIC PAN BUS
-								~ostagec.sendMsg("/v", "i", "ap", value[1], value[0],
-									~buses[\input][value[0]-1][\mixSendCtrl][value[1]].getSynchronous.abs);
-							},
+								~vmBuff[\msg] = ["/v", "i", "ot", value] ++
+								~buses[\inputsMono][value-1][\outCtrl].getnSynchronous(4).abs;
+								~ostagec.sendMsg(*~vmBuff[\msg]);
+							}
 						);
 					)
 				});
 			});
 		});
-		~vmRate.wait;
+		~vmOpt[\rate].wait;
 	};
 };
 

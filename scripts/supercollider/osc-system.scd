@@ -28,6 +28,7 @@ OSCdef(\startServer,
 		~ostagec.sendMsg('/dlsp/log', time + " Booting sound server..");
 		~vmSend.reset;
 		~regularBoot.next;
+		~vmSend.start;
 	},
 	'/dlsp/server/start');
 
@@ -39,6 +40,7 @@ OSCdef(\stopServer,
 		~vmSend.stop;
 		//~vuSend.reset;
 		~regularBoot.reset;
+		~decoderBin.free;
 		s.quit;
 	},
 	'/dlsp/server/stop');
@@ -116,13 +118,13 @@ OSCdef(\volumeMeter,
 		msg[4].postln;
 		switch (msg[1],
 			\clear, {
-				~vm.keys.do ({
-					arg chanType;
-					~vm[chanType].keys.do ({
-						arg busType;
-						~vm[chanType][busType].clear;
-					});
-				});
+				//~vm.keys.do ({
+				//	arg chanType;
+				//	~vm[chanType].keys.do ({
+				//		arg busType;
+				//		~vm[chanType][busType].clear;
+				//	});
+				//});
 			},
 			\rate, {
 				if (

@@ -6,58 +6,54 @@ OSCdef(\ctrlChannel,
 		switch (channelType,// CHANNEL TYPE
 			\i,// INPUT
 			{
-				commandType = msg[2];
+				channelNumber = msg[2];
+				commandType = msg[3];
 
 				switch (commandType,///COMMAND TYPE
 					\g,///GAIN
 					{
-						channelNumber = msg[3];
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInGain].set(\gain, value);
-						("input " ++ msg[3] ++ " gain " ++ value).postln;
+						("input " ++ channelNumber ++ " gain " ++ value).postln;
 					},
 					\m,///MUTE
 					{
-						channelNumber = msg[3];
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(\mute, value);
-						("input " ++ msg[3] ++ " mute " ++ value).postln;
+						("input " ++ channelNumber ++ " mute " ++ value).postln;
 					},
 					\v,///VOLUME
 					{
-						channelNumber = msg[3];
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInAmbSend].set(\volume, value);
-						("input " ++ msg[3] ++ " volume " ++ value).postln;
+						("input " ++ channelNumber ++ " volume " ++ value).postln;
 					}
 				);
 			},
 			\p,//POINT
 			{
-				commandType = msg[2];
+				channelNumber = msg[2];
+				commandType = msg[3];
 
 				switch (commandType,///COMMAND TYPE
 					\az,///AZIMUTH ANGLE
 					{
-						channelNumber = msg[3].postln;
 						value = msg[4].postln;
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(\azimuth, value);
-						("point " ++ msg[3] ++ " azimuth " ++ value).postln;
+						("point " ++ channelNumber ++ " azimuth " ++ value).postln;
 					},
 					\el,///ELEVATION ANGLE
 					{
-						channelNumber = msg[3].postln;
 						value = msg[4].postln;
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(\elevation, value);
-						("point " ++ msg[3] ++ " elevation " ++ value).postln;
+						("point " ++ channelNumber ++ " elevation " ++ value).postln;
 					},
 					\di,///DISTANCE
 					{
-						channelNumber = msg[3].postln;
 						value = msg[4].postln;
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(
 							\approach, 1-value.clip(0,1), \distance, value.clip(1,4));
-						("point " ++ msg[3] ++ " distance " ++ value.clip(1,4) ++
+						("point " ++ channelNumber ++ " distance " ++ value.clip(1,4) ++
 							" approach " ++ (1-value.clip(0,1))).postln;
 					}
 				);
