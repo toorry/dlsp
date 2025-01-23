@@ -13,7 +13,8 @@
 	~serverConf.put( \ambOrder, 1 );
 	~serverConf.put( \ambChansAmount, (~serverConf[\ambOrder] + 1).squared );
 	~serverConf.put( \hoaEncRadius, 7);
-	~serverConf.put( \hoaDirections, [30.0, 135.0, -135.0, -30.0].degrad );
+	~serverConf.put( \mainDirections, [30.0, 135.0, -135.0, -30.0].degrad );
+	//~serverConf.put( \mainDirections, [30, 60, 90, 150, -150, -90, -60, -30].degrad );
 	~serverConf.put( \hoaBeamShape, \basic );
 	~serverConf.put( \hoaMatch, \amp );
 
@@ -74,8 +75,11 @@
 	inputsAmbAmount = 4,
 	outputsAmount = 16,
 
-	ambOrder = 1,
-
+	ambOrder = ~serverConf.put(\ambOrder),
+	hoaEncRadius = ~serverConf.put(\hoaEncRadius),
+	mainDirections = ~serverConf[\mainDirections],
+	hoaBeamShape = ~serverConf.put(\hoaBeamShape),
+	hoaMatch = ~serverConf.put(\hoaMatch),
 	mainWindowWidth = 1024,
 	mainWindowHeight = 768;
 
@@ -94,10 +98,11 @@
 	s.options.numOutputBusChannels = hwOutputs;
 	s.options.sampleRate = hwSampleRate;
 	s.options.memSize = memSize;
+	s.options.numWireBufs = 128;
 	s.waitForBoot({
 		"Initializing kernels".postln;
 		~ostagec.sendMsg("/dlsp/log", Date.getDate.format("%Y-%m-%d %H:%M:%S") ++ "   Initializing kernels");
-		~initKernels.value;
+		~initKernels.value( \mainDirections, mainDirections );
 		s.sync();
 
 		"Preparing Synth".postln;
@@ -134,11 +139,13 @@
 
 ~initKernels = {
 
+	~encoderBin = FoaEncoderMatrix.newHoa1;
+	s.sync();
 	~decoderBin = FoaDecoderKernel.newCIPIC;
 	s.sync();
-	~decoderRoom = FoaDecoderMatrix.newPanto(numChans: 10);
+	~decoderRoom = FoaDecoderMatrix.newDiametric(~serverConf[\mainDirections]);
 	s.sync();
-	~decoderRoom.dirChannels = [30,60,90,120,160,-160,-120,-90,-60,-30].degrad;
+	//~decoderRoom.dirChannels = ~serverConf[\mainDirections];
 
 	//~ambEncBinaural = FoaEncoderMatrix.newHoa1;
 	//s.sync();
@@ -163,13 +170,16 @@
 	}).add;
 
 	SynthDef(\ambPan, {
-		arg busIn, busOut, busOutCtrl, azimuth = 0, elevation = 0, approach = 0, distance = 1, mute = 1, volume = 1;
+		arg busIn, busOut, busOutCtrl, azimuth = 0, elevation = 0, radius = 1,
+		approach = 0, distance = 1, mute = 1, volume = 1;
 		var sig;
 
 		sig = In.ar(busIn, 1);
-		sig = FoaPanB.ar(sig, azimuth.degrad, elevation.degrad);//DIRECTION
-		sig = FoaDirectO.ar(sig, approach * pi/2);//APPROACH
-		sig = sig * volume / distance;
+
+		sig = HoaEncodeDirection.ar(sig, azimuth.degrad, elevation.degrad, radius, 1);
+		//sig = FoaPanB.ar(sig, azimuth.degrad, elevation.degrad);//DIRECTION
+		//sig = FoaDirectO.ar(sig, approach * pi/2);//APPROACH
+		sig = sig * volume * 1 / distance;
 
 		Out.ar(busOut, sig * mute);
 		Out.kr(busOutCtrl, sig);
@@ -193,7 +203,13 @@
 
 		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
 
-		sig = FoaDecode.ar(sig, ~decoderRoom);
+		//sig = FoaDecode.ar(sig, ~decoderRoom);
+		sig = HoaDecodeMatrix.ar(sig, HoaMatrixDecoder.newModeMatch(
+			[30,60,90,140,-140,-90,-60,-30].degrad,
+			beamShape: \basic,
+			match: \amp,
+			order: 1)
+		);
 
 		Out.ar( busOut, sig );
 		//Out.kr( busOutCtrl, sigOut );
@@ -205,7 +221,20 @@
 
 		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
 
-		sig = FoaDecode.ar(sig, ~decoderBin);
+		sig = FoaDecode.ar(  // decode to binaural
+			FoaProximity.ar(  // exchange (reference radius)
+				HPF.ar(  // pre-condition FOA
+					FoaEncode.ar(  // exchange (ordering, normalisation)
+						sig.keep(AtkFoa.defaultOrder.asHoaOrder.size),  // truncate to HOA1
+						~encoderBin
+					),
+					30.0 //highpass frequency
+				),
+				AtkHoa.refRadius
+			),
+			~decoderBin
+		);
+		//sig = FoaDecode.ar(sig, ~decoderBin);
 
 		Out.ar( busOut, sig );
 		//Out.kr( busOutCtrl, sigOut );
@@ -482,7 +511,6 @@
 
 ~regularBoot = Routine {
 
-	~initConfig.value;
 	~bootConfig.value(
 		hwInputs: 8, hwOutputs: 10,
 		hwDevice: "ASIO : UMC ASIO Driver",
@@ -495,7 +523,7 @@
 
 		ambOrder: 1,
 		hoaEncRadius: 1,
-		hoaDirections: [30.0, 135.0, -135.0, -30.0].degrad,
+		mainDirections: [30.0, 135.0, -135.0, -30.0].degrad,
 		hoaBeamShape: \basic,
 		hoaMatch: \amp
 	);

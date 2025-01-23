@@ -37,3 +37,5 @@ File.readAllString(~path ++ "/scripts/supercollider/osc-system.scd").interpret.p
 
 //// CONTROL OSC MESSAGES HANDLERS
 File.readAllString(~path ++ "/scripts/supercollider/osc-control.scd").interpret.postln;
+
+~initConfig.value;

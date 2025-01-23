@@ -140,6 +140,7 @@ FreqScope.new(400, 200, 0, server: s);
 ~vmSend.play;
 ~vmSend.stop;
 ~vmSend.reset;
+~vmOpt[\rate]=0.1;
 OSCFunc.trace(false);
 OSCFunc.trace(true);
 
@@ -350,4 +351,24 @@ Server.killAll;
 AtkFoa.format;
 AtkFoa.ordering;
 AtkFoa.normalisation;
-AtkFoa.
+AtkFoa.speedOfSound;
+
+~decoderRoom.dirChannels;
+~serverConf[\mainDirections][0];
+
+[45,-45].degrad;
+[0,5]
+
+
+~decoder1 = FoaDecoderMatrix.newFromMatrix(Matrix.with([[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2]]),
+	[
+		~serverConf[\mainDirections][0],
+		~serverConf[\mainDirections][1],
+		~serverConf[\mainDirections][2],
+		~serverConf[\mainDirections][3],
+		~serverConf[\mainDirections][4],
+		~serverConf[\mainDirections][5],
+		~serverConf[\mainDirections][6],
+		~serverConf[\mainDirections][7],
+	]
+);
