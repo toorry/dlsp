@@ -354,7 +354,7 @@ AtkFoa.normalisation;
 AtkFoa.speedOfSound;
 
 ~decoderRoom.dirChannels;
-~serverConf[\mainDirections][0];
+~serverConf[\mainDirections];
 
 [45,-45].degrad;
 [0,5]

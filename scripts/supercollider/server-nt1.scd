@@ -205,7 +205,7 @@
 
 		//sig = FoaDecode.ar(sig, ~decoderRoom);
 		sig = HoaDecodeMatrix.ar(sig, HoaMatrixDecoder.newModeMatch(
-			[30,60,90,140,-140,-90,-60,-30].degrad,
+			~serverConf.[\mainDirections],
 			beamShape: \basic,
 			match: \amp,
 			order: 1)
