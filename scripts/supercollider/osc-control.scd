@@ -58,7 +58,7 @@ OSCdef(\ctrlChannel,
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(
 							\radius, value.clip(0.1,1000),
-							\distance, value.clip(~serverConf.put[\hoaEncRadius],1000));
+							\distance, value.clip(~serverConf[\roomRadius],1000));
 						("point " ++ channelNumber ++ " distance " ++ value).postln;
 						~stateCurrent[\inputsMono][channelNumber - 1][\dist] = value;
 					}

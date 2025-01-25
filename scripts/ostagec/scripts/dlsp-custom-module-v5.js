@@ -45,171 +45,8 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
     //if ( topLevelGroupsCount == 1 ) { groupsLevels-- };
     receive(`/varUI${pluralName}GroupsLevels`, groupsLevels);
     receive(`/varUI${pluralName}GroupsAmount`, groupsAmount);
-    
-    let fldrUIChannelsPages = {
-        widgets: []
-    };
 
-    /*for ( let pageNum = 1; pageNum <= pagesAmount; pageNum++ ) {
-
-        let tabNumFirst = (pageNum - 1)*channelsOnPage + 1;
-        let tabNumLast =  Math.min(pageNum*channelsOnPage, channelsAmount);
-
-        fldrUIChannelsPages.widgets.push({
-
-            type: 'variable',
-            id: 'varUI' + pluralName + 'Page' + pageNum,
-            value: {
-                number: pageNum,
-                first: tabNumFirst,
-                last: tabNumLast,
-                label: `${tabNumFirst}-${tabNumLast}`
-            }
-        });
-    }*/
-
-    receive( '/EDIT/MERGE', `fldrUI${pluralName}Pages`, fldrUIChannelsPages);
-
-    let fldrUIGroupsWidgets = [];
-    let pnlRowsGroupsWidgets = [];
-    let currentLevelGroupsAmount = 0;
     console.log(`CM ${pluralName} groupsAmount=${groupsAmount} pagesInGroup=${pagesInGroup}`);
-
-    for ( let groupsLevel = groupsLevels; groupsLevel > 0; groupsLevel-- ) {
-        //
-        let currentLevelGroupsButtons = [];
-
-        currentLevelGroupsAmount = Math.ceil( pagesAmount / Math.pow( pagesInGroup, groupsLevel ) );
-        console.log(`CM level ${groupsLevel}. ${currentLevelGroupsAmount} groups`);
-
-        fldrUIGroupsWidgets.push({
-            //
-            type: 'variable',
-            id: `varUI${pluralName}Lvl${groupsLevel}GroupsAmount`,
-            value: currentLevelGroupsAmount
-        });
-
-        fldrUIGroupsWidgets.push({
-            //
-            type: 'variable',
-            id: `varUI${pluralName}Lvl${groupsLevel}GroupSelected`,
-            value: 1
-        });
-
-        currentLevelGroupsButtons = [];
-
-        for ( let groupNum = 1; groupNum <= pagesInGroup; groupNum++ ) {
-            //
-            currentLevelGroupsButtons.push({
-                //
-                type: 'button',
-                id: `btn${pluralName}Group${groupsLevel}-${groupNum}`,
-                visible: "VAR{'visibility', 1}",
-                label: "VAR{'btnLabel', ''}",
-                wrap: 'soft'
-            });
-        }
-
-        pnlRowsGroupsWidgets.push({
-            //
-            type: 'panel',
-            id: `pnl${pluralName}RowsGroupsLvl${groupsLevel}`,
-            //Geometry
-            width: 65,
-            padding: 0,
-            //Panel Style
-            layout: 'vertical',
-            justify: 'start',
-            contain: true,
-            scroll: false,
-            innerPadding: false,
-
-            widgets: currentLevelGroupsButtons
-        });
-    }
-
-    receive( '/EDIT/MERGE', `pnl${pluralName}RowsGroups`, {
-        width: 65 * groupsLevels,
-        widgets: pnlRowsGroupsWidgets
-    });
-
-    receive( '/EDIT/MERGE', `fldrUI${pluralName}Groups`, {
-        //
-        widgets: fldrUIGroupsWidgets
-    });
-
-    if ( pagesAmount > 1 ) {//Several Pages Case
-    
-        if ( groupsAmount == 1 ) {//One Group Case
-
-            console.log('CM one group case');
-            let pnlChannelsRowsPages = {
-                widgets: []
-            };
-
-            for ( let pageNum = 1; pageNum <= pagesAmount; pageNum++ ) {
-                
-                pnlChannelsRowsPages.widgets.push({
-                    
-                    type: 'button',
-                    id: `btn${pluralName}RowsPage${pageNum}`,
-                    label: "VAR{'btnLabel', ''}",
-                    onValue: `if(value==1){\n  set('varUI${pluralName}PageSelected', ${pageNum});\n` +
-                    `  set('scrUI${pluralName}RowsUpdatePage', 1);\n}`
-                });
-                
-            }
-
-            receive( '/EDIT/MERGE', `pnl${pluralName}RowsPages`, pnlChannelsRowsPages);
-
-            receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
-            receive( `/varUI${pluralName}PageSelected`, 1);
-
-            receive(`/scrUI${pluralName}RowsUpdatePage`, 1);
-
-        } else {//Several Groups Case
-
-            console.log('CM Several groups case');
-            let pnlChannelsRowsPages = {
-                widgets: []
-            };
-
-            for ( let pageNum = 1; pageNum <= pagesInGroup; pageNum++ ) {
-                
-                pnlChannelsRowsPages.widgets.push({
-                    
-                    type: 'button',
-                    id: `btn${pluralName}RowsPage${pageNum}`,
-                    label: "VAR{'btnLabel', ''}",
-                    onValue: `if(value==1){\n  set('varUI${pluralName}PageSelected', ${pageNum});\n` +
-                    `  set('scrUI${pluralName}RowsUpdatePage', 1);\n}`
-                });
-                
-            }
-
-            receive( '/EDIT/MERGE', `pnl${pluralName}RowsPages`, pnlChannelsRowsPages);
-
-            receive( `/varUI${pluralName}GroupsAmount`, groupsAmount);
-            receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
-            receive( `/varUI${pluralName}PageSelected`, 1);
-
-            receive(`/scrUI${pluralName}RowsUpdatePage`, 1);
-            receive(`/scrUI${pluralName}RowsUpdateGroupButtons`, 1);
-        }
-    } else {//One Page Case
-        
-        receive( `/varUI${pluralName}GroupsAmount`, 1);
-        receive( `/varUI${pluralName}PagesAmount`, 1);
-        receive( `/varUI${pluralName}PageSelected`, 1);
-
-        receive( '/EDIT/MERGE', `pnl${pluralName}RowsGroups`, {
-            widgets: []
-        });
-
-        receive( '/EDIT/MERGE', `pnl${pluralName}RowsPages`, {
-            widgets: []
-        });
-    }
 
     //Create Variables for Channels
     let typeFolderWidgets = [];
@@ -230,10 +67,18 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
 
           //GAIN
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}Gain`
-            
+            id: `var${singularName}${channelNum}Gain`,
+            //value
+            default: 1,
+            linkId: `Input${channelNum}Gain`,
+            //osc
+            decimals: 6,
+            bypass: true,
+            //scripting
+            onValue: `send(get('varSCLangAddress'), '/ch', 'i', {type: "i", value: 1}, 'g', value);\n` +
+            `console.log(\`input1 gain \${value}\`);`
           });
 
           //GATE

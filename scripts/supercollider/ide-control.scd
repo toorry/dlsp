@@ -433,7 +433,12 @@ JSONlib.
 ~inputsMono[0][\synthInAmbPan].get(\distance, {arg n; n.postln;});
 ~stateCurrent[\inputsMono][0][\volume];
 ~inputsMono[0][\synthInAmbSend].get(\volume, {arg volume; volume.postln;});
-
+~defaultValues[\inGain];
+~defaultValues[\inDist];
+~serverConf[\roomRadius];
+~inputsMono[0][\gain];
+~inputsMono[0][\dist];
+~stateCurrent[\inputsMono][0][\dist];
 
 
 

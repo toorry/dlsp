@@ -1,14 +1,10 @@
 //// VARIABLES
 
-~dlspSettingsFile; //Default settings file
-~dlspSettingsArray; //Array of strings containing "{parameter} {value}" pairs
-~dlspSettings; //Dictionary containing {parameter} as keys and {value} as values
-
 ~ostagec = NetAddr.new("127.0.0.1", 8080);
 ~myoscaddr = NetAddr.new("127.0.0.1", 57120);
 
 
-//// INITIALISE SETTINGS
+//// DLSP SETTINGS
 
 ~dlspSettings = Dictionary.new();
 ~dlspSettings.put(\type, "dlspSettings");
@@ -17,20 +13,42 @@
 ~dlspSettings.put(\serverAutoStart, false);
 
 if (File.exists(~path +/+ "settings.dlspcfg")) {
-	"dlsp settings file exists".postln;
-	~dlspSettings = JSONlib.parseFile(~path +/+ "settings.dlspcfg");
+	"DLSP settings file exists".postln;
+	~dlspSettingsLoaded = JSONlib.parseFile(~path +/+ "settings.dlspcfg");
+
+	"Updating settings from file".postln;
+	try {
+
+		~dlspSettingsLoaded.keys.do ({
+			arg key;
+			switch(key,
+				\sourcesPath, {
+					~dlspSettings[\sourcesPath] = ~dlspSettingsLoaded[key];
+					("sourcesPath " ++ ~dlspSettingsLoaded[key]).postln;
+				},
+				\serverAutoStart, {
+					~dlspSettings[\serverAutoStart] = ~dlspSettingsLoaded[key];
+					("serverAutoStart " ++ ~dlspSettingsLoaded[key]).postln;
+				}
+			);
+		});
+
+	} { |error|
+		//
+	};
 } {
-	"dlsp settings file not exists".postln;
-	File.use(~path +/+ "settings.dlspcfg", "w", { |f|
-		f.write(JSONlib.convertToJSON(~dlspSettings).postln);
-	});
+	"DLSP settings file not exists".postln;
 };
 
+"Saving DLSP settings file".postln;
+File.use(~path +/+ "settings.dlspcfg", "w", { |f|
+		f.write(JSONlib.convertToJSON(~dlspSettings).postln);
+	});
 
 //// PREPARING FILE SOUND SOURCES ENVIRONMENT
 
 
-////FUNCTIONS
+//// FUNCTIONS
 
 ~msgserverstart = {
 	~ostagec.sendMsg('/dlsp/server/status', 1);
@@ -45,8 +63,28 @@ if (File.exists(~path +/+ "settings.dlspcfg")) {
 ServerBoot.add(~msgserverstart);
 ServerQuit.add(~msgserverstop);
 
-//// SOUND SERVER INITIALIZE
+//// SOUND SERVER CONFIGURATION
+File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "server-config.scd").interpret.postln;
+~serverConfig.value;
+
+//// DEFAULT VALUES FOR PARAMETERS
+File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "default-values.scd").interpret.postln;
+~initDefaultValues.value;
+
+//// SYNTH DEFINITIONS
+File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "synth-defs.scd").interpret.postln;
+
+//// BOOT SOUND SERVER AND INITIALIZE ENVIRONMENT
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "server-nt1.scd").interpret.postln;
+
+//// SYNTH CONTROL FUNCTIONS
+File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "synth-defs.scd").interpret.postln;
+
+////SOUND SERVER STATE, CUES, SCENES AND SHOWS
+File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "states.scd").interpret.postln;
+
+////INITIALIZE DAEMONS
+File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "daemons.scd").interpret.postln;
 
 //// SYSTEM OSC MESSAGES HANDLERS
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "osc-system.scd").interpret.postln;
@@ -55,17 +93,3 @@ File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "osc-system.scd")
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "osc-control.scd").interpret.postln;
 
 ~initConfig.value;
-
-//// FINDING CURRENT STATE FILE
-
-~stateLoaded;
-
-/*if (File.exists(~path +/+ "states" +/+ "current.dlspstate")) {
-	"dlsp state file exists".postln;
-	~stateLoaded = JSONlib.parseFile(~path +/+ "states" +/+ "current.dlspstate");
-} {
-	"dlsp state file not exists".postln;
-	/*File.use(~path +/+ "settings.dlspcfg", "w", { |f|
-		f.write(JSONlib.convertToJSON(~stateCurrent).postln);
-	});*/
-};*/

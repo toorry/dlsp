@@ -53,7 +53,9 @@ OSCdef(\reboot,
 		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
 		time ++ " ostagec msg to reboot system".postln;
 		~ostagec.sendMsg('/dlsp/log', time + " Rebooting..");
-		"systemctl reboot -i".unixCmd; },
+		//"systemctl reboot -i".unixCmd; //FOR LINUX
+		"shutdown /r".unixCmd; //FOR WIN
+	},
 	'/dlsp/reboot');
 
 OSCdef(\shutdown,
@@ -61,8 +63,8 @@ OSCdef(\shutdown,
 		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
 		time ++ " ostagec msg to shutdown system".postln;
 		~ostagec.sendMsg('/dlsp/log', time + " Shutting down..");
-		//"systemctl poweroff -i".unixCmd;
-		"shutdown /s".unixCmd;
+		//"systemctl poweroff -i".unixCmd; //FOR LINUX
+		"shutdown /s".unixCmd; //FOR WIN
 		0.exit;
 	},
 	'/dlsp/shutdown');
