@@ -86,10 +86,10 @@ File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "states.scd").int
 ////INITIALIZE DAEMONS
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "daemons.scd").interpret.postln;
 
-//// SYSTEM OSC MESSAGES HANDLERS
+//// SYSTEM CONTROL OSC MESSAGES HANDLERS
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "osc-system.scd").interpret.postln;
 
-//// CONTROL OSC MESSAGES HANDLERS
-File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "osc-control.scd").interpret.postln;
+//// SERVER CONTROL OSC MESSAGES HANDLERS
+File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "osc-server.scd").interpret.postln;
 
 ~initConfig.value;

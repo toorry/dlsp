@@ -38,4 +38,6 @@
 	~serverConf.put( \hoaMatch, \amp );
 
 	~serverConf.put(\saveStateRate, 5);
+
+	~serverConf.put(\oscCtrlReady, false);
 };
