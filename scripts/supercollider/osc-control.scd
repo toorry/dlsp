@@ -15,18 +15,21 @@ OSCdef(\ctrlChannel,
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInGain].set(\gain, value);
 						("input " ++ channelNumber ++ " gain " ++ value).postln;
+						~stateCurrent[\inputsMono][channelNumber - 1][\gain] = value;
 					},
 					\m,///MUTE
 					{
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(\mute, value);
 						("input " ++ channelNumber ++ " mute " ++ value).postln;
+						~stateCurrent[\inputsMono][channelNumber - 1][\mute] = value;
 					},
 					\v,///VOLUME
 					{
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInAmbSend].set(\volume, value);
 						("input " ++ channelNumber ++ " volume " ++ value).postln;
+						~stateCurrent[\inputsMono][channelNumber - 1][\volume] = value;
 					}
 				);
 			},
@@ -41,20 +44,23 @@ OSCdef(\ctrlChannel,
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(\azimuth, value);
 						("point " ++ channelNumber ++ " azimuth " ++ value).postln;
+						~stateCurrent[\inputsMono][channelNumber - 1][\azim] = value;
 					},
 					\el,///ELEVATION ANGLE
 					{
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(\elevation, value);
 						("point " ++ channelNumber ++ " elevation " ++ value).postln;
+						~stateCurrent[\inputsMono][channelNumber - 1][\elev] = value;
 					},
 					\di,///DISTANCE
 					{
 						value = msg[4];
 						~inputsMono[channelNumber-1][\synthInAmbPan].set(
-							\radius, value,
+							\radius, value.clip(0.1,1000),
 							\distance, value.clip(~serverConf.put[\hoaEncRadius],1000));
 						("point " ++ channelNumber ++ " distance " ++ value).postln;
+						~stateCurrent[\inputsMono][channelNumber - 1][\dist] = value;
 					}
 				);
 			}
@@ -106,6 +112,9 @@ OSCdef(\ctrlDecoder,
 				("dec " ++ decoderNumber ++ " chan dirs").postln;
 				value = [ msg[3], msg[4], msg[5], msg[6], msg[7], msg[8], msg[9], msg[10] ];
 				~serverConf[\mainDirections] = value.degrad;
+				~serverConf[\decoderMainSpeakersAmount] = 8;
+				~stateCurrent[\decoderMain][\dirs] = ~serverConf[\mainDirections];
+				~stateCurrent[\decoderMain][\speakersAmount] = ~serverConf[\decoderMainSpeakersAmount];
 
 				~decoderChangeMain.value;
 			}

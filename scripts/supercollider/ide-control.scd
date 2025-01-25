@@ -6,8 +6,7 @@
 SynthDef.new(\sample1, {
 	var sig;
 	sig = PlayBuf.ar(2, ~sample1, loop: 0.0);
-	Out.kr(~buses[\input][0][\inCtrl], Mix.kr(sig) * 0.5);
-	Out.ar(~buses[\input][0][\in], Mix.ar(sig) * 0.5);
+	Out.ar(10, Mix.ar(sig) * 0.5);
 }).add;
 SynthDef.new(\sample2, {
 	var sig;
@@ -140,6 +139,7 @@ FreqScope.new(400, 200, 0, server: s);
 ~vmSend.play;
 ~vmSend.stop;
 ~vmSend.reset;
+~saveCurrentState.stop;
 ~vmOpt[\rate]=0.1;
 OSCFunc.trace(false);
 OSCFunc.trace(true);
@@ -373,3 +373,80 @@ AtkFoa.speedOfSound;
 	]
 );
 Quarks.gui;
+
+File.getcwd;
+File.exists("C:" +/+ "meganz" +/+ "dlsp" +/+ "working" +/+ "testhtml.html");
+~testFileHtml = File.readAllString("C:" +/+ "meganz" +/+ "dlsp" +/+ "working" +/+ "testhtml.html");
+("st"++~testFileHtml[15]++"end");
+
+~testString1 = "first\n\nsecond".postln;
+~testStrArray = ~testString1.split(separator: $\n);
+("*"++~testStrArray[1]++"*").postln;
+
+"fish.rtf".splitext;
+"Imaginary/Directory/fish".splitext;
+
+~testFileJSON = File.readAllString("C:" +/+ "meganz" +/+ "dlsp" +/+ "working" +/+ "mixpage.state").parseJSON;
+~testFileJSON.do ({
+	arg item;
+	item.postln;
+});
+
+~path;
+~stateCurrent;
+~stateLoaded;
+~stateCurrent[\decoderMain][\directions];
+~stateCurrent.put(\type, "dlspScene");
+~stateCurrent.put(\dlspSceneVersion, "0.1");
+~stateCurrent.put(\inputsMono, Array.newClear(~serverConf[\inputsMonoAmount]));
+~serverConf[\inputsMonoAmount].do ({
+	arg num;
+	var item = Dictionary.new();
+	item.put(\number, num + 1);
+	item.put(\name, ~inputsMono[num][\name]);
+	item.put(\name, ~inputsMono[num][\name]);
+	item.put(\name, ~inputsMono[num][\name]);
+	item.put(\name, ~inputsMono[num][\name]);
+	~stateCurrent[\inputsMono][num] = Dictionary.new();
+
+});
+
+File.exists(~path +/+ "settings.dlspcfg");
+File.exists(~path +/+ "states" +/+ "current.dlspstate");
+JSONlib.
+~dlspSettings;
+~serverConf[\ambChansAmount];
+~serverConf[\decoderMainSpeakersAmount];
+~stateCurrent[\inputsMono][0][\];
+~param2.postln;
+~stateCurrent[\inputsMono][0][\gain];
+~stateLoaded[\inputsMono][0][\gain];
+~inputsMono[0][\synthInGain].get(\gain, {arg gain; gain.postln;});
+~stateCurrent[\inputsMono][0][\mute];
+~inputsMono[0][\synthInAmbPan].get(\mute, {arg mute; mute.postln;});
+~stateCurrent[\inputsMono][0][\azim];
+~inputsMono[0][\synthInAmbPan].get(\azimuth, {arg n; n.postln;});
+~stateCurrent[\inputsMono][0][\elev];
+~inputsMono[0][\synthInAmbPan].get(\elevation, {arg n; n.postln;});
+~stateCurrent[\inputsMono][0][\dist];
+~inputsMono[0][\synthInAmbPan].get(\radius, {arg n; n.postln;});
+~inputsMono[0][\synthInAmbPan].get(\distance, {arg n; n.postln;});
+~stateCurrent[\inputsMono][0][\volume];
+~inputsMono[0][\synthInAmbSend].get(\volume, {arg volume; volume.postln;});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

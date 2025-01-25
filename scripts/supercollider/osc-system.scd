@@ -27,8 +27,8 @@ OSCdef(\startServer,
 		time ++ " ostagec msg to boot server".postln;
 		~ostagec.sendMsg('/dlsp/log', time + " Booting sound server..");
 		~vmSend.reset;
+		~saveCurrentState.reset;
 		~regularBoot.next;
-		~vmSend.start;
 	},
 	'/dlsp/server/start');
 
@@ -38,9 +38,12 @@ OSCdef(\stopServer,
 		time ++ " ostagec msg to quit server".postln;
 		~ostagec.sendMsg('/dlsp/log', time + " Quitting sound server..");
 		~vmSend.stop;
+		~saveCurrentState.stop;
 		//~vuSend.reset;
 		~regularBoot.reset;
 		~decoderBin.free;
+		~decoderRoom.free;
+		~encoderBin.free;
 		s.quit;
 	},
 	'/dlsp/server/stop');
@@ -58,8 +61,27 @@ OSCdef(\shutdown,
 		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
 		time ++ " ostagec msg to shutdown system".postln;
 		~ostagec.sendMsg('/dlsp/log', time + " Shutting down..");
-		"systemctl poweroff -i".unixCmd; },
+		//"systemctl poweroff -i".unixCmd;
+		"shutdown /s".unixCmd;
+		0.exit;
+	},
 	'/dlsp/shutdown');
+
+/*OSCdef(\stateSave,
+	{ arg msg;
+		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
+		~saveCurrentState.value;
+		~ostagec.sendMsg('/dlsp/log', time ++ "    Saving Current State");
+	},
+	'/dlsp/state/save');*/
+
+OSCdef(\stateSend,
+	{ arg msg;
+		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
+		~sendState.value;
+		~ostagec.sendMsg('/dlsp/log', time ++ " Sending State");
+	},
+	'/dlsp/state/send');
 
 OSCdef(\vuClear,
 	{ arg msg;
