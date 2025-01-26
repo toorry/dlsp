@@ -260,6 +260,8 @@
 
 		s.unmute;
 
+		~serverConf[\oscCtrlReady] = true;
+
 		~inputsMono[0][\synthInGain].get(\gain, {arg gain; ("after start gain " ++ gain).postln;});
 		~inputsMono[0][\synthInAmbPan].get(\distance, {arg gain; ("after start dist " ++ gain).postln;});
 	});

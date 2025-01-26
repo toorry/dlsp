@@ -1,3 +1,7 @@
+~serverCtrlDisable = {
+	~serverConf[\oscCtrlReady] = false;
+};
+
 ~initVM = {
 	~vm = Dictionary.new();
 	~vmOpt = Dictionary.new();

@@ -59,10 +59,6 @@ File.use(~path +/+ "settings.dlspcfg", "w", { |f|
 	~ostagec.sendMsg('/dlsp/log', Date.getDate.format("%Y-%m-%d %H:%M:%S") + ' Server stopped');
 };
 
-//// ROUTINES
-ServerBoot.add(~msgserverstart);
-ServerQuit.add(~msgserverstop);
-
 //// SOUND SERVER CONFIGURATION
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "server-config.scd").interpret.postln;
 ~serverConfig.value;
@@ -93,3 +89,7 @@ File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "osc-system.scd")
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "osc-server.scd").interpret.postln;
 
 ~initConfig.value;
+
+//// ROUTINES
+ServerBoot.add(~msgserverstart);
+ServerQuit.add(~msgserverstop);

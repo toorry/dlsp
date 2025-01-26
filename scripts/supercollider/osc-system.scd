@@ -37,6 +37,7 @@ OSCdef(\stopServer,
 		var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
 		time ++ " ostagec msg to quit server".postln;
 		~ostagec.sendMsg('/dlsp/log', time + " Quitting sound server..");
+		~serverCtrlDisable.value;
 		~vmSend.stop;
 		~saveCurrentState.stop;
 		//~vuSend.reset;
