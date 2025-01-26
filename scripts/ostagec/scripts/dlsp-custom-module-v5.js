@@ -81,6 +81,197 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             `console.log(\`input1 gain \${value}\`);`
           });
 
+          //X
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}X`,
+            //value
+            default: 1,
+            linkId: 'Input1X',
+            //osc
+            decimals: 2,
+            bypass: true,
+            //scripting
+            onValue:
+              `var r = get('varInput${channelNum}EncR');\n` +
+              `var x = value;` +
+              `var y = get('varInput${channelNum}Y');\n` +
+              `var z = get('varInput${channelNum}Z') * r;\n\n` +
+              
+              `console.log(\`input${channelNum} x \${x}\`);\n\n` +
+              
+              `var azim = Math.atan(-x/Math.abs(y))*180/Math.PI;\n` +
+              `if(y<0) {\n` +
+              `  if(x>0) {azim = azim+360;}\n` +
+              `  azim = 180-azim;\n` +
+              `}\n` +
+              `set('varInput${channelNum}Azim',azim, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}},'az', azim);\n\n` +
+              
+              `var elev = Math.atan(z/Math.sqrt(Math.pow(x,2) + Math.pow(y,2)))*180/Math.PI;\n` +
+              `set('varInput${channelNum}Elev',elev, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', elev);\n\n` +
+              
+              `var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));\n` +
+              `set('varInput${channelNum}Dist',dist, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', dist);\n\n` +
+              
+              `set('varInput${channelNum}XY',[x / r, y / r], {script: false});\n\n` +
+              
+              `set('varInput${channelNum}DistRelative', dist / r, {script: false});`
+          })
+
+          //Y
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}Y`,
+            //value
+            default: 1,
+            linkId: `Input${channelNum}Y`,
+            //osc
+            decimals: 2,
+            bypass: true,
+            //scripting
+            onValue:
+              `var r = get('varInput${channelNum}EncR');\n` +
+              `var x = get('varInput${channelNum}X');\n` +
+              `var y = value;\n` +
+              `var z = get('varInput${channelNum}Z') * r;\n\n` +
+
+              `console.log(\`input${channelNum} y \${y}\`);\n\n` +
+
+              `var azim = Math.atan(-x/Math.abs(y))*180/Math.PI;\n` +
+              `if(y<0) {\n` +
+              `  if(x>0) {azim = azim+360;}\n` +
+              `  azim = 180-azim;\n` +
+              `}\n` +
+              `set('varInput${channelNum}Azim',azim, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'az', azim);\n\n` +
+
+              `var elev = Math.atan(z/Math.sqrt(Math.pow(x,2) + Math.pow(y,2)))*180/Math.PI;\n` +
+              `set('varInput${channelNum}Elev',elev, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', elev);\n\n` +
+
+              `var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));\n` +
+              `set('varInput${channelNum}Dist',dist, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', dist);\n\n` +
+
+              `set('varInput${channelNum}XY',[x / r, y / r], {script: false});\n\n` +
+
+              `set('varInput${channelNum}DistRelative', dist / r, {script: false});\n`
+          });
+
+          //Y
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}XY`,
+            //value
+            default: [ 0, 1 ],
+            linkId: `Input${channelNum}XY`,
+            //osc
+            decimals: 2,
+            bypass: true,
+            //scripting
+            onValue:
+              `var r = get('varInput${channelNum}EncR');\n` +
+              `var x = value[0] * r;\n` +
+              `var y = value[1] * r;\n` +
+              `var z = get('varInput${channelNum}Z') * r;\n\n` +
+              
+              `set('varInput${channelNum}X', x, {script: false});\n` +
+              `set(`varInput${num}Y`, y, {script: false});\n\n` +
+              
+              `console.log(\`input${channelNum} xy \${[value]}\`);\n\n` +
+              
+              `var azim = Math.atan(-x/Math.abs(y))*180/Math.PI;\n` +
+              `if(y<0) {\n` +
+              `  if(x>0) {azim = azim+360;}\n` +
+              `  azim = 180-azim;\n` +
+              `}\n` +
+              `set('varInput${channelNum}Azim',azim, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'az', azim);\n\n` +
+              
+              `var elev = Math.atan(z/Math.sqrt(Math.pow(x,2) + Math.pow(y,2)))*180/Math.PI;\n` +
+              `set('varInput${channelNum}Elev',elev, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', elev);\n\n` +
+              
+              `var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));\n` +
+              `set('varInput${channelNum}Dist',dist, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', dist);\n\n` +
+              
+              `set('varInput${channelNum}DistRelative', dist / r, {script: false});\n`
+          });
+
+          //Z
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}Z`,
+            //value
+            default: 0,
+            linkId: `Input${channelNum}Z`,
+            //osc
+            decimals: 2,
+            bypass: true,
+            //scripting
+            onValue:
+              `var r = get('varInput${channelNum}EncR');\n` +
+              `var x = get('varInput${channelNum}X');\n` +
+              `var y = get('varInput${channelNum}Y');\n` +
+              `var z = value * r;\n\n` +
+
+              `console.log(\`input${channelNum} z \${z}\`);\n\n` +
+
+              `var elev = Math.atan(z/Math.sqrt(Math.pow(x,2) + Math.pow(y,2)))*180/Math.PI;\n` +
+              `set('varInput${channelNum}Elev',elev, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', elev);\n\n` +
+
+              `var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));\n` +
+              `set('varInput${channelNum}Dist',dist, {script: false});\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', dist);\n\n` +
+
+              set(`varInput${num}DistRelative`, dist / r, {script: false});
+          });
+
+          //AZIM
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}Azim`,
+            //value
+            default: 0,
+            linkId: `Input${channelNum}Azim`,
+            //osc
+            decimals: 1,
+            bypass: true,
+            //scripting
+            onValue:
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'az', value);\n\n` +
+
+              `console.log(\`input${channelNum} azim \${value}\`);\n\n` +
+
+              `var azim = value;\n` +
+              `var elev = get('varInput${channelNum}Elev');\n` +
+              `var dist = get('varInput${channelNum}Dist'); \n` +
+ ""              `var r = get('varInput${channelNum}EncR');\n\n` +
+
+              var x,y,z;
+
+              x = -dist*Math.cos(elev*Math.PI/180)*Math.sin(azim*Math.PI/180);
+              y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);
+              z = dist*Math.sin(elev*Math.PI/180);
+
+              set(`varInput${num}X`,x, {script: false});
+              set(`varInput${num}Y`,y, {script: false});
+              set(`varInput${num}Z`, z/r, {script: false});
+              set(`varInput${num}XY`, [x / r, y / r], {script: false});
+
+              set(`varInput${num}DistRelative`, dist / r, {script: false});
+          });
+
           //GATE
           channelFolder.widgets.push({
 
