@@ -13,16 +13,16 @@
 	~vmBuff.put(\ambBuffer, Array.newClear(~serverConf[\ambChansAmount]));
 	~vmBuff.put(\msg, Array.newClear(1));
 
-	~vm.put(\inputsMono, Dictionary.new());  //Inputs MONO
-	~vm.put(\inputsAmb, Dictionary.new());  //Inputs AMBISONIC
+	~vm.put(\points, Dictionary.new());  //Inputs MONO
+	~vm.put(\fields, Dictionary.new());  //Inputs AMBISONIC
 	~vm.put(\outputs, Dictionary.new()); //Outputs
 
-	~vm[\inputsMono].put(\in, List.newUsing([1,2,3,4]));
-	~vm[\inputsMono].put(\gain, List.newUsing([1,2,3,4]));
-	~vm[\inputsMono].put(\out, List.newUsing([1,2]));
+	~vm[\points].put(\in, List.newUsing([1,2,3,4]));
+	~vm[\points].put(\gain, List.newUsing([1,2,3,4]));
+	~vm[\points].put(\out, List.newUsing([1,2]));
 
-	~vm[\inputsAmb].put(\in, List.newClear());
-	~vm[\inputsAmb].put(\out, List.newClear());
+	~vm[\fields].put(\in, List.newClear());
+	~vm[\fields].put(\out, List.newClear());
 
 	~vm[\outputs].put(\in, List.newClear());
 
@@ -46,16 +46,16 @@
 					(
 						switch (busType,
 							\in, {//INPUT BUS
-								~ostagec.sendMsg("/v", "i", "in", value,
-									~buses[\inputsMono][value-1][\inCtrl].getSynchronous.abs);
+								~ostagec.sendMsg("/v", "p", "in", value,
+									~buses[\points][value-1][\inCtrl].getSynchronous.abs);
 							},
 							\gain, {//GAIN BUS
-								~ostagec.sendMsg("/v", "i", "gn", value,
-									~buses[\inputsMono][value-1][\gainCtrl].getSynchronous.abs);
+								~ostagec.sendMsg("/v", "p", "gn", value,
+									~buses[\points][value-1][\gainCtrl].getSynchronous.abs);
 							},
 							\out, {//OUT BUS
-								~vmBuff[\msg] = ["/v", "i", "ot", value] ++
-								~buses[\inputsMono][value-1][\outCtrl].getnSynchronous(4).abs;
+								~vmBuff[\msg] = ["/v", "p", "ot", value] ++
+								~buses[\points][value-1][\outCtrl].getnSynchronous(4).abs;
 								~ostagec.sendMsg(*~vmBuff[\msg]);
 							}
 						);

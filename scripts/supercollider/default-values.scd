@@ -2,8 +2,6 @@
 
 	~defaultValues = Dictionary.new();
 
-	~defaultValues.put( \inGain, 1.0 );
-
 	~defaultValues.put( \inGate, Dictionary.new() );
 	~defaultValues[\inGate].put( \threshold, 0.01 );
 	~defaultValues[\inGate].put( \ratio, 10 );
@@ -43,9 +41,12 @@
 	~defaultValues[\inEQ].put( \hiCutFreq, 10000 );
 	~defaultValues[\inEQ].put( \dryWet, 1.0 );
 
-	~defaultValues.put( \inAzim, 0 );
-	~defaultValues.put( \inElev, 0 );
-	~defaultValues.put( \inDist, ~serverConf[\roomRadius] );
-	~defaultValues.put( \inMute, 0 );
-	~defaultValues.put( \inVolume, 1 );
+	~defaultValues.put( \point, Dictionary.new());
+
+	~defaultValues[\point].put( \gain, 1.0 );
+	~defaultValues[\point].put( \azim, 0 );
+	~defaultValues[\point].put( \elev, 0 );
+	~defaultValues[\point].put( \dist, ~serverConf[\roomRadius] );
+	~defaultValues[\point].put( \mute, 0 );
+	~defaultValues[\point].put( \volume, 1 );
 };

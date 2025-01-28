@@ -18,10 +18,9 @@
 
 	SynthDef(\inGain, {
 		arg busIn, busInCtrl, busOut, busOutCtrl,
-		gain = ~defaultValues[\inGain];
+		gain = 1.0;
 		var sig;
 
-		("synth def gain " ++ ~defaultValues[\inGain]).postln;
 		sig = In.ar( busIn, 1 );
 
 		Out.kr( busInCtrl, sig );
@@ -34,19 +33,16 @@
 
 	SynthDef(\ambPan, {
 		arg busIn, busOut, busOutCtrl,
-		azimuth = ~defaultValues[\inAzim],
-		elevation = ~defaultValues[\inElev],
-		radius = ~defaultValues[\inDist].clip(0.1, 1000),
-		distance = ~defaultValues[\inDist],
-		mute = ~defaultValues[\inMute], volume = 1;
+		azimuth = 0,
+		elevation = 0,
+		radius = 1,
+		distance = 1,
+		mute = 1, volume = 1;
 		var sig;
 
-		("synth def dist " ++ ~defaultValues[\inDist]).postln;
 		sig = In.ar(busIn, 1);
 
 		sig = HoaEncodeDirection.ar(sig, azimuth.degrad, elevation.degrad, radius, 1);
-		//sig = FoaPanB.ar(sig, azimuth.degrad, elevation.degrad);//DIRECTION
-		//sig = FoaDirectO.ar(sig, approach * pi/2);//APPROACH
 		sig = sig * volume * ~serverConf[\roomRadius] / distance;
 
 		Out.ar(busOut, sig * mute);
@@ -109,7 +105,7 @@
 	}).add;
 
 	SynthDef(\monoSend, {
-		arg busIn, busOut, volume;
+		arg busIn, busOut, volume = 1;
 		var sig;
 
 		sig = In.ar( busIn, 1 );

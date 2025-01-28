@@ -21,8 +21,9 @@
 	~serverConf.put( \realTimeMemory, 1048576);
 	~serverConf.put( \wireBuffersNumber, 128);
 
-	~serverConf.put( \inputsMonoAmount, 4 );
-	~serverConf.put( \inputsAmbAmount, 1 );
+	~serverConf.put( \inputsAmount, 8 );
+	~serverConf.put( \pointsAmount, 4 );
+	~serverConf.put( \fieldsAmount, 1 );
 	~serverConf.put( \outputsAmount, 16 );
 
 	~serverConf.put( \ambOrder, 1 );

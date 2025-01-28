@@ -9,36 +9,37 @@
 	~busTrashCtrl = Bus.control(s, 1);
 
 	~buses = Dictionary();
-	~buses.put(\inputsMono,Array.newClear(~serverConf[\inputsMonoAmount]));
-	~buses.put(\inputsAmb,Array.newClear(~serverConf[\inputsAmbAmount]));
+	~buses.put(\points,Array.newClear(~serverConf[\pointsAmount]));
+	~buses.put(\fields,Array.newClear(~serverConf[\fieldsAmount]));
 	~buses.put(\ambMain, Bus.audio(s, ~serverConf[\ambChansAmount]));
 	~buses.put(\ambMainCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
 	~buses.put(\outputs,Array.newClear(~serverConf[\outputsAmount]));
 
-	~serverConf[\inputsMonoAmount].do ({
+	~serverConf[\pointsAmount].do ({
 		arg num;
 		var item = Dictionary();
-		item.put(\in, ~serverConf[\hardwareOutputsAmount] + num);
+		item.put(\in, ~hwOutputs + num);
 		item.put(\inCtrl, Bus.control(s, 1));
 		item.put(\gain,Bus.audio(s,1));
 		item.put(\gainCtrl, Bus.control(s, 1));
 		item.put(\out, Bus.audio(s, ~serverConf[\ambChansAmount]));
 		item.put(\outCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
-		~buses[\inputsMono][num]=item;
+		~buses[\points][num]=item;
 	});
-	~buses[\inputsMono].postln;
+	~buses[\points].postln;
 
-	~serverConf[\inputsAmbAmount].do ({
+	~serverConf[\fieldsAmount].do ({
 		arg num;
 		var item = Dictionary();
-		item.put(\in, ~serverConf[\hardwareOutputsAmount] + ~serverConf[\inputsMonoAmount] +
-			(num - 1) * ~serverConf[\ambChansAmount]);
+		("hwOutputs " ++ ~hwOutputs ++ " points amount " ++ ~serverConf[\pointsAmount] ++ " amb chans " ++ ~serverConf[\ambChansAmount]).postln;
+		item.put(\in, ~hwOutputs + ~serverConf[\pointsAmount] +
+			(num * ~serverConf[\ambChansAmount])).postln;
 		item.put(\inCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
 		item.put(\out,Bus.audio(s, ~serverConf[\ambChansAmount]));
 		item.put(\outCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
-		~buses[\inputsAmb][num]=item;
+		~buses[\fields][num]=item;
 	});
-	~buses[\inputsAmb].postln;
+	~buses[\fields].postln;
 
 	~serverConf[\outputsAmount].do ({
 		arg num;
@@ -49,69 +50,69 @@
 		item.put(\outCtrl, Bus.control(s, 1));
 		~buses[\outputs][num]=item;
 	});
-	~buses[\output].postln;
+	~buses[\outputs].postln;
 
 };
 
 ~initChannels = {
 
-	//Initialise MONO INPUTS
-	~inputsMono = Array.newClear(~serverConf[\inputsMonoAmount]);
-	~inputsAmb = Array.newClear(~serverConf[\inputsAmbAmount]);
+	//Initialise POINTS
+	~points = Array.newClear(~serverConf[\pointsAmount]);
 
-	~serverConf[\inputsMonoAmount].do({
+	~serverConf[\pointsAmount].do({
 		arg num;
-		var input = Dictionary();
-		input.put(\name, "Input " ++ (num + 1));
-		input.put(\gain, ~defaultValues[\inGain]);
-		input.put(\azim, ~defaultValues[\inAzim]);
-		input.put(\elev, ~defaultValues[\inElev]);
-		input.put(\dist, ~serverConf[\roomRadius]);
-		input.put(\mute, ~defaultValues[\inMute]);
-		input.put(\volume, ~defaultValues[\inVolume]);
-		input.put(\busIn, ~buses[\inputsMono][num][\in]);
-		input.put(\busInCtrl, ~buses[\inputsMono][num][\inCtrl]);
-		input.put(\busGain, ~buses[\inputsMono][num][\gain]);
-		input.put(\busGainCtrl, ~buses[\inputsMono][num][\gainCtrl]);
-		input.put(\busOut, ~buses[\inputsMono][num][\out]);
-		input.put(\busOutCtrl, ~buses[\inputsMono][num][\outCtrl]);
-		~inputsMono[num] = input;
+		var item = Dictionary();
+		item.put(\name, "Point " ++ (num + 1));
+		item.put(\gain, ~defaultValues[\point][\gain]);
+		item.put(\azim, ~defaultValues[\point][\azim]);
+		item.put(\elev, ~defaultValues[\point][\elev]);
+		item.put(\dist, ~serverConf[\roomRadius]);
+		item.put(\mute, ~defaultValues[\point][\mute]);
+		item.put(\volume, ~defaultValues[\point][\volume]);
+		item.put(\busIn, ~buses[\points][num][\in]);
+		item.put(\busInCtrl, ~buses[\points][num][\inCtrl]);
+		item.put(\busGain, ~buses[\points][num][\gain]);
+		item.put(\busGainCtrl, ~buses[\points][num][\gainCtrl]);
+		item.put(\busOut, ~buses[\points][num][\out]);
+		item.put(\busOutCtrl, ~buses[\points][num][\outCtrl]);
+		~points[num] = item;
 	});
-	~inputsMono.postln;
+	~points.postln;
 
-	//Initialise AMBISONIC INPUTS
-	~inputsAmb = Array.newClear(~serverConf[\inputsAmbAmount]);
-	~serverConf[\inputsAmbAmount].do({
+	//Initialise FIELDS
+	~fields = Array.newClear(~serverConf[\fieldsAmount]);
+
+	~serverConf[\fieldsAmount].do({
 		arg num;
-		var input = Dictionary();
-		input.put(\busIn, ~buses[\inputsAmb][num][\in]);
-		input.put(\busInCtrl, ~buses[\inputsAmb][num][\inCtrl]);
-		input.put(\busOut, ~buses[\inputsAmb][num][\out]);
-		input.put(\busOutCtrl, ~buses[\inputsAmb][num][\outCtrl]);
-		~inputsAmb[num] = input;
+		var item = Dictionary();
+		item.put(\busIn, ~buses[\fields][num][\in]);
+		item.put(\busInCtrl, ~buses[\fields][num][\inCtrl]);
+		item.put(\busOut, ~buses[\fields][num][\out]);
+		item.put(\busOutCtrl, ~buses[\fields][num][\outCtrl]);
+		~fields[num] = item;
 	});
-	~inputsAmb.postln;
+	~fields.postln;
 };
 
 //Initialise GROUPS
 
 ~initGroups = {
 
-	~grpInputsMono = Group.new(s);
-	~grpInputsAmb = Group.after(~grpInputsMono);
-	~grpAmbMain = Group.after(~grpInputsAmb);
+	~grpPoints = Group.new(s);
+	~grpFields = Group.after(~grpPoints);
+	~grpAmbMain = Group.after(~grpFields);
 
-	~grpInputMono = Array.newClear(~serverConf[\inputsMonoAmount]);
-	~grpInputAmb = Array.newClear(~serverConf[\inputsAmbAmount]);
+	~grpPoint = Array.newClear(~serverConf[\pointsAmount]);
+	~grpField = Array.newClear(~serverConf[\fieldsAmount]);
 
-	~serverConf[\inputsMonoAmount].do({
+	~serverConf[\pointsAmount].do({
 		arg num;
-		~grpInputMono[num] = Group.tail(~grpInputsMono);
+		~grpPoint[num] = Group.tail(~grpPoints);
 	});
 
-	~serverConf[\inputsAmbAmount].do({
+	~serverConf[\fieldsAmount].do({
 		arg num;
-		~grpInputAmb[num] = Group.tail(~grpInputsAmb);
+		~grpField[num] = Group.tail(~grpFields);
 	});
 };
 
@@ -121,60 +122,58 @@
 
 ~initSynths = {
 
-	~serverConf[\inputsMonoAmount].do({
+	~serverConf[\pointsAmount].do({
 		arg num;
-		var item = ~inputsMono[num];
+		var item = ~points[num];
 
-		item.put('synthInGain', Synth.new(\inGain,
+		item.put(\synthGain, Synth.new(\inGain,
 			[\busIn, item[\busIn],
 				\busInCtrl, item[\busInCtrl],
 				\busOut, item[\busGain],
 				\busOutCtrl, item[\busGainCtrl],
-				\gain, ~defaultValues[\inGain]
+				\gain, ~defaultValues[\point][\gain]
 			],
-			~grpInputMono[num],
+			~grpPoint[num],
 			\addToTail)
 		);
-		("init synth gain " ++ ~defaultValues[\inGain]).postln;
-		item.put('synthInAmbPan', Synth.new(\ambPan,
+		item.put(\synthPan, Synth.new(\ambPan,
 			[\busIn, item[\busGain],
 				\busOut, item[\busOut],
 				\busOutCtrl, item[\busOutCtrl],
-				\distance, ~defaultValues[\inDist],
-				\radius, ~defaultValues[\inDist].clip(0.1, 1000)
+				\distance, ~defaultValues[\point][\dist],
+				\radius, ~defaultValues[\point][\dist].clip(0.1, 1000)
 			],
-			~grpInputMono[num],
+			~grpPoint[num],
 			\addToTail)
 		);
-		("init synth dist " ++ ~defaultValues[\inDist]).postln;
-		item.put('synthInAmbSend', Synth.new(\ambSend,
+		item.put(\synthSend, Synth.new(\ambSend,
 			[\busIn, item[\busOut],
 				\busOut, ~buses[\ambMain],
 				\volume, 1
 			],
-			~grpInputMono[num],
+			~grpPoint[num],
 			\addToTail)
 		);
 	});
 
-	~serverConf[\inputsAmbAmount].do({
+	~serverConf[\fieldsAmount].do({
 		arg num;
-		var item = ~inputsAmb[num];
+		var item = ~fields[num];
 
-		item.put('synthAmbTransform', Synth.new(\ambTransform,
+		item.put(\synthTransform, Synth.new(\ambTransform,
 			[\busIn, item[\busIn],
 				\busOut, item[\busOut],
 				\busOutCtrl, item[\busOutCtrl]
 			],
-			~grpInputAmb[num],
+			~grpField[num],
 			\addToTail)
 		);
-		item.put('synthInAmbSend', Synth.new(\ambSend,
+		item.put(\synthSend, Synth.new(\ambSend,
 			[\busIn, item[\busOut],
 				\busOut, ~buses[\ambMain],
-				\volume, 0
+				\volume, 1
 			],
-			~grpInputMono[num],
+			~grpField[num],
 			\addToTail)
 		);
 	});
@@ -262,7 +261,7 @@
 
 		~serverConf[\oscCtrlReady] = true;
 
-		~inputsMono[0][\synthInGain].get(\gain, {arg gain; ("after start gain " ++ gain).postln;});
-		~inputsMono[0][\synthInAmbPan].get(\distance, {arg gain; ("after start dist " ++ gain).postln;});
+		~points[0][\synthGain].get(\gain, {arg gain; ("after start gain " ++ gain).postln;});
+		~points[0][\synthPan].get(\distance, {arg gain; ("after start dist " ++ gain).postln;});
 	});
 };

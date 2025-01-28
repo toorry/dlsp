@@ -15,23 +15,23 @@ OSCdef(\ctrlChannel,
 						\g,///GAIN
 						{
 							value = msg[4];
-							~inputsMono[channelNumber-1][\synthInGain].set(\gain, value);
+							~inputs[channelNumber-1][\synthGain].set(\gain, value);
 							("input " ++ channelNumber ++ " gain " ++ value).postln;
-							~stateCurrent[\inputsMono][channelNumber - 1][\gain] = value;
+							~stateCurrent[\inputs][channelNumber - 1][\gain] = value;
 						},
 						\m,///MUTE
 						{
 							value = msg[4];
-							~inputsMono[channelNumber-1][\synthInAmbPan].set(\mute, value);
+							//~inputs[channelNumber-1][\synthPan].set(\mute, value);
 							("input " ++ channelNumber ++ " mute " ++ value).postln;
-							~stateCurrent[\inputsMono][channelNumber - 1][\mute] = value;
+							~stateCurrent[\inputs][channelNumber - 1][\mute] = value;
 						},
 						\v,///VOLUME
 						{
 							value = msg[4];
 							~inputsMono[channelNumber-1][\synthInAmbSend].set(\volume, value);
 							("input " ++ channelNumber ++ " volume " ++ value).postln;
-							~stateCurrent[\inputsMono][channelNumber - 1][\volume] = value;
+							~stateCurrent[\inputs][channelNumber - 1][\volume] = value;
 						}
 					);
 				},
@@ -41,28 +41,29 @@ OSCdef(\ctrlChannel,
 					commandType = msg[3];
 
 					switch (commandType,///COMMAND TYPE
+						\g,///GAIN
+						{
+							~setPointGain.value(num: channelNumber - 1, value: msg[4]);
+						},
 						\az,///AZIMUTH ANGLE
 						{
-							value = msg[4];
-							~inputsMono[channelNumber-1][\synthInAmbPan].set(\azimuth, value);
-							("point " ++ channelNumber ++ " azimuth " ++ value).postln;
-							~stateCurrent[\inputsMono][channelNumber - 1][\azim] = value;
+							~setPointAzim.value(num: channelNumber - 1, value: msg[4]);
 						},
 						\el,///ELEVATION ANGLE
 						{
-							value = msg[4];
-							~inputsMono[channelNumber-1][\synthInAmbPan].set(\elevation, value);
-							("point " ++ channelNumber ++ " elevation " ++ value).postln;
-							~stateCurrent[\inputsMono][channelNumber - 1][\elev] = value;
+							~setPointElev.value(num: channelNumber - 1, value: msg[4]);
 						},
 						\di,///DISTANCE
 						{
-							value = msg[4];
-							~inputsMono[channelNumber-1][\synthInAmbPan].set(
-								\radius, value.clip(0.1,1000),
-								\distance, value.clip(~serverConf[\roomRadius],1000));
-							("point " ++ channelNumber ++ " distance " ++ value).postln;
-							~stateCurrent[\inputsMono][channelNumber - 1][\dist] = value;
+							~setPointDist.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\m,///MUTE
+						{
+							~setPointMute.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\v,///VOLUME
+						{
+							~setPointVolume.value(num: channelNumber - 1, value: msg[4]);
 						}
 					);
 				}

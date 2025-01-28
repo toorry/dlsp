@@ -72,12 +72,12 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             id: `var${singularName}${channelNum}Gain`,
             //value
             default: 1,
-            linkId: `Input${channelNum}Gain`,
+            linkId: `${singularName}${channelNum}Gain`,
             //osc
             decimals: 6,
             bypass: true,
             //scripting
-            onValue: `send(get('varSCLangAddress'), '/ch', 'i', {type: "i", value: 1}, 'g', value);\n` +
+            onValue: `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: 1}, 'g', value);\n` +
             `console.log(\`input1 gain \${value}\`);`
           });
 
@@ -88,7 +88,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             id: `var${singularName}${channelNum}X`,
             //value
             default: 1,
-            linkId: 'Input1X',
+            linkId: `${singularName}${channelNum}X`,
             //osc
             decimals: 2,
             bypass: true,
@@ -120,7 +120,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               `set('varInput${channelNum}XY',[x / r, y / r], {script: false});\n\n` +
               
               `set('varInput${channelNum}DistRelative', dist / r, {script: false});`
-          })
+          });
 
           //Y
           channelFolder.widgets.push({
@@ -129,7 +129,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             id: `var${singularName}${channelNum}Y`,
             //value
             default: 1,
-            linkId: `Input${channelNum}Y`,
+            linkId: `${singularName}${channelNum}Y`,
             //osc
             decimals: 2,
             bypass: true,
@@ -170,7 +170,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             id: `var${singularName}${channelNum}XY`,
             //value
             default: [ 0, 1 ],
-            linkId: `Input${channelNum}XY`,
+            linkId: `${singularName}${channelNum}XY`,
             //osc
             decimals: 2,
             bypass: true,
@@ -182,7 +182,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               `var z = get('varInput${channelNum}Z') * r;\n\n` +
               
               `set('varInput${channelNum}X', x, {script: false});\n` +
-              `set(`varInput${num}Y`, y, {script: false});\n\n` +
+              `set('varInput${channelNum}Y', y, {script: false});\n\n` +
               
               `console.log(\`input${channelNum} xy \${[value]}\`);\n\n` +
               
@@ -212,7 +212,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             id: `var${singularName}${channelNum}Z`,
             //value
             default: 0,
-            linkId: `Input${channelNum}Z`,
+            linkId: `${singularName}${channelNum}Z`,
             //osc
             decimals: 2,
             bypass: true,
@@ -233,7 +233,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               `set('varInput${channelNum}Dist',dist, {script: false});\n` +
               `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', dist);\n\n` +
 
-              set(`varInput${num}DistRelative`, dist / r, {script: false});
+              `set('varInput${channelNum}DistRelative', dist / r, {script: false});`
           });
 
           //AZIM
@@ -243,7 +243,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             id: `var${singularName}${channelNum}Azim`,
             //value
             default: 0,
-            linkId: `Input${channelNum}Azim`,
+            linkId: `${singularName}${channelNum}Azim`,
             //osc
             decimals: 1,
             bypass: true,
@@ -256,284 +256,239 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               `var azim = value;\n` +
               `var elev = get('varInput${channelNum}Elev');\n` +
               `var dist = get('varInput${channelNum}Dist'); \n` +
- ""              `var r = get('varInput${channelNum}EncR');\n\n` +
+              `var r = get('varInput${channelNum}EncR');\n\n` +
 
-              var x,y,z;
+              `var x,y,z;\n\n` +
 
-              x = -dist*Math.cos(elev*Math.PI/180)*Math.sin(azim*Math.PI/180);
-              y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);
-              z = dist*Math.sin(elev*Math.PI/180);
+              `x = -dist*Math.cos(elev*Math.PI/180)*Math.sin(azim*Math.PI/180);\n` +
+              `y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);\n` +
+              `z = dist*Math.sin(elev*Math.PI/180);\n\n` +
 
-              set(`varInput${num}X`,x, {script: false});
-              set(`varInput${num}Y`,y, {script: false});
-              set(`varInput${num}Z`, z/r, {script: false});
-              set(`varInput${num}XY`, [x / r, y / r], {script: false});
+              `set('varInput${channelNum}X',x, {script: false});\n` +
+              `set('varInput${channelNum}Y',y, {script: false});\n` +
+              `set('varInput${channelNum}Z', z/r, {script: false});\n` +
+              `set('varInput${channelNum}XY', [x / r, y / r], {script: false});\n\n` +
 
-              set(`varInput${num}DistRelative`, dist / r, {script: false});
+              `set('varInput$${channelNum}DistRelative', dist / r, {script: false});`
           });
 
-          //GATE
+          //ELEV
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}GateOn`
-            
+            id: `var${singularName}${channelNum}Elev`,
+            //value
+            default: 0,
+            linkId: `${singularName}${channelNum}Elev`,
+            //osc
+            decimals: 1,
+            bypass: true,
+            //scripting
+            onValue:
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', value);\n\n` +
+
+              `console.log(\`inpu${channelNum} elev \${value}\`);\n\n` +
+
+              `var azim = get('varInput${channelNum}Azim');\n` +
+              `var elev = value;\n` +
+              `var dist = get('varInput${channelNum}Dist');\n` +
+              `var r = get('varInput${channelNum}EncR');\n\n` +
+
+              `var x,y,z;\n\n` +
+
+              `x = -dist*Math.cos(elev*Math.PI/180)*Math.sin(azim*Math.PI/180);\n` +
+              `y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);\n` +
+              `z = dist*Math.sin(elev*Math.PI/180);\n\n` +
+
+              `set('varInput${channelNum}X', x, {script: false});\n` +
+              `set('varInput${channelNum}Y', y, {script: false});\n` +
+              `set('varInput${channelNum}Z', z/r, {script: false});\n` +
+              `set('varInput${channelNum}XY', [x/r,y/r], {script: false});\n\n` +
+
+              `set('varInput${channelNum}DistRelative', dist / r, {script: false});`
           });
 
+          //DIST
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}GateTreshold`
-            
+            id: `var${singularName}${channelNum}Dist`,
+            //value
+            default: 1,
+            linkId: `${singularName}${channelNum}Dist`,
+            //osc
+            decimals: 2,
+            bypass: true,
+            //scripting
+            onValue:
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', value);\n\n` +
+
+              `console.log(\`input${channelNum} dist \${value}\`);\n\n` +
+
+              `var azim = get('varInput${channelNum}Azim');\n` +
+              `var elev = get('varInput${channelNum}Elev');\n` +
+              `var dist = value;\n` +
+              `var r = get('varInput${channelNum}EncR');\n\n` +
+
+              `var x,y,z;\n\n` +
+
+              `x = -dist*Math.cos(elev*Math.PI/180)*Math.sin(azim*Math.PI/180);\n` +
+              `y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);\n` +
+              `z = dist*Math.sin(elev*Math.PI/180);\n\n` +
+
+              `set('varInput${channelNum}X',x, {script: false});\n` +
+              `set('varInput${channelNum}Y', y, {script: false});\n` +
+              `set('varInput${channelNum}Z', z/r, {script: false});\n` +
+              `set('varInput${channelNum}XY', [x/r,y/r], {script: false});\n\n` +
+
+              `set('varInput${channelNum}DistRelative', dist / r, {script: false});`
           });
 
+          //DIST RELATIVE
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}GateRatio`
-            
+            id: `var${singularName}${channelNum}DistRelative`,
+            //value
+            default: 1,
+            linkId: `${singularName}${channelNum}DistRelative`,
+            //osc
+            decimals: 2,
+            bypass: true,
+            //scripting
+            onValue:
+              `var r = get('varInput${channelNum}EncR');\n\n` +
+
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', value * r);\n\n` +
+
+              `console.log(\`input${channelNum} dist \${value}\`);\n\n` +
+
+              `var azim = get('varInput${channelNum}Azim');\n` +
+              `var elev = get('varInput${channelNum}Elev');\n` +
+              `var dist = value * r;\n\n` +
+
+              `var x,y,z;\n\n` +
+
+              `x = -dist*Math.cos(elev*Math.PI/180)*Math.sin(azim*Math.PI/180);\n` +
+              `y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);\n` +
+              `z = dist*Math.sin(elev*Math.PI/180);\n\n` +
+
+              `set('varInput${channelNum}X',x, {script: false});\n` +
+              `set('varInput${channelNum}Y', y, {script: false});\n` +
+              `set('varInput${channelNum}Z', z/r, {script: false});\n` +
+              `set('varInput${channelNum}XY', [x/r,y/r], {script: false});\n\n` +
+
+              `set('varInput${channelNum}Dist', dist, {script: false});`
           });
 
+          //ENC RADIUS
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}GateAttack`
-            
+            id: `var${singularName}${channelNum}EncR`,
+            //value
+            default: 7,
+            linkId: `${singularName}${channelNum}EncR`,
+            //osc
+            decimals: 2,
+            bypass: true
           });
 
+          //MUTE
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}GateRelease`
-            
+            id: `var${singularName}${channelNum}Mute`,
+            //value
+            default: 1,
+            linkId: `${singularName}${channelNum}Mute`,
+            //osc
+            decimals: 0,
+            bypass: true,
+            //scripting
+            onValue:
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'm', value);\n` +
+              `console.log(\`input${channelNum} mute \${value}\`);`
           });
 
+          //VOLUME
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}GateDryWet`
-            
+            id: `var${singularName}${channelNum}Volume`,
+            //value
+            default: 1,
+            linkId: `${singularName}${channelNum}Volume`,
+            //osc
+            decimals: 6,
+            bypass: true,
+            //scripting
+            onValue:
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'v', value);\n` +
+              `console.log(\`input${channelNum} volume \${value}\`);`
           });
 
-          //EQ
+          //IN VOLUME METER
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}EQOn`
-            
+            id: `var${singularName}${channelNum}InVM`,
+            //value
+            default: 0,
+            linkId: `>>${singularName}${channelNum}InVM`,
+            //osc
+            decimals: 6,
+            bypass: true
           });
 
+          //GAIN VOLUME METER
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}EQDryWet`
-
+            id: `var${singularName}${channelNum}GainVM`,
+            //value
+            default: 0,
+            linkId: `>>${singularName}${channelNum}GainVM`,
+            //osc
+            decimals: 6,
+            bypass: true
           });
 
-          //EQ LOW CUT
+          //OUT VOLUME METER
           channelFolder.widgets.push({
-
+            //widget
             type: 'variable',
-            id: `var${singularName}${channelNum}EQLowCutOn`
-
+            id: `var${singularName}${channelNum}OutVM`,
+            //value
+            default: [ 0, 0, 0, 0 ],
+            linkId: `>>${singularName}${channelNum}OutVM`,
+            //osc
+            decimals: 6,
+            bypass: true
           });
 
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQLowCutFreq`
-
-          });
-
-          //EQ HI CUT
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQHiCutOn`
-
-          });
-
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQHiCutFreq`
-
-          });
-
-          //EQ LOW SHELF
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQLowShelfOn`
-
-          });
-
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQLowShelfFreq`
-
-          });
-
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQLowShelfQ`
-
-          });
-
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQLowShelfGain`
-
-          });
-
-          //EQ HI SHELF
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQHiShelfOn`
-
-          });
-
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQHiShelfFreq`
-
-          });
-
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQLHiShelfQ`
-
-          });
-
-          channelFolder.widgets.push({
-
-            type: 'variable',
-            id: `var${singularName}${channelNum}EQHiShelfGain`
-
-          });
-
-          //EQ BANDS
-          for (let bandNum = 1; bandNum < 5; bandNum++) {
-            
-            channelFolder.widgets.push({
-
-              type: 'variable',
-              id: `var${singularName}${channelNum}EQBand${bandNum}On`
-  
-            });
-
-            channelFolder.widgets.push({
-
-              type: 'variable',
-              id: `var${singularName}${channelNum}EQBand${bandNum}Freq`
-  
-            });
-
-            channelFolder.widgets.push({
-
-              type: 'variable',
-              id: `var${singularName}${channelNum}EQBand${bandNum}Q`
-  
-            });
-
-            channelFolder.widgets.push({
-
-              type: 'variable',
-              id: `var${singularName}${channelNum}EQBand${bandNum}Gain`
-  
-            });
-          }
           break;
       
         default:
           break;
       }
 
-      //VOLUME METERS
-      channelFolder.widgets.push({
-
-        type: 'variable',
-        id: `var${singularName}${channelNum}BusInVM`,
-        
-      });
-      
-      channelFolder.widgets.push({
-
-        type: 'variable',
-        id: `var${singularName}${channelNum}BusGainVM`,
-        
-      });
-
-      channelFolder.widgets.push({
-
-        type: 'variable',
-        id: `var${singularName}${channelNum}BusGateVM`,
-        
-      });
-
-      channelFolder.widgets.push({
-
-        type: 'variable',
-        id: `var${singularName}${channelNum}BusEQVM`,
-        
-      });
-
-      channelFolder.widgets.push({
-
-        type: 'variable',
-        id: `var${singularName}${channelNum}BusDynEQVM`,
-        
-      });
-
-      channelFolder.widgets.push({
-
-        type: 'variable',
-        id: `var${singularName}${channelNum}BusCompVM`,
-        
-      });
-
-      channelFolder.widgets.push({
-
-        type: 'variable',
-        id: `var${singularName}${channelNum}BusLimitVM`,
-        
-      });
-
-      channelFolder.widgets.push({
-
-        type: 'variable',
-        id: `var${singularName}${channelNum}BusOutPreVM`,
-        
-      });
-
-      channelFolder.widgets.push({
-
-        type: 'variable',
-        id: `var${singularName}${channelNum}BusOutVM`,
-        
-      });
-
       typeFolderWidgets.push(channelFolder);
-    }
+
+    };
 
     receive( '/EDIT/MERGE', `fldr${pluralName}`, {
       widgets: typeFolderWidgets
     });
 
-    let rowPanelWidgets = [];
+    /*let rowPanelWidgets = [];
     
     CreateChannelsPage( channelType, rowPanelWidgets, channelsOnPage );
     
     receive( '/EDIT/MERGE', 'pnl' + pluralName + 'Row', {
       tabs: null,
       widgets: rowPanelWidgets
-    });
+    });*/
 }
 
 function CreateChannelsGroupTab( channelType, channelsGroup, groupsLevel, numFirst, numLast, channelsAmount, channelsOnPage, pagesInGroup, tabNameDef ) {

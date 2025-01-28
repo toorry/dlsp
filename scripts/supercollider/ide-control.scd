@@ -439,6 +439,27 @@ JSONlib.
 ~inputsMono[0][\gain];
 ~inputsMono[0][\dist];
 ~stateCurrent[\inputsMono][0][\dist];
+~points[0][\synthGain].set(\gain, 1);
+~points[0][\synthPan].set(\azimuth, 0);
+~points[1];
+~points[0][\synthPan]
+~stateCurrent[\points][1][\gain];
+~ostagec.sendMsg("/fb", "ch", "i", 1, "gn", ~stateCurrent[\points][0][\gain]);
+~fields[0][\synthSend].set(\volume, 1);
+~fields[0][\synthTransform].set(\volume, 1);
+~fields[0][\synthTransform].set(\mute, 1);
+~fields[0][\synthTransform].set(\busOut, ~buses[\ambMain]);
+~fields[0][\synthTransform].set(\busIn, 14);
+~fields[0][\busIn]
+(~hwOutputs + ~serverConf[\pointsAmount] + ((1 - 1) * ~serverConf[\fieldsAmount])).postln;
+~hwOutputs
+~serverConf[\pointsAmount]
+~serverConf[\fieldsAmount]
+~buses[\ambMain]
+~hwOutputs + ~serverConf[\pointsAmount] + ((1 - 1) * ~serverConf[\ambChansAmount])
+~buses[\fields][0][\in]
+(~hwOutputs + ~serverConf[\pointsAmount])
+
 
 
 

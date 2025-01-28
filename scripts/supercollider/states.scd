@@ -10,19 +10,19 @@
 	~stateCurrent.put(\type, "dlspScene");
 	~stateCurrent.put(\dlspSceneVersion, "0.1");
 
-	~stateCurrent.put(\inputsMono, Array.newClear(~serverConf[\inputsMonoAmount]));
-	~serverConf[\inputsMonoAmount].do ({
+	~stateCurrent.put(\points, Array.newClear(~serverConf[\pointsAmount]));
+	~serverConf[\pointsAmount].do ({
 		arg num;
 		var item = Dictionary.new();
 		item.put(\number, num + 1);
-		item.put(\name, ~inputsMono[num][\name]);
-		item.put(\gain, ~inputsMono[num][\gain]);
-		item.put(\azim, ~inputsMono[num][\azim]);
-		item.put(\elev, ~inputsMono[num][\elev]);
-		item.put(\dist, ~inputsMono[num][\dist]);
-		item.put(\mute, ~inputsMono[num][\mute]);
-		item.put(\volume, ~inputsMono[num][\volume]);
-		~stateCurrent[\inputsMono][num] = item;
+		item.put(\name, ~points[num][\name]);
+		item.put(\gain, ~points[num][\gain]);
+		item.put(\azim, ~points[num][\azim]);
+		item.put(\elev, ~points[num][\elev]);
+		item.put(\dist, ~points[num][\dist]);
+		item.put(\mute, ~points[num][\mute]);
+		item.put(\volume, ~points[num][\volume]);
+		~stateCurrent[\points][num] = item;
 
 	});
 
@@ -49,14 +49,14 @@
 
 ~sendState = {
 
-	~serverConf[\inputsMonoAmount].do ({
+	~serverConf[\pointsAmount].do ({
 		arg num;
-		~ostagec.sendMsg("/fb", "ch", "i", num + 1, "gn", ~stateCurrent[\inputsMono][num][\gain]);
-		~ostagec.sendMsg("/fb", "ch", "i", num + 1, "az", ~stateCurrent[\inputsMono][num][\azim]);
-		~ostagec.sendMsg("/fb", "ch", "i", num + 1, "el", ~stateCurrent[\inputsMono][num][\elev]);
-		~ostagec.sendMsg("/fb", "ch", "i", num + 1, "di", ~stateCurrent[\inputsMono][num][\dist]);
-		~ostagec.sendMsg("/fb", "ch", "i", num + 1, "m", ~stateCurrent[\inputsMono][num][\mute]);
-		~ostagec.sendMsg("/fb", "ch", "i", num + 1, "v", ~stateCurrent[\inputsMono][num][\volume]);
+		~ostagec.sendMsg("/fb", "ch", "p", num + 1, "gn", ~stateCurrent[\points][num][\gain]);
+		~ostagec.sendMsg("/fb", "ch", "p", num + 1, "az", ~stateCurrent[\points][num][\azim]);
+		~ostagec.sendMsg("/fb", "ch", "p", num + 1, "el", ~stateCurrent[\points][num][\elev]);
+		~ostagec.sendMsg("/fb", "ch", "p", num + 1, "di", ~stateCurrent[\points][num][\dist]);
+		~ostagec.sendMsg("/fb", "ch", "p", num + 1, "m", ~stateCurrent[\points][num][\mute]);
+		~ostagec.sendMsg("/fb", "ch", "p", num + 1, "v", ~stateCurrent[\points][num][\volume]);
 	});
 
 	~ostagec.sendMsg("/fb", "de", 1, "name", ~stateCurrent[\decoderMain][\name]);
@@ -84,7 +84,7 @@
 				arg type;
 
 				switch (type,
-					\inputsMono, {//MONO INPUT CHANNEL
+					\points, {//MONO INPUT CHANNEL
 
 						~stateLoaded[type].size.do ({//EACH CHANNEL
 							arg num;
@@ -93,48 +93,30 @@
 
 								switch (parameter,
 									\gain, {
-										~stateCurrent[\inputsMono][num][\gain] = ~stateLoaded[type][num][parameter];
-										~inputsMono[num][\gain] = ~stateCurrent[\inputsMono][num][\gain];
-										~inputsMono[num][\synthInGain].set(\gain, ~inputsMono[num][\gain]);
-										("loaded from state file in " ++ (num + 1) ++ " gain " ++
-											~stateLoaded[type][num][parameter]).postln;
+										~setPointGain.value(num: num, value: ~stateLoaded[type][num][parameter]);
+										"loaded from state file".postln;
 									},
 									\azim, {
-										~stateCurrent[\inputsMono][num][\azim] = ~stateLoaded[type][num][parameter];
-										~inputsMono[num][\azim] = ~stateCurrent[\inputsMono][num][\azim];
-										~inputsMono[num][\synthInAmbPan].set(\azimuth, ~inputsMono[num][\azim]);
-										("loaded from state file in " ++ (num + 1) ++ " azim " ++
-											~stateLoaded[type][num][parameter]).postln;
+										~setPointAzim.value(num: num, value: ~stateLoaded[type][num][parameter]);
+										"loaded from state file point".postln;
 									},
 									\elev, {
-										~stateCurrent[\inputsMono][num][\elev] = ~stateLoaded[type][num][parameter];
-										~inputsMono[num][\elev] = ~stateCurrent[\inputsMono][num][\elev];
-										~inputsMono[num][\synthInAmbPan].set(\elevation, ~inputsMono[num][\elev]);
-										("loaded from state file in " ++ (num + 1) ++ " elev " ++
-											~stateLoaded[type][num][parameter]).postln;
+										~setPointElev.value(num: num, value: ~stateLoaded[type][num][parameter]);
+										"loaded from state file point".postln;
 									},
 									\dist, {
-										~stateCurrent[\inputsMono][num][\dist] = ~stateLoaded[type][num][parameter];
-										~inputsMono[num][\dist] = ~stateCurrent[\inputsMono][num][\dist];
-										~inputsMono[num][\synthInAmbPan].set(
-											\radius, ~inputsMono[num][\dist].clip(0.1,1000),
-											\distance, ~inputsMono[num][\dist].clip(~serverConf[\roomRadius],1000));
-										("loaded from state file in " ++ (num + 1) ++ " dist " ++
-											~stateLoaded[type][num][parameter]).postln;
+										~setPointDist.value(num: num, value: ~stateLoaded[type][num][parameter]);
+										"loaded from state file point".postln;
 									},
 									\mute, {
-										~stateCurrent[\inputsMono][num][\mute] = ~stateLoaded[type][num][parameter];
-										~inputsMono[num][\mute] = ~stateCurrent[\inputsMono][num][\mute];
-										~inputsMono[num][\synthInAmbPan].set(\mute, ~inputsMono[num][\mute]);
-										("loaded from state file in " ++ (num + 1) ++ " mute " ++
-											~stateLoaded[type][num][parameter]).postln;
+										~stateCurrent[\points][num][\mute] = ~stateLoaded[type][num][parameter];
+										~points[num][\mute] = ~stateCurrent[\points][num][\mute];
+										~points[num][\synthPan].set(\mute, ~points[num][\mute]);
+										"loaded from state file point".postln;
 									},
 									\volume, {
-										~stateCurrent[\inputsMono][num][\volume] = ~stateLoaded[type][num][parameter];
-										~inputsMono[num][\volume] = ~stateCurrent[\inputsMono][num][\volume];
-										~inputsMono[num][\synthInAmbSend].set(\volume, ~inputsMono[num][\volume]);
-										("loaded from state file in " ++ (num + 1) ++ " volume " ++
-											~stateLoaded[type][num][parameter]).postln;
+										~setPointVolume.value(num: num, value: ~stateLoaded[type][num][parameter]);
+										"loaded from state file point".postln;
 									},
 								);
 							});
