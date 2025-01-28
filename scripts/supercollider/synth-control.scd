@@ -53,6 +53,12 @@
 	("Point " ++ num ++ " volume " ++ value).postln;
 };
 
+~setPointPatchIn = {
+	arg num, value;
+	~points[num][\synthGain].set(\busIn, ~hwOutputs + value);
+	("Point " ++ num ++ " patch " ++ value).postln;
+};
+
 
 /// FIELD
 
@@ -147,4 +153,10 @@
 	~fields[num][\volume] = value;
 	~stateCurrent[\fields][num][\volume] = value;
 	("Field " ++ num ++ " volume " ++ value).postln;
+};
+
+~setFieldPatchIn = {
+	arg num, value;
+	~fields[num][\synthGain].set(\busIn, ~hwOutputs + value);
+	("Field " ++ num ++ " patch " ++ value).postln;
 };

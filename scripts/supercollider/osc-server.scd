@@ -128,6 +128,72 @@ OSCdef(\ctrlChannel,
 	},
 	'/ch');
 
+OSCdef(\ctrlPatch,
+	{ arg msg;
+		var channelType = msg[1],
+		commandType, channelNumber, value;
+
+		if (~serverConf[\oscCtrlReady]) {
+
+			switch (channelType,// CHANNEL TYPE
+				/*\i,// INPUT
+				{
+					channelNumber = msg[2];
+					commandType = msg[3];
+
+					switch (commandType,///COMMAND TYPE
+						\g,///GAIN
+						{
+							value = msg[4];
+							~inputs[channelNumber-1][\synthGain].set(\gain, value);
+							("input " ++ channelNumber ++ " gain " ++ value).postln;
+							~stateCurrent[\inputs][channelNumber - 1][\gain] = value;
+						},
+						\m,///MUTE
+						{
+							value = msg[4];
+							//~inputs[channelNumber-1][\synthPan].set(\mute, value);
+							("input " ++ channelNumber ++ " mute " ++ value).postln;
+							~stateCurrent[\inputs][channelNumber - 1][\mute] = value;
+						},
+						\v,///VOLUME
+						{
+							value = msg[4];
+							~inputsMono[channelNumber-1][\synthInAmbSend].set(\volume, value);
+							("input " ++ channelNumber ++ " volume " ++ value).postln;
+							~stateCurrent[\inputs][channelNumber - 1][\volume] = value;
+						}
+					);
+				},*/
+				\p,//POINT
+				{
+					channelNumber = msg[2];
+					commandType = msg[3];
+
+					switch (commandType,///COMMAND TYPE
+						\in,/// INPUT PATCH
+						{
+							~setPointPatchIn.value(num: channelNumber - 1, value: msg[4] -1);
+						},
+					);
+				},
+				\f,//FIELD
+				{
+					channelNumber = msg[2];
+					commandType = msg[3];
+
+					switch (commandType,///COMMAND TYPE
+						\in,/// INPUT PATCH
+						{
+							~setFieldPatchIn.value(num: channelNumber - 1, value: msg[4] - 1);
+						}
+					);
+				}
+			);
+		};
+	},
+	'/patch');
+
 ~decoderChangeMain = Routine {
 
 	SynthDef(\decoderRoom, {
@@ -184,6 +250,29 @@ OSCdef(\ctrlDecoder,
 		};
 	},
 	'/de');
+
+OSCdef(\ctrlServer,
+	{ arg msg;
+		var type = msg[1],
+		commandType, channelNumber, value;
+
+		if (~serverConf[\oscCtrlReady]) {
+
+			switch (type,// CHANNEL TYPE
+				\m,// MUTE
+				{
+					if (msg[2].asBoolean) {
+						s.mute;
+						("server muted").postln;
+					} {
+						s.unmute;
+						("server unmuted").postln;
+					}
+				}
+			);
+		};
+	},
+	'/dlsp');
 
 OSCdef(\stateSend,
 	{ arg msg;

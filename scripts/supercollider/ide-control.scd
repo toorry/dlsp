@@ -460,6 +460,9 @@ JSONlib.
 ~buses[\fields][0][\in]
 (~hwOutputs + ~serverConf[\pointsAmount])
 ~serverConf[\oscCtrlReady]
+~points[0][\synthGain].set(\busIn, ~hwOutputs + 3);
+~points[0][\synthGain].set(\gain, 1);
+~hwOutputs + 3
 
 
 

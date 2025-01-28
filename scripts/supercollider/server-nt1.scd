@@ -5,8 +5,10 @@
 
 	~busSilent = Bus.audio(s,1);
 	~busSilentCtrl = Bus.control(s, 1);
+	~busSilentAmb = Bus.audio(s, ~serverConf[\ambChansAmount]);
 	~busTrash = Bus.audio(s,1);
 	~busTrashCtrl = Bus.control(s, 1);
+	~busTrashAmb = Bus.audio(s, ~serverConf[\ambChansAmount]);
 
 	~buses = Dictionary();
 	~buses.put(\points,Array.newClear(~serverConf[\pointsAmount]));
