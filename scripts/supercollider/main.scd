@@ -74,7 +74,7 @@ File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "synth-defs.scd")
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "server-nt1.scd").interpret.postln;
 
 //// SYNTH CONTROL FUNCTIONS
-File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "synth-defs.scd").interpret.postln;
+File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "synth-control.scd").interpret.postln;
 
 ////SOUND SERVER STATE, CUES, SCENES AND SHOWS
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "states.scd").interpret.postln;

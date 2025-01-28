@@ -441,7 +441,7 @@ JSONlib.
 ~stateCurrent[\inputsMono][0][\dist];
 ~points[0][\synthGain].set(\gain, 1);
 ~points[0][\synthPan].set(\azimuth, 0);
-~points[1];
+~points[0][\synthGain];
 ~points[0][\synthPan]
 ~stateCurrent[\points][1][\gain];
 ~ostagec.sendMsg("/fb", "ch", "i", 1, "gn", ~stateCurrent[\points][0][\gain]);
@@ -459,6 +459,7 @@ JSONlib.
 ~hwOutputs + ~serverConf[\pointsAmount] + ((1 - 1) * ~serverConf[\ambChansAmount])
 ~buses[\fields][0][\in]
 (~hwOutputs + ~serverConf[\pointsAmount])
+~serverConf[\oscCtrlReady]
 
 
 

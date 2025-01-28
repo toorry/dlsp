@@ -17,7 +17,7 @@
 
 	~serverConf[\pointsAmount].do ({
 		arg num;
-		var item = Dictionary();
+		var item = Dictionary.new();
 		item.put(\in, ~hwOutputs + num);
 		item.put(\inCtrl, Bus.control(s, 1));
 		item.put(\gain,Bus.audio(s,1));
@@ -30,11 +30,18 @@
 
 	~serverConf[\fieldsAmount].do ({
 		arg num;
-		var item = Dictionary();
-		("hwOutputs " ++ ~hwOutputs ++ " points amount " ++ ~serverConf[\pointsAmount] ++ " amb chans " ++ ~serverConf[\ambChansAmount]).postln;
+		var item = Dictionary.new();
 		item.put(\in, ~hwOutputs + ~serverConf[\pointsAmount] +
-			(num * ~serverConf[\ambChansAmount])).postln;
+			(num * ~serverConf[\ambChansAmount]));
 		item.put(\inCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
+		item.put(\gain,Bus.audio(s, ~serverConf[\ambChansAmount]));
+		item.put(\gainCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
+		item.put(\reflect,Bus.audio(s, ~serverConf[\ambChansAmount]));
+		item.put(\reflectCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
+		item.put(\transform,Bus.audio(s, ~serverConf[\ambChansAmount]));
+		item.put(\transformCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
+		item.put(\zoom,Bus.audio(s, ~serverConf[\ambChansAmount]));
+		item.put(\zoomCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
 		item.put(\out,Bus.audio(s, ~serverConf[\ambChansAmount]));
 		item.put(\outCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
 		~buses[\fields][num]=item;
@@ -43,7 +50,7 @@
 
 	~serverConf[\outputsAmount].do ({
 		arg num;
-		var item = Dictionary();
+		var item = Dictionary.new();
 		item.put(\in, Bus.audio(s, 1));
 		item.put(\inCtrl, Bus.control(s, 1));
 		item.put(\out, num - 1);
@@ -61,7 +68,7 @@
 
 	~serverConf[\pointsAmount].do({
 		arg num;
-		var item = Dictionary();
+		var item = Dictionary.new();
 		item.put(\name, "Point " ++ (num + 1));
 		item.put(\gain, ~defaultValues[\point][\gain]);
 		item.put(\azim, ~defaultValues[\point][\azim]);
@@ -84,9 +91,30 @@
 
 	~serverConf[\fieldsAmount].do({
 		arg num;
-		var item = Dictionary();
+		var item = Dictionary.new();
+		item.put(\name, "Field " ++ (num + 1));
+		item.put(\gain, ~defaultValues[\field][\gain]);
+		item.put(\reflect, ~defaultValues[\field][\reflect]);
+		item.put(\rotate, ~defaultValues[\field][\rotate]);
+		item.put(\tilt, ~defaultValues[\field][\tilt]);
+		item.put(\tumble, ~defaultValues[\field][\tumble]);
+		item.put(\zoom, Dictionary.new());
+		item[\zoom].put(\azim, ~defaultValues[\field][\zoom][\azim]);
+		item[\zoom].put(\elev, ~defaultValues[\field][\zoom][\elev]);
+		item[\zoom].put(\dist, ~defaultValues[\field][\zoom][\dist]);
+		item[\zoom].put(\angle, ~defaultValues[\field][\zoom][\angle]);
+		item.put(\mute, ~defaultValues[\field][\mute]);
+		item.put(\volume, ~defaultValues[\field][\volume]);
 		item.put(\busIn, ~buses[\fields][num][\in]);
 		item.put(\busInCtrl, ~buses[\fields][num][\inCtrl]);
+		item.put(\busGain, ~buses[\fields][num][\gain]);
+		item.put(\busGainCtrl, ~buses[\fields][num][\gainCtrl]);
+		item.put(\busReflect, ~buses[\fields][num][\reflect]);
+		item.put(\busReflectCtrl, ~buses[\fields][num][\reflectCtrl]);
+		item.put(\busTransform, ~buses[\fields][num][\transform]);
+		item.put(\busTransformCtrl, ~buses[\fields][num][\transformCtrl]);
+		item.put(\busZoom, ~buses[\fields][num][\zoom]);
+		item.put(\busZoomCtrl, ~buses[\fields][num][\zoomCtrl]);
 		item.put(\busOut, ~buses[\fields][num][\out]);
 		item.put(\busOutCtrl, ~buses[\fields][num][\outCtrl]);
 		~fields[num] = item;
@@ -160,18 +188,43 @@
 		arg num;
 		var item = ~fields[num];
 
-		item.put(\synthTransform, Synth.new(\ambTransform,
+		item.put(\synthGain, Synth.new(\ambGain,
 			[\busIn, item[\busIn],
-				\busOut, item[\busOut],
-				\busOutCtrl, item[\busOutCtrl]
+				\busOut, item[\busGain],
+				\busOutCtrl, item[\busGainCtrl],
+				\gain, ~defaultValues[\field][\gain]
+			],
+			~grpField[num],
+			\addToTail)
+		);
+		item.put(\synthTransform, Synth.new(\ambTransform,
+			[\busIn, item[\busGain],
+				\busOut, item[\busTransform],
+				\busOutCtrl, item[\busTransformCtrl],
+				\rotate, ~defaultValues[\field][\rotate],
+				\tilt, ~defaultValues[\field][\tilt],
+				\tumble, ~defaultValues[\field][\tumble]
+			],
+			~grpField[num],
+			\addToTail)
+		);
+		item.put(\synthZoom, Synth.new(\ambZoom,
+			[\busIn, item[\busTransform],
+				\busOut, item[\busZoom],
+				\busOutCtrl, item[\busZoomCtrl],
+				\azim, ~defaultValues[\field][\zoom][\azim],
+				\elev, ~defaultValues[\field][\zoom][\elev],
+				\dist, ~defaultValues[\field][\zoom][\dist],
+				\angle, ~defaultValues[\field][\zoom][\angle]
 			],
 			~grpField[num],
 			\addToTail)
 		);
 		item.put(\synthSend, Synth.new(\ambSend,
-			[\busIn, item[\busOut],
+			[\busIn, item[\busZoom],
 				\busOut, ~buses[\ambMain],
-				\volume, 1
+				\mute, ~defaultValues[\field][\mute],
+				\volume, ~defaultValues[\field][\volume]
 			],
 			~grpField[num],
 			\addToTail)

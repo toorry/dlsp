@@ -49,15 +49,40 @@
 		Out.kr(busOutCtrl, sig);
 	}).add;
 
-	SynthDef(\ambTransform, {
-		arg busIn, busOut, busOutCtrl, rotateAngle = 0, tiltAngle = 0, tumbleAngle = 0, mute = 1, volume = 1;
+	SynthDef(\ambGain, {
+		arg busIn, busInCtrl, busOut, busOutCtrl,
+		gain = 1.0;
 		var sig;
 
-		sig = In.ar(busIn, 4);
-		sig = FoaRTT.ar(sig, rotateAngle.degrad, tiltAngle.degrad, tumbleAngle.degrad);
-		sig = sig * volume;
+		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
 
-		Out.ar(busOut, sig * mute);
+		Out.kr( busInCtrl, sig );
+
+		sig = sig * gain;
+
+		Out.ar( busOut, sig );
+		Out.kr( busOutCtrl, sig );
+	}).add;
+
+	SynthDef(\ambTransform, {
+		arg busIn, busOut, busOutCtrl, rotate = 0, tilt = 0, tumble = 0;
+		var sig;
+
+		sig = In.ar(busIn, ~serverConf[\ambChansAmount]);
+		sig = HoaRTT.ar(sig, rotate.degrad, tilt.degrad, tumble.degrad, ~serverConf[\ambOrder]);
+
+		Out.ar(busOut, sig);
+		Out.kr(busOutCtrl, sig);
+	}).add;
+
+	SynthDef(\ambZoom, {
+		arg busIn, busOut, busOutCtrl, angle = 0, azim = 0, elev = 0, dist = 1;
+		var sig;
+
+		sig = In.ar(busIn, ~serverConf[\ambChansAmount]);
+		sig = HoaZoom.ar(sig, angle.degrad, azim.degrad, elev.degrad, dist, ~serverConf[\ambOrder]);
+
+		Out.ar(busOut, sig);
 		Out.kr(busOutCtrl, sig);
 	}).add;
 
@@ -114,11 +139,11 @@
 	}).add;
 
 	SynthDef(\ambSend, {
-		arg busIn, busOut, volume = 1;
+		arg busIn, busOut ,mute = 1, volume = 1;
 		var sig;
 
 		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
 
-		Out.ar( busOut, sig * volume );
+		Out.ar( busOut, sig * mute * volume );
 	}).add;
 };

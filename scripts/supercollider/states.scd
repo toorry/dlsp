@@ -26,6 +26,28 @@
 
 	});
 
+	~stateCurrent.put(\fields, Array.newClear(~serverConf[\fieldsAmount]));
+	~serverConf[\fieldsAmount].do ({
+		arg num;
+		var item = Dictionary.new();
+		item.put(\number, num + 1);
+		item.put(\name, ~fields[num][\name]);
+		item.put(\gain, ~fields[num][\gain]);
+		item.put(\reflect, ~fields[num][\reflect]);
+		item.put(\rotate, ~fields[num][\rotate]);
+		item.put(\tilt, ~fields[num][\tilt]);
+		item.put(\tumble, ~fields[num][\tumble]);
+		item.put(\zoom, Dictionary.new());
+		item[\zoom].put(\azim, ~fields[num][\zoom][\azim]);
+		item[\zoom].put(\elev, ~fields[num][\zoom][\elev]);
+		item[\zoom].put(\dist, ~fields[num][\zoom][\dist]);
+		item[\zoom].put(\angle, ~fields[num][\zoom][\angle]);
+		item.put(\mute, ~fields[num][\mute]);
+		item.put(\volume, ~fields[num][\volume]);
+		~stateCurrent[\fields][num] = item;
+
+	});
+
 	~stateCurrent.put(\decoderMain, Dictionary.new());
 	~stateCurrent[\decoderMain].put(\number, 1);
 	~stateCurrent[\decoderMain].put(\name, "Main");

@@ -45,11 +45,11 @@ OSCdef(\ctrlChannel,
 						{
 							~setPointGain.value(num: channelNumber - 1, value: msg[4]);
 						},
-						\az,///AZIMUTH ANGLE
+						\az,///AZIMUTH
 						{
 							~setPointAzim.value(num: channelNumber - 1, value: msg[4]);
 						},
-						\el,///ELEVATION ANGLE
+						\el,///ELEVATION
 						{
 							~setPointElev.value(num: channelNumber - 1, value: msg[4]);
 						},
@@ -64,6 +64,62 @@ OSCdef(\ctrlChannel,
 						\v,///VOLUME
 						{
 							~setPointVolume.value(num: channelNumber - 1, value: msg[4]);
+						}
+					);
+				},
+				\f,//FIELD
+				{
+					channelNumber = msg[2];
+					commandType = msg[3];
+
+					switch (commandType,///COMMAND TYPE
+						\g,///GAIN
+						{
+							~setFieldGain.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\re,///REFLECT
+						{
+							//~setPointAzim.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\ro,///ROTATE ANGLE
+						{
+							~setFieldRotate.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\ti,///TILT ANGLE
+						{
+							~setFieldTilt.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\tu,///TUMBLE ANGLE
+						{
+							~setFieldTumble.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\z, /// ZOOM ENABLE
+						{
+							~setFieldZoomActive.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\az,///ZOOM AZIMUTH
+						{
+							~setFieldZoomAzim.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\el,///ZOOM ELEVATION
+						{
+							~setFieldZoomElev.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\an,///ZOOM EFFECT ANGLE
+						{
+							~setFieldZoomAngle.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\di,///ZOOM EFFECT DISTANCE
+						{
+							~setFieldZoomDist.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\m,///MUTE
+						{
+							~setFieldMute.value(num: channelNumber - 1, value: msg[4]);
+						},
+						\v,///VOLUME
+						{
+							~setFieldVolume.value(num: channelNumber - 1, value: msg[4]);
 						}
 					);
 				}

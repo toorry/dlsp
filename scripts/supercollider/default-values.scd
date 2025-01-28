@@ -48,5 +48,20 @@
 	~defaultValues[\point].put( \elev, 0 );
 	~defaultValues[\point].put( \dist, ~serverConf[\roomRadius] );
 	~defaultValues[\point].put( \mute, 0 );
-	~defaultValues[\point].put( \volume, 1 );
+	~defaultValues[\point].put( \volume, 1.0 );
+
+	~defaultValues.put( \field, Dictionary.new());
+
+	~defaultValues[\field].put( \gain, 1.0 );
+	~defaultValues[\field].put( \reflect, "n" );
+	~defaultValues[\field].put( \rotate, 0 );
+	~defaultValues[\field].put( \tilt, 0 );
+	~defaultValues[\field].put( \tumble, 0 );
+	~defaultValues[\field].put( \zoom, Dictionary.new() );
+	~defaultValues[\field][\zoom].put( \azim, 0 );
+	~defaultValues[\field][\zoom].put( \elev, 0 );
+	~defaultValues[\field][\zoom].put( \dist, 1 );
+	~defaultValues[\field][\zoom].put( \angle, 0 );
+	~defaultValues[\field].put( \mute, 1.0 );
+	~defaultValues[\field].put( \volume, 1.0 );
 };
