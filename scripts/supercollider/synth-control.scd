@@ -6,7 +6,8 @@
 	~points[num][\synthGain].set(\gain, value);
 	~points[num][\gain] = value;
 	~stateCurrent[\points][num][\gain] = value;
-	("Point " ++ num ++ " gain " ++ value).postln;
+	~ostagec.sendMsg("/fb", "ch", "p", num + 1, "g", value);
+	("Point " ++ (num + 1) ++ " gain " ++ value).postln;
 };
 
 ~setPointAzim = {
@@ -16,7 +17,7 @@
 	~points[num][\synthPan].set(\azimuth, value);
 	~points[num][\azim] = value;
 	~stateCurrent[\points][num][\azim] = value;
-	("Point " ++ num ++ " azim " ++ value).postln;
+	("Point " ++ (num + 1) ++ " azim " ++ value).postln;
 };
 
 ~setPointElev = {
@@ -24,7 +25,7 @@
 	~points[num][\synthPan].set(\elevation, value);
 	~points[num][\elev] = value;
 	~stateCurrent[\points][num][\elev] = value;
-	("Point " ++ num ++ " elev " ++ value).postln;
+	("Point " ++ (num + 1) ++ " elev " ++ value).postln;
 };
 
 ~setPointDist = {
@@ -34,7 +35,7 @@
 		\distance, value.clip(~serverConf[\roomRadius],1000));
 	~points[num][\dist] = value;
 	~stateCurrent[\points][num][\dist] = value;
-	("Point " ++ num ++ " dist " ++ value).postln;
+	("Point " ++ (num + 1) ++ " dist " ++ value).postln;
 };
 
 ~setPointMute = {
@@ -42,7 +43,7 @@
 	~points[num][\synthPan].set(\mute, value);
 	~points[num][\mute] = value;
 	~stateCurrent[\points][num][\mute] = value;
-	("Point " ++ num ++ " mute " ++ value).postln;
+	("Point " ++ (num + 1) ++ " mute " ++ value).postln;
 };
 
 ~setPointVolume = {
@@ -50,13 +51,17 @@
 	~points[num][\synthSend].set(\volume, value);
 	~points[num][\volume] = value;
 	~stateCurrent[\points][num][\volume] = value;
-	("Point " ++ num ++ " volume " ++ value).postln;
+	("Point " ++ (num + 1) ++ " volume " ++ value).postln;
 };
 
 ~setPointPatchIn = {
 	arg num, value;
-	~points[num][\synthGain].set(\busIn, ~hwOutputs + value);
-	("Point " ++ num ++ " patch " ++ value).postln;
+	if (value == -1) {
+		~points[num][\synthGain].set(\busIn, ~busSilent);
+	} {
+		~points[num][\synthGain].set(\busIn, ~hwOutputs + value);
+	};
+	("Point " ++ (num + 1) ++ " patch " ++ value).postln;
 };
 
 
@@ -67,7 +72,7 @@
 	~fields[num][\synthGain].set(\gain, value);
 	~fields[num][\gain] = value;
 	~stateCurrent[\fields][num][\gain] = value;
-	("Field " ++ num ++ " gain " ++ value).postln;
+	("Field " ++ (num + 1) ++ " gain " ++ value).postln;
 };
 
 ~setFieldRotate = {
@@ -75,7 +80,7 @@
 	~fields[num][\synthTransform].set(\rotate, value);
 	~fields[num][\rotate] = value;
 	~stateCurrent[\fields][num][\rotate] = value;
-	("Field " ++ num ++ " rotate " ++ value).postln;
+	("Field " ++ (num + 1) ++ " rotate " ++ value).postln;
 };
 
 ~setFieldTilt = {
@@ -83,7 +88,7 @@
 	~fields[num][\synthTransform].set(\tilt, value);
 	~fields[num][\tilt] = value;
 	~stateCurrent[\fields][num][\tilt] = value;
-	("Field " ++ num ++ " tilt " ++ value).postln;
+	("Field " ++ (num + 1) ++ " tilt " ++ value).postln;
 };
 
 ~setFieldTumble = {
@@ -91,7 +96,7 @@
 	~fields[num][\synthTransform].set(\tumble, value);
 	~fields[num][\tumb] = value;
 	~stateCurrent[\fields][num][\tumb] = value;
-	("Field " ++ num ++ " tumb " ++ value).postln;
+	("Field " ++ (num + 1) ++ " tumb " ++ value).postln;
 };
 
 ~setFieldZoomActive = {
@@ -104,7 +109,7 @@
 		~fields[num][\synthZoom].run(false);
 		~fields[num][\synthTransform].set(\busOut, ~fields[num][\busZoom]);
 	};
-	("Field " ++ num ++ " zoom active " ++ value).postln;
+	("Field " ++ (num + 1) ++ " zoom active " ++ value).postln;
 };
 
 ~setFieldZoomAzim = {
@@ -112,7 +117,7 @@
 	~fields[num][\synthZoom].set(\azim, value);
 	~fields[num][\zoom][\azim] = value;
 	~stateCurrent[\fields][num][\zoom][\azim] = value;
-	("Field " ++ num ++ " zoom azim " ++ value).postln;
+	("Field " ++ (num + 1) ++ " zoom azim " ++ value).postln;
 };
 
 ~setFieldZoomElev = {
@@ -120,7 +125,7 @@
 	~fields[num][\synthZoom].set(\elev, value);
 	~fields[num][\zoom][\elev] = value;
 	~stateCurrent[\fields][num][\zoom][\elev] = value;
-	("Field " ++ num ++ " zoom elev " ++ value).postln;
+	("Field " ++ (num + 1) ++ " zoom elev " ++ value).postln;
 };
 
 ~setFieldZoomAngle = {
@@ -128,7 +133,7 @@
 	~fields[num][\synthZoom].set(\angle, value.clip(-89.9,89.9));
 	~fields[num][\zoom][\angle] = value;
 	~stateCurrent[\fields][num][\zoom][\angle] = value;
-	("Field " ++ num ++ " zoom angle " ++ value).postln;
+	("Field " ++ (num + 1) ++ " zoom angle " ++ value).postln;
 };
 
 ~setFieldZoomDist = {
@@ -136,7 +141,7 @@
 	~fields[num][\synthZoom].set(\dist, value);
 	~fields[num][\zoom][\dist] = value;
 	~stateCurrent[\fields][num][\zoom][\dist] = value;
-	("Field " ++ num ++ " zoom dist " ++ value).postln;
+	("Field " ++ (num + 1) ++ " zoom dist " ++ value).postln;
 };
 
 ~setFieldMute = {
@@ -144,7 +149,7 @@
 	~fields[num][\synthSend].set(\mute, value);
 	~fields[num][\mute] = value;
 	~stateCurrent[\fields][num][\mute] = value;
-	("Field " ++ num ++ " mute " ++ value).postln;
+	("Field " ++ (num + 1) ++ " mute " ++ value).postln;
 };
 
 ~setFieldVolume = {
@@ -152,11 +157,15 @@
 	~fields[num][\synthSend].set(\volume, value);
 	~fields[num][\volume] = value;
 	~stateCurrent[\fields][num][\volume] = value;
-	("Field " ++ num ++ " volume " ++ value).postln;
+	("Field " ++ (num + 1) ++ " volume " ++ value).postln;
 };
 
 ~setFieldPatchIn = {
 	arg num, value;
-	~fields[num][\synthGain].set(\busIn, ~hwOutputs + value);
-	("Field " ++ num ++ " patch " ++ value).postln;
+	if (value == -1) {
+		~fields[num][\synthGain].set(\busIn, ~busSilentAmb);
+	} {
+		~fields[num][\synthGain].set(\busIn, ~hwOutputs + value);
+	};
+	("Field " ++ (num + 1) ++ " patch " ++ value).postln;
 };
