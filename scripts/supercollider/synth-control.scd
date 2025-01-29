@@ -86,7 +86,7 @@
 	("Field " ++ num ++ " tilt " ++ value).postln;
 };
 
-~setFieldTumb = {
+~setFieldTumble = {
 	arg num, value;
 	~fields[num][\synthTransform].set(\tumble, value);
 	~fields[num][\tumb] = value;

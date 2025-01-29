@@ -26,7 +26,7 @@ OSCdef(\ctrlChannel,
 							("input " ++ channelNumber ++ " mute " ++ value).postln;
 							~stateCurrent[\inputs][channelNumber - 1][\mute] = value;
 						},
-						\v,///VOLUME
+						\va,///VOLUME AMPLITUDE
 						{
 							value = msg[4];
 							~inputsMono[channelNumber-1][\synthInAmbSend].set(\volume, value);
@@ -61,7 +61,7 @@ OSCdef(\ctrlChannel,
 						{
 							~setPointMute.value(num: channelNumber - 1, value: msg[4]);
 						},
-						\v,///VOLUME
+						\va,///VOLUME AMPLITUDE
 						{
 							~setPointVolume.value(num: channelNumber - 1, value: msg[4]);
 						}
@@ -117,7 +117,7 @@ OSCdef(\ctrlChannel,
 						{
 							~setFieldMute.value(num: channelNumber - 1, value: msg[4]);
 						},
-						\v,///VOLUME
+						\va,///VOLUME AMPLITUDE
 						{
 							~setFieldVolume.value(num: channelNumber - 1, value: msg[4]);
 						}

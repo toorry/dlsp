@@ -77,8 +77,8 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             decimals: 6,
             bypass: true,
             //scripting
-            onValue: `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: 1}, 'g', value);\n` +
-            `console.log(\`input1 gain \${value}\`);`
+            onValue: `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'ga', value);\n` +
+            `console.log(\`input${channelNum} gain \${value}\`);`
           });
 
           //X
@@ -95,7 +95,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             //scripting
             onValue:
               `var r = get('varInput${channelNum}EncR');\n` +
-              `var x = value;` +
+              `var x = value;\n` +
               `var y = get('varInput${channelNum}Y');\n` +
               `var z = get('varInput${channelNum}Z') * r;\n\n` +
               
@@ -163,7 +163,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               `set('varInput${channelNum}DistRelative', dist / r, {script: false});\n`
           });
 
-          //Y
+          //XY
           channelFolder.widgets.push({
             //widget
             type: 'variable',
@@ -361,7 +361,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
 
               `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', value * r);\n\n` +
 
-              `console.log(\`input${channelNum} dist \${value}\`);\n\n` +
+              `console.log(\`input${channelNum} distRel \${value}\`);\n\n` +
 
               `var azim = get('varInput${channelNum}Azim');\n` +
               `var elev = get('varInput${channelNum}Elev');\n` +
@@ -424,7 +424,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'v', value);\n` +
+              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'va', value);\n` +
               `console.log(\`input${channelNum} volume \${value}\`);`
           });
 
