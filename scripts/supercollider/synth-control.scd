@@ -2,65 +2,235 @@
 /// POINT
 
 ~setPointGain = {
-	arg num, value;
+	arg num, value, fb;
+
 	~points[num][\synthGain].set(\gain, value);
 	~points[num][\gain] = value;
 	~stateCurrent[\points][num][\gain] = value;
-	~ostagec.sendMsg("/fb", "ch", "p", num + 1, "g", value);
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "g", value); };
 	("Point " ++ (num + 1) ++ " gain " ++ value).postln;
 };
 
+~setPointX = {
+	arg num, value, fb;
+	var x, y, z, azim, elev, dist;
+
+	x = value;
+	y = ~points[num][\Y];
+	z = ~points[num][\Z];
+
+	azim = atan( x.neg / y.abs );
+	if ( y < 0 ) {
+		if ( x > 0 ) { azim = azim + pi*2;};
+		azim = pi - azim;
+	};
+
+	elev = atan( z / sqrt( squared(x) + squared(y) ) );
+
+	dist = sqrt( squared(x) + squared(y) + squared(z) );
+
+	~points[num][\X] = x;
+	~points[num][\synthPan].set(\azim, azim);
+	~points[num][\azim] = azim;
+	~stateCurrent[\points][num][\azim] = azim;
+	~points[num][\synthPan].set(\elev, elev);
+	~points[num][\elev] = elev;
+	~stateCurrent[\points][num][\elev] = elev;
+	~points[num][\synthPan].set(
+		\r, dist.clip(~defaultValues[\point][\distMin],~defaultValues[\point][\distMax]),
+		\dist, dist.clip(~serverConf[\roomRadius],~defaultValues[\point][\distMax]));
+	~points[num][\dist] = dist;
+	~stateCurrent[\points][num][\dist] = dist;
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "pan", x, y, z, azim.raddeg, elev.raddeg, dist); };
+	("Point " ++ (num + 1) ++ " x " ++ x).postln;
+};
+
+~setPointY = {
+	arg num, value, fb;
+	var x, y, z, azim, elev, dist;
+
+	x = ~points[num][\X];
+	y = value;
+	z = ~points[num][\Z];
+
+	azim = atan( x.neg / y.abs );
+	if ( y < 0 ) {
+		if ( x > 0 ) { azim = azim + pi*2;};
+		azim = pi - azim;
+	};
+
+	elev = atan( z / sqrt( squared(x) + squared(y) ) );
+
+	dist = sqrt( squared(x) + squared(y) + squared(z) );
+
+	~points[num][\Y] = y;
+	~points[num][\synthPan].set(\azim, azim);
+	~points[num][\azim] = azim;
+	~stateCurrent[\points][num][\azim] = azim;
+	~points[num][\synthPan].set(\elev, elev);
+	~points[num][\elev] = elev;
+	~stateCurrent[\points][num][\elev] = elev;
+	~points[num][\synthPan].set(
+		\r, dist.clip(~defaultValues[\point][\distMin],~defaultValues[\point][\distMax]),
+		\d, dist.clip(~serverConf[\roomRadius],~defaultValues[\point][\distMax]));
+	~points[num][\dist] = dist;
+	~stateCurrent[\points][num][\dist] = dist;
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "pan", x, y, z, azim.raddeg, elev.raddeg, dist); };
+	("Point " ++ (num + 1) ++ " y " ++ y).postln;
+};
+
+~setPointZ = {
+	arg num, value, fb;
+	var x, y, z, azim, elev, dist;
+
+	x = ~points[num][\X];
+	y = ~points[num][\Y];
+	z = value;
+
+	elev = atan( z / sqrt( squared(x) + squared(y) ) );
+
+	dist = sqrt( squared(x) + squared(y) + squared(z) );
+
+	~points[num][\Z] = z;
+	~points[num][\synthPan].set(\elev, elev);
+	~points[num][\elev] = elev;
+	~stateCurrent[\points][num][\elev] = elev;
+	~points[num][\synthPan].set(
+		\r, dist.clip(~defaultValues[\point][\distMin],~defaultValues[\point][\distMax]),
+		\dist, dist.clip(~serverConf[\roomRadius],~defaultValues[\point][\distMax]));
+	~points[num][\dist] = dist;
+	~stateCurrent[\points][num][\dist] = dist;
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "pan", x, y, z, azim.raddeg, elev.raddeg, dist); };
+	("Point " ++ (num + 1) ++ " z " ++ z).postln;
+};
+
 ~setPointAzim = {
-	arg num, value;
-	while {value > 180} { value = value - 360; };
-	while {value < 180} { value = value + 360; };
-	~points[num][\synthPan].set(\azimuth, value);
-	~points[num][\azim] = value;
-	~stateCurrent[\points][num][\azim] = value;
-	("Point " ++ (num + 1) ++ " azim " ++ value).postln;
+	arg num, value, fb;
+	var x, y, z, azim, elev, dist;
+
+	azim = value.degrad;
+	while {azim > pi} { azim = azim - pi*2; };
+	while {azim < pi.neg} { azim = azim + pi*2; };
+	~points[num][\synthPan].set(\azim, azim);
+	~points[num][\azim] = azim;
+	~stateCurrent[\points][num][\azim] = azim;
+
+	elev = ~points[num][\elev];
+	dist = ~points[num][\dist];
+
+	x = neg(dist*cos(elev)*sin(azim));
+	y = dist*cos(elev)*cos(azim);
+	z = ~points[num][\Z];
+
+	~points[num][\X] = x;
+	~points[num][\Y] = y;
+
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "pan", x, y, z, azim.raddeg, elev.raddeg, dist); };
+	("Point " ++ (num + 1) ++ " azim " ++ azim.raddeg).postln;
 };
 
 ~setPointElev = {
-	arg num, value;
-	~points[num][\synthPan].set(\elevation, value);
-	~points[num][\elev] = value;
-	~stateCurrent[\points][num][\elev] = value;
-	("Point " ++ (num + 1) ++ " elev " ++ value).postln;
+	arg num, value, fb;
+	var x, y, z, azim, elev, dist;
+
+	elev = value.degrad;
+	while { elev > pi/2 } { elev = pi*2; };
+	while { azim < (pi/2).neg } { elev = (pi*2).neg; };
+	~points[num][\synthPan].set(\elev, elev);
+	~points[num][\elev] = elev;
+	~stateCurrent[\points][num][\elev] = elev;
+
+	azim = ~points[num][\azim];
+	dist = ~points[num][\dist];
+
+	x = neg(dist*cos(elev)*sin(azim));
+	y = dist*cos(elev)*cos(azim);
+	z = dist*sin(elev);
+
+	~points[num][\X] = x;
+	~points[num][\Y] = y;
+	~points[num][\Z] = z;
+
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "pan", x, y, z, azim.raddeg, elev.raddeg, dist); };
+	("Point " ++ (num + 1) ++ " elev " ++ elev.raddeg).postln;
 };
 
 ~setPointDist = {
-	arg num, value;
+	arg num, value, fb;
+	var x, y, z, azim, elev, dist;
+
+	dist = value;
 	~points[num][\synthPan].set(
-		\radius, value.clip(0.1,1000),
-		\distance, value.clip(~serverConf[\roomRadius],1000));
-	~points[num][\dist] = value;
-	~stateCurrent[\points][num][\dist] = value;
-	("Point " ++ (num + 1) ++ " dist " ++ value).postln;
+		\r, dist.clip(~defaultValues[\point][\distMin],~defaultValues[\point][\distMax]),
+		\dist, dist.clip(~serverConf[\roomRadius],~defaultValues[\point][\distMax]));
+	~points[num][\dist] = dist;
+	~stateCurrent[\points][num][\dist] = dist;
+
+	azim = ~points[num][\azim];
+	elev = ~points[num][\elev];
+
+	x = neg(dist*cos(elev)*sin(azim));
+	y = dist*cos(elev)*cos(azim);
+	z = dist*sin(elev);
+
+	~points[num][\X] = x;
+	~points[num][\Y] = y;
+	~points[num][\Z] = z;
+
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "pan", x, y, z, azim.raddeg, elev.raddeg, dist); };
+	("Point " ++ (num + 1) ++ " dist " ++ dist).postln;
+};
+
+~setPointPan = {
+	arg num, x, y, z, azim, elev, dist, fb;
+
+	azim = azim.degrad;
+	elev = elev.degrad;
+	~points[num][\synthPan].set(\azim, azim);
+	~points[num][\azim] = azim;
+	~stateCurrent[\points][num][\azim] = azim;
+	~points[num][\synthPan].set(\elev, elev);
+	~points[num][\elev] = elev;
+	~stateCurrent[\points][num][\elev] = elev;
+	~points[num][\synthPan].set(
+		\r, dist.clip(~defaultValues[\point][\distMin],~defaultValues[\point][\distMax]),
+		\dist, dist.clip(~serverConf[\roomRadius],~defaultValues[\point][\distMax]));
+	~points[num][\dist] = dist;
+	~stateCurrent[\points][num][\dist] = dist;
+	~points[num][\X] = x;
+	~points[num][\Y] = y;
+	~points[num][\Z] = z;
+
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "pan", x, y, z, azim.raddeg, elev.raddeg, dist); };
+	("Point " ++ (num + 1) ++ " pan").postln;
 };
 
 ~setPointMute = {
-	arg num, value;
+	arg num, value, fb;
 	~points[num][\synthPan].set(\mute, value);
 	~points[num][\mute] = value;
 	~stateCurrent[\points][num][\mute] = value;
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "m", value); };
 	("Point " ++ (num + 1) ++ " mute " ++ value).postln;
 };
 
 ~setPointVolume = {
-	arg num, value;
+	arg num, value, fb;
 	~points[num][\synthSend].set(\volume, value);
 	~points[num][\volume] = value;
 	~stateCurrent[\points][num][\volume] = value;
+	if (fb) { ~ostagec.sendMsg("/fb", "p", num + 1, "v", value); };
 	("Point " ++ (num + 1) ++ " volume " ++ value).postln;
 };
 
 ~setPointPatchIn = {
-	arg num, value;
+	arg num, value, fb;
 	if (value == -1) {
 		~points[num][\synthGain].set(\busIn, ~busSilent);
 	} {
 		~points[num][\synthGain].set(\busIn, ~hwOutputs + value);
 	};
+	if (fb) { };
 	("Point " ++ (num + 1) ++ " patch " ++ value).postln;
 };
 

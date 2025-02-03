@@ -63,7 +63,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
 
       switch (channelType) {
 
-        case 'input':
+        case 'point':
 
           //GAIN
           channelFolder.widgets.push({
@@ -77,8 +77,8 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             decimals: 6,
             bypass: true,
             //scripting
-            onValue: `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'ga', value);\n` +
-            `console.log(\`input${channelNum} gain \${value}\`);`
+            onValue: `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'g', value);\n` +
+            `console.log(\`${singularName} ${channelNum} gain \${value}\`);`
           });
 
           //X
@@ -94,32 +94,31 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `var r = get('varInput${channelNum}EncR');\n` +
+              `var r = get('var${singularName}${channelNum}EncR');\n` +
               `var x = value;\n` +
-              `var y = get('varInput${channelNum}Y');\n` +
-              `var z = get('varInput${channelNum}Z') * r;\n\n` +
+              `var y = get('var${singularName}${channelNum}Y');\n` +
+              `var z = get('var${singularName}${channelNum}Z');\n\n` +
               
-              `console.log(\`input${channelNum} x \${x}\`);\n\n` +
+              `console.log(\`${singularName} ${channelNum} x \${x}\`);\n\n` +
               
               `var azim = Math.atan(-x/Math.abs(y))*180/Math.PI;\n` +
               `if(y<0) {\n` +
               `  if(x>0) {azim = azim+360;}\n` +
               `  azim = 180-azim;\n` +
               `}\n` +
-              `set('varInput${channelNum}Azim',azim, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}},'az', azim);\n\n` +
+              `set('var${singularName}${channelNum}Azim',azim, {script: false});\n\n` +
               
               `var elev = Math.atan(z/Math.sqrt(Math.pow(x,2) + Math.pow(y,2)))*180/Math.PI;\n` +
-              `set('varInput${channelNum}Elev',elev, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', elev);\n\n` +
+              `set('var${singularName}${channelNum}Elev',elev, {script: false});\n\n` +
               
               `var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));\n` +
-              `set('varInput${channelNum}Dist',dist, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', dist);\n\n` +
+              `set('var${singularName}${channelNum}Dist',dist, {script: false});\n\n` +
+
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'pan', x, y, z, azim, elev, dist);\n\n` +
               
-              `set('varInput${channelNum}XY',[x / r, y / r], {script: false});\n\n` +
+              `set('var${singularName}${channelNum}XY',[x / r, y / r], {script: false});\n\n` +
               
-              `set('varInput${channelNum}DistRelative', dist / r, {script: false});`
+              `set('var${singularName}${channelNum}DistRelative', dist / r, {script: false});`
           });
 
           //Y
@@ -135,32 +134,31 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `var r = get('varInput${channelNum}EncR');\n` +
-              `var x = get('varInput${channelNum}X');\n` +
+              `var r = get('var${singularName}${channelNum}EncR');\n` +
+              `var x = get('var${singularName}${channelNum}X');\n` +
               `var y = value;\n` +
-              `var z = get('varInput${channelNum}Z') * r;\n\n` +
+              `var z = get('var${singularName}${channelNum}Z');\n\n` +
 
-              `console.log(\`input${channelNum} y \${y}\`);\n\n` +
+              `console.log(\`${singularName} ${channelNum} y \${y}\`);\n\n` +
 
               `var azim = Math.atan(-x/Math.abs(y))*180/Math.PI;\n` +
               `if(y<0) {\n` +
               `  if(x>0) {azim = azim+360;}\n` +
               `  azim = 180-azim;\n` +
               `}\n` +
-              `set('varInput${channelNum}Azim',azim, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'az', azim);\n\n` +
+              `set('var${singularName}${channelNum}Azim',azim, {script: false});\n\n` +
 
               `var elev = Math.atan(z/Math.sqrt(Math.pow(x,2) + Math.pow(y,2)))*180/Math.PI;\n` +
-              `set('varInput${channelNum}Elev',elev, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', elev);\n\n` +
+              `set('var${singularName}${channelNum}Elev',elev, {script: false});\n\n` +
 
               `var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));\n` +
-              `set('varInput${channelNum}Dist',dist, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', dist);\n\n` +
+              `set('var${singularName}${channelNum}Dist',dist, {script: false});\n\n` +
 
-              `set('varInput${channelNum}XY',[x / r, y / r], {script: false});\n\n` +
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'pan', x, y, z, azim, elev, dist);\n\n` +
 
-              `set('varInput${channelNum}DistRelative', dist / r, {script: false});\n`
+              `set('var${singularName}${channelNum}XY',[x / r, y / r], {script: false});\n\n` +
+
+              `set('var${singularName}${channelNum}DistRelative', dist / r, {script: false});\n`
           });
 
           //XY
@@ -176,33 +174,32 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `var r = get('varInput${channelNum}EncR');\n` +
+              `var r = get('var${singularName}${channelNum}EncR');\n` +
               `var x = value[0] * r;\n` +
               `var y = value[1] * r;\n` +
-              `var z = get('varInput${channelNum}Z') * r;\n\n` +
+              `var z = get('var${singularName}${channelNum}Z');\n\n` +
               
-              `set('varInput${channelNum}X', x, {script: false});\n` +
-              `set('varInput${channelNum}Y', y, {script: false});\n\n` +
+              `set('var${singularName}${channelNum}X', x, {script: false});\n` +
+              `set('var${singularName}${channelNum}Y', y, {script: false});\n\n` +
               
-              `console.log(\`input${channelNum} xy \${[value]}\`);\n\n` +
+              `console.log(\`${singularName} ${channelNum} xy \${[value]}\`);\n\n` +
               
               `var azim = Math.atan(-x/Math.abs(y))*180/Math.PI;\n` +
               `if(y<0) {\n` +
               `  if(x>0) {azim = azim+360;}\n` +
               `  azim = 180-azim;\n` +
               `}\n` +
-              `set('varInput${channelNum}Azim',azim, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'az', azim);\n\n` +
+              `set('var${singularName}${channelNum}Azim',azim, {script: false});\n\n` +
               
               `var elev = Math.atan(z/Math.sqrt(Math.pow(x,2) + Math.pow(y,2)))*180/Math.PI;\n` +
-              `set('varInput${channelNum}Elev',elev, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', elev);\n\n` +
+              `set('var${singularName}${channelNum}Elev',elev, {script: false});\n\n` +
               
               `var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));\n` +
-              `set('varInput${channelNum}Dist',dist, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', dist);\n\n` +
+              `set('var${singularName}${channelNum}Dist',dist, {script: false});\n\n` +
+
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'pan', x, y, z, azim, elev, dist);\n\n` +
               
-              `set('varInput${channelNum}DistRelative', dist / r, {script: false});\n`
+              `set('var${singularName}${channelNum}DistRelative', dist / r, {script: false});\n`
           });
 
           //Z
@@ -218,22 +215,61 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `var r = get('varInput${channelNum}EncR');\n` +
-              `var x = get('varInput${channelNum}X');\n` +
-              `var y = get('varInput${channelNum}Y');\n` +
-              `var z = value * r;\n\n` +
+              `var r = get('var${singularName}${channelNum}EncR');\n` +
+              `var x = get('var${singularName}${channelNum}X');\n` +
+              `var y = get('var${singularName}${channelNum}Y');\n` +
+              `var z = value;\n\n` +
 
-              `console.log(\`input${channelNum} z \${z}\`);\n\n` +
+              `console.log(\`${singularName} ${channelNum} z \${z}\`);\n\n` +
+
+              `var azim = get('var${singularName}${channelNum}Azim');\n\n` +
 
               `var elev = Math.atan(z/Math.sqrt(Math.pow(x,2) + Math.pow(y,2)))*180/Math.PI;\n` +
-              `set('varInput${channelNum}Elev',elev, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', elev);\n\n` +
+              `set('var${singularName}${channelNum}Elev',elev, {script: false});\n\n` +
 
               `var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));\n` +
-              `set('varInput${channelNum}Dist',dist, {script: false});\n` +
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', dist);\n\n` +
+              `set('var${singularName}${channelNum}Dist',dist, {script: false});\n\n` +
 
-              `set('varInput${channelNum}DistRelative', dist / r, {script: false});`
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'pan', x, y, z, azim, elev, dist);\n\n` +
+
+              `set('var${singularName}${channelNum}DistRelative', dist / r, {script: false});\n\n` +
+
+              `set('var${singularName}${channelNum}ZRelative', z / r, {script: false});`
+          });
+
+          //Z RELATIVE
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}ZRelative`,
+            //value
+            default: 0,
+            linkId: `${singularName}${channelNum}ZRelative`,
+            //osc
+            decimals: 2,
+            bypass: true,
+            //scripting
+            onValue:
+              `var r = get('var${singularName}${channelNum}EncR');\n` +
+              `var x = get('var${singularName}${channelNum}X');\n` +
+              `var y = get('var${singularName}${channelNum}Y');\n` +
+              `var z = value *r;\n\n` +
+
+              `console.log(\`${singularName} ${channelNum} z \${z}\`);\n\n` +
+
+              `var azim = get('var${singularName}${channelNum}Azim');\n\n` +
+
+              `var elev = Math.atan(z/Math.sqrt(Math.pow(x,2) + Math.pow(y,2)))*180/Math.PI;\n` +
+              `set('var${singularName}${channelNum}Elev',elev, {script: false});\n` +
+
+              `var dist = Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2));\n` +
+              `set('var${singularName}${channelNum}Dist',dist, {script: false});\n\n` +
+
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'pan', x, y, z, azim, elev, dist);\n\n` +
+
+              `set('var${singularName}${channelNum}DistRelative', dist / r, {script: false});\n\n` +
+
+              `set('var${singularName}${channelNum}Z', z, {script: false});`
           });
 
           //AZIM
@@ -249,14 +285,12 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'az', value);\n\n` +
-
-              `console.log(\`input${channelNum} azim \${value}\`);\n\n` +
+              `console.log(\`${singularName} ${channelNum} azim \${value}\`);\n\n` +
 
               `var azim = value;\n` +
-              `var elev = get('varInput${channelNum}Elev');\n` +
-              `var dist = get('varInput${channelNum}Dist'); \n` +
-              `var r = get('varInput${channelNum}EncR');\n\n` +
+              `var elev = get('var${singularName}${channelNum}Elev');\n` +
+              `var dist = get('var${singularName}${channelNum}Dist'); \n` +
+              `var r = get('var${singularName}${channelNum}EncR');\n\n` +
 
               `var x,y,z;\n\n` +
 
@@ -264,10 +298,13 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               `y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);\n` +
               `z = dist*Math.sin(elev*Math.PI/180);\n\n` +
 
-              `set('varInput${channelNum}X',x, {script: false});\n` +
-              `set('varInput${channelNum}Y',y, {script: false});\n` +
-              `set('varInput${channelNum}Z', z/r, {script: false});\n` +
-              `set('varInput${channelNum}XY', [x / r, y / r], {script: false});\n\n` +
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'pan', x, y, z, azim, elev, dist);\n\n` +
+
+              `set('var${singularName}${channelNum}X',x, {script: false});\n` +
+              `set('var${singularName}${channelNum}Y',y, {script: false});\n` +
+              `set('var${singularName}${channelNum}Z', z, {script: false});\n` +
+              `set('var${singularName}${channelNum}ZRelative', z / r, {script: false});\n` +
+              `set('var${singularName}${channelNum}XY', [x / r, y / r], {script: false});\n\n` +
 
               `set('varInput$${channelNum}DistRelative', dist / r, {script: false});`
           });
@@ -285,14 +322,12 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'el', value);\n\n` +
+              `console.log(\`${singularName} ${channelNum} elev \${value}\`);\n\n` +
 
-              `console.log(\`inpu${channelNum} elev \${value}\`);\n\n` +
-
-              `var azim = get('varInput${channelNum}Azim');\n` +
+              `var azim = get('var${singularName}${channelNum}Azim');\n` +
               `var elev = value;\n` +
-              `var dist = get('varInput${channelNum}Dist');\n` +
-              `var r = get('varInput${channelNum}EncR');\n\n` +
+              `var dist = get('var${singularName}${channelNum}Dist');\n` +
+              `var r = get('var${singularName}${channelNum}EncR');\n\n` +
 
               `var x,y,z;\n\n` +
 
@@ -300,12 +335,15 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               `y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);\n` +
               `z = dist*Math.sin(elev*Math.PI/180);\n\n` +
 
-              `set('varInput${channelNum}X', x, {script: false});\n` +
-              `set('varInput${channelNum}Y', y, {script: false});\n` +
-              `set('varInput${channelNum}Z', z/r, {script: false});\n` +
-              `set('varInput${channelNum}XY', [x/r,y/r], {script: false});\n\n` +
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'pan', x, y, z, azim, elev, dist);\n\n` +
 
-              `set('varInput${channelNum}DistRelative', dist / r, {script: false});`
+              `set('var${singularName}${channelNum}X', x, {script: false});\n` +
+              `set('var${singularName}${channelNum}Y', y, {script: false});\n` +
+              `set('var${singularName}${channelNum}Z', z, {script: false});\n` +
+              `set('var${singularName}${channelNum}ZRelative', z / r, {script: false});\n` +
+              `set('var${singularName}${channelNum}XY', [x/r,y/r], {script: false});\n\n` +
+
+              `set('var${singularName}${channelNum}DistRelative', dist / r, {script: false});`
           });
 
           //DIST
@@ -321,14 +359,12 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', value);\n\n` +
+              `console.log(\`${singularName} ${channelNum} dist \${value}\`);\n\n` +
 
-              `console.log(\`input${channelNum} dist \${value}\`);\n\n` +
-
-              `var azim = get('varInput${channelNum}Azim');\n` +
-              `var elev = get('varInput${channelNum}Elev');\n` +
+              `var azim = get('var${singularName}${channelNum}Azim');\n` +
+              `var elev = get('var${singularName}${channelNum}Elev');\n` +
               `var dist = value;\n` +
-              `var r = get('varInput${channelNum}EncR');\n\n` +
+              `var r = get('var${singularName}${channelNum}EncR');\n\n` +
 
               `var x,y,z;\n\n` +
 
@@ -336,12 +372,15 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               `y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);\n` +
               `z = dist*Math.sin(elev*Math.PI/180);\n\n` +
 
-              `set('varInput${channelNum}X',x, {script: false});\n` +
-              `set('varInput${channelNum}Y', y, {script: false});\n` +
-              `set('varInput${channelNum}Z', z/r, {script: false});\n` +
-              `set('varInput${channelNum}XY', [x/r,y/r], {script: false});\n\n` +
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'pan', x, y, z, azim, elev, dist);\n\n` +
 
-              `set('varInput${channelNum}DistRelative', dist / r, {script: false});`
+              `set('var${singularName}${channelNum}X',x, {script: false});\n` +
+              `set('var${singularName}${channelNum}Y', y, {script: false});\n` +
+              `set('var${singularName}${channelNum}Z', z, {script: false});\n` +
+              `set('var${singularName}${channelNum}ZRelative', z / r, {script: false});\n` +
+              `set('var${singularName}${channelNum}XY', [x/r,y/r], {script: false});\n\n` +
+
+              `set('var${singularName}${channelNum}DistRelative', dist / r, {script: false});`
           });
 
           //DIST RELATIVE
@@ -357,14 +396,12 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `var r = get('varInput${channelNum}EncR');\n\n` +
+              `var r = get('var${singularName}${channelNum}EncR');\n\n` +
 
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'di', value * r);\n\n` +
+              `console.log(\`${singularName} ${channelNum} distRel \${value}\`);\n\n` +
 
-              `console.log(\`input${channelNum} distRel \${value}\`);\n\n` +
-
-              `var azim = get('varInput${channelNum}Azim');\n` +
-              `var elev = get('varInput${channelNum}Elev');\n` +
+              `var azim = get('var${singularName}${channelNum}Azim');\n` +
+              `var elev = get('var${singularName}${channelNum}Elev');\n` +
               `var dist = value * r;\n\n` +
 
               `var x,y,z;\n\n` +
@@ -373,12 +410,15 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               `y = dist*Math.cos(elev*Math.PI/180)*Math.cos(azim*Math.PI/180);\n` +
               `z = dist*Math.sin(elev*Math.PI/180);\n\n` +
 
-              `set('varInput${channelNum}X',x, {script: false});\n` +
-              `set('varInput${channelNum}Y', y, {script: false});\n` +
-              `set('varInput${channelNum}Z', z/r, {script: false});\n` +
-              `set('varInput${channelNum}XY', [x/r,y/r], {script: false});\n\n` +
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'pan', x, y, z, azim, elev, dist);\n\n` +
 
-              `set('varInput${channelNum}Dist', dist, {script: false});`
+              `set('var${singularName}${channelNum}X',x, {script: false});\n` +
+              `set('var${singularName}${channelNum}Y', y, {script: false});\n` +
+              `set('var${singularName}${channelNum}Z', z, {script: false});\n` +
+              `set('var${singularName}${channelNum}ZRelative', z / r, {script: false});\n` +
+              `set('var${singularName}${channelNum}XY', [x/r,y/r], {script: false});\n\n` +
+
+              `set('var${singularName}${channelNum}Dist', dist, {script: false});`
           });
 
           //ENC RADIUS
@@ -391,7 +431,19 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             linkId: `${singularName}${channelNum}EncR`,
             //osc
             decimals: 2,
-            bypass: true
+            bypass: true,
+            //scripting
+            onValue:
+              `var r = value;\n` +
+              `var x = get('var${singularName}${channelNum}X');\n` +
+              `var y = get('var${singularName}${channelNum}Y');\n\n` +
+
+              `set('var${singularName}${channelNum}DistRelative', get('var${singularName}${channelNum}Dist') / r, {script: false});\n` +
+              `set('var${singularName}${channelNum}ZRelative', get('var${singularName}${channelNum}Z') / r, {script: false});\n\n` +
+              
+              `console.log(\`${singularName} ${channelNum} R \${value}\`);\n\n` +
+              
+              `set('var${singularName}${channelNum}XY',[x / r, y / r], {script: false});`
           });
 
           //MUTE
@@ -407,8 +459,8 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'm', value);\n` +
-              `console.log(\`input${channelNum} mute \${value}\`);`
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'm', value);\n` +
+              `console.log(\`${singularName} ${channelNum} mute \${value}\`);`
           });
 
           //VOLUME
@@ -424,8 +476,8 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             bypass: true,
             //scripting
             onValue:
-              `send(get('varSCLangAddress'), '/ch', 'p', {type: "i", value: ${channelNum}}, 'va', value);\n` +
-              `console.log(\`input${channelNum} volume \${value}\`);`
+              `send(get('varSCLangAddress'), '/ui', 'p', {type: "i", value: ${channelNum}}, 'v', value);\n` +
+              `console.log(\`${singularName} ${channelNum} volume \${value}\`);`
           });
 
           //IN VOLUME METER

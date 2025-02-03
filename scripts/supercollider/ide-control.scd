@@ -463,6 +463,11 @@ JSONlib.
 ~points[0][\synthGain].set(\busIn, ~hwOutputs + 3);
 ~points[0][\synthGain].set(\gain, 1);
 ~hwOutputs + 3
+{
+	arg value = 1800;
+	while {value > 180} { value = value - 360; value.postln; };
+	while {value < 180} { value = value + 360; };
+}
 
 
 

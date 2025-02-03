@@ -16,6 +16,7 @@
 		var item = Dictionary.new();
 		item.put(\number, num + 1);
 		item.put(\name, ~points[num][\name]);
+		item.put(\patchIn, 0);
 		item.put(\gain, ~points[num][\gain]);
 		item.put(\azim, ~points[num][\azim]);
 		item.put(\elev, ~points[num][\elev]);
@@ -32,6 +33,7 @@
 		var item = Dictionary.new();
 		item.put(\number, num + 1);
 		item.put(\name, ~fields[num][\name]);
+		item.put(\patchIn, 0);
 		item.put(\gain, ~fields[num][\gain]);
 		item.put(\reflect, ~fields[num][\reflect]);
 		item.put(\rotate, ~fields[num][\rotate]);

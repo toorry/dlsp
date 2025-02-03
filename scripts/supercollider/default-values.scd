@@ -2,6 +2,15 @@
 
 	~defaultValues = Dictionary.new();
 
+	~defaultValues.put(\inputs, 16);
+	~defaultValues.put(\mixes, 8);
+	~defaultValues.put(\points, 16);
+	~defaultValues.put(\encoders, 4);
+	~defaultValues.put(\fields, 4);
+	~defaultValues.put(\spaces, 1);
+	~defaultValues.put(\decoders, 1);
+	~defaultValues.put(\outputs, 18);
+
 	~defaultValues.put( \inGate, Dictionary.new() );
 	~defaultValues[\inGate].put( \threshold, 0.01 );
 	~defaultValues[\inGate].put( \ratio, 10 );
@@ -44,9 +53,14 @@
 	~defaultValues.put( \point, Dictionary.new());
 
 	~defaultValues[\point].put( \gain, 1.0 );
+	~defaultValues[\point].put( \X, 0 );
+	~defaultValues[\point].put( \Y, ~serverConf[\roomRadius] );
+	~defaultValues[\point].put( \Z, 0 );
 	~defaultValues[\point].put( \azim, 0 );
 	~defaultValues[\point].put( \elev, 0 );
 	~defaultValues[\point].put( \dist, ~serverConf[\roomRadius] );
+	~defaultValues[\point].put( \distMin, 0.1);
+	~defaultValues[\point].put( \distMax, 1000);
 	~defaultValues[\point].put( \mute, 0 );
 	~defaultValues[\point].put( \volume, 1.0 );
 

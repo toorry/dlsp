@@ -3,6 +3,8 @@
 	~hwInputs = s.options.numInputBusChannels;
 	~hwOutputs = s.options.numOutputBusChannels;
 
+	~hwInPatch;
+
 	~busSilent = Bus.audio(s,1);
 	~busSilentCtrl = Bus.control(s, 1);
 	~busSilentAmb = Bus.audio(s, ~serverConf[\ambChansAmount]);
@@ -72,7 +74,11 @@
 		arg num;
 		var item = Dictionary.new();
 		item.put(\name, "Point " ++ (num + 1));
+		item.put(\patchIn, 0);
 		item.put(\gain, ~defaultValues[\point][\gain]);
+		item.put(\X, ~defaultValues[\point][\X]);
+		item.put(\Y, ~defaultValues[\point][\Y]);
+		item.put(\Z, ~defaultValues[\point][\Z]);
 		item.put(\azim, ~defaultValues[\point][\azim]);
 		item.put(\elev, ~defaultValues[\point][\elev]);
 		item.put(\dist, ~serverConf[\roomRadius]);
@@ -95,6 +101,7 @@
 		arg num;
 		var item = Dictionary.new();
 		item.put(\name, "Field " ++ (num + 1));
+		item.put(\patchIn, 0);
 		item.put(\gain, ~defaultValues[\field][\gain]);
 		item.put(\reflect, ~defaultValues[\field][\reflect]);
 		item.put(\rotate, ~defaultValues[\field][\rotate]);
@@ -170,8 +177,8 @@
 			[\busIn, item[\busGain],
 				\busOut, item[\busOut],
 				\busOutCtrl, item[\busOutCtrl],
-				\distance, ~defaultValues[\point][\dist],
-				\radius, ~defaultValues[\point][\dist].clip(0.1, 1000)
+				\dist, ~defaultValues[\point][\dist],
+				\r, ~defaultValues[\point][\dist].clip(0.1, 1000)
 			],
 			~grpPoint[num],
 			\addToTail)

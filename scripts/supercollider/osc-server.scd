@@ -1,7 +1,7 @@
-OSCdef(\ctrlChannel,
+OSCdef(\ctrlFromUI,
 	{ arg msg;
 		var channelType = msg[1],
-		commandType, channelNumber, value;
+		commandType, channelNumber, value, fb = false;
 
 		if (~serverConf[\oscCtrlReady]) {
 
@@ -26,7 +26,7 @@ OSCdef(\ctrlChannel,
 							("input " ++ channelNumber ++ " mute " ++ value).postln;
 							~stateCurrent[\inputs][channelNumber - 1][\mute] = value;
 						},
-						\va,///VOLUME AMPLITUDE
+						\v,///VOLUME AMPLITUDE
 						{
 							value = msg[4];
 							~inputsMono[channelNumber-1][\synthInAmbSend].set(\volume, value);
@@ -43,27 +43,32 @@ OSCdef(\ctrlChannel,
 					switch (commandType,///COMMAND TYPE
 						\g,///GAIN
 						{
-							~setPointGain.value(num: channelNumber - 1, value: msg[4]);
+							~setPointGain.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\az,///AZIMUTH
 						{
-							~setPointAzim.value(num: channelNumber - 1, value: msg[4]);
+							~setPointAzim.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\el,///ELEVATION
 						{
-							~setPointElev.value(num: channelNumber - 1, value: msg[4]);
+							~setPointElev.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\di,///DISTANCE
 						{
-							~setPointDist.value(num: channelNumber - 1, value: msg[4]);
+							~setPointDist.value(num: channelNumber - 1, value: msg[4], fb: false);
+						},
+						\pan,/// ALL PAN COORDS
+						{
+							~setPointPan.value(num: channelNumber - 1,
+								x: msg[4], y: msg[5], z: msg[6], azim: msg[7], elev: msg[8], dist: msg[9], fb: false);
 						},
 						\m,///MUTE
 						{
-							~setPointMute.value(num: channelNumber - 1, value: msg[4]);
+							~setPointMute.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
-						\va,///VOLUME AMPLITUDE
+						\v,///VOLUME AMPLITUDE
 						{
-							~setPointVolume.value(num: channelNumber - 1, value: msg[4]);
+							~setPointVolume.value(num: channelNumber - 1, value: msg[4], fb: false);
 						}
 					);
 				},
@@ -75,7 +80,7 @@ OSCdef(\ctrlChannel,
 					switch (commandType,///COMMAND TYPE
 						\g,///GAIN
 						{
-							~setFieldGain.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldGain.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\re,///REFLECT
 						{
@@ -83,50 +88,50 @@ OSCdef(\ctrlChannel,
 						},
 						\ro,///ROTATE ANGLE
 						{
-							~setFieldRotate.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldRotate.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\ti,///TILT ANGLE
 						{
-							~setFieldTilt.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldTilt.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\tu,///TUMBLE ANGLE
 						{
-							~setFieldTumble.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldTumble.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\z, /// ZOOM ENABLE
 						{
-							~setFieldZoomActive.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldZoomActive.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\az,///ZOOM AZIMUTH
 						{
-							~setFieldZoomAzim.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldZoomAzim.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\el,///ZOOM ELEVATION
 						{
-							~setFieldZoomElev.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldZoomElev.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\an,///ZOOM EFFECT ANGLE
 						{
-							~setFieldZoomAngle.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldZoomAngle.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\di,///ZOOM EFFECT DISTANCE
 						{
-							~setFieldZoomDist.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldZoomDist.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
 						\m,///MUTE
 						{
-							~setFieldMute.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldMute.value(num: channelNumber - 1, value: msg[4], fb: false);
 						},
-						\va,///VOLUME AMPLITUDE
+						\v,///VOLUME AMPLITUDE
 						{
-							~setFieldVolume.value(num: channelNumber - 1, value: msg[4]);
+							~setFieldVolume.value(num: channelNumber - 1, value: msg[4], fb: false);
 						}
 					);
 				}
 			);
 		};
 	},
-	'/ch');
+	'/ui');
 
 OSCdef(\ctrlPatch,
 	{ arg msg;

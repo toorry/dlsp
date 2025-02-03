@@ -33,17 +33,17 @@
 
 	SynthDef(\ambPan, {
 		arg busIn, busOut, busOutCtrl,
-		azimuth = 0,
-		elevation = 0,
-		radius = 1,
-		distance = 1,
+		azim = 0,
+		elev = 0,
+		r = 1,
+		dist = 1,
 		mute = 1, volume = 1;
 		var sig;
 
 		sig = In.ar(busIn, 1);
 
-		sig = HoaEncodeDirection.ar(sig, azimuth.degrad, elevation.degrad, radius, 1);
-		sig = sig * volume * ~serverConf[\roomRadius] / distance;
+		sig = HoaEncodeDirection.ar(sig, azim, elev, r, 1);
+		sig = sig * volume * ~serverConf[\roomRadius] / dist;
 
 		Out.ar(busOut, sig * mute);
 		Out.kr(busOutCtrl, sig);
@@ -69,7 +69,7 @@
 		var sig;
 
 		sig = In.ar(busIn, ~serverConf[\ambChansAmount]);
-		sig = HoaRTT.ar(sig, rotate.degrad, tilt.degrad, tumble.degrad, ~serverConf[\ambOrder]);
+		sig = HoaRTT.ar(sig, rotate, tilt, tumble, ~serverConf[\ambOrder]);
 
 		Out.ar(busOut, sig);
 		Out.kr(busOutCtrl, sig);
@@ -80,7 +80,7 @@
 		var sig;
 
 		sig = In.ar(busIn, ~serverConf[\ambChansAmount]);
-		sig = HoaZoom.ar(sig, angle.degrad, azim.degrad, elev.degrad, dist, ~serverConf[\ambOrder]);
+		sig = HoaZoom.ar(sig, angle, azim, elev, dist, ~serverConf[\ambOrder]);
 
 		Out.ar(busOut, sig);
 		Out.kr(busOutCtrl, sig);
