@@ -130,12 +130,12 @@
 	}).add;
 
 	SynthDef(\monoSend, {
-		arg busIn, busOut, volume = 1;
+		arg busIn, busOut, mute = 1, volume = 1;
 		var sig;
 
 		sig = In.ar( busIn, 1 );
 
-		Out.ar( busOut, sig * volume );
+		Out.ar( busOut, sig * mute * volume );
 	}).add;
 
 	SynthDef(\ambSend, {
@@ -145,5 +145,15 @@
 		sig = In.ar( busIn, ~serverConf[\ambChansAmount] );
 
 		Out.ar( busOut, sig * mute * volume );
+	}).add;
+
+	SynthDef(\monoDelay, {
+		arg busIn, busOut, delay = ~serverConf[\minDelayC];
+		var sig, del;
+
+		del = Lag.kr(delay, 0.5);
+		sig = DelayL.ar( In.ar( busIn, 1 ), 10, del);
+
+		Out.ar( busOut, sig );
 	}).add;
 };

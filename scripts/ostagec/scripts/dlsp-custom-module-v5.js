@@ -14,22 +14,29 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
     var pluralName = '';
 
     switch (channelType) {
-        case 'input':
+      case 'input':
         console.log('CM Creating Inputs..');
         singularName = 'Input';
         pluralName = 'Inputs';
         break;
     
-        case 'mix':
+      case 'mix':
         console.log('CM Creating Mixes..');
         singularName = 'Mix';
         pluralName = 'Mixes';
         break;
 
-        case 'point':
+      case 'point':
         console.log('CM Creating Points..');
         singularName = 'Point';
         pluralName = 'Points';
+        break;
+
+      case 'output':
+        console.log('CM Creating Outputs..');
+        singularName = 'Output';
+        pluralName = 'Outputs';
+
         break;
         
         default:
@@ -521,6 +528,110 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
 
           break;
       
+        case 'output':
+
+          // NAME
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}Name`,
+            //value
+            default: `Out ${channelNum}`,
+            linkId: `${singularName}${channelNum}Name`,
+            //scripting
+            onValue:
+            `send(get('varSCLangAddress'), '/ui', 'o', {type: "i", value: ${channelNum}}, 'n', value);`
+          });
+
+          // DELAY
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}Delay`,
+            //value
+            default: 0,
+            linkId: `${singularName}${channelNum}Delay`,
+            //osc
+            decimals: 0,
+            //scripting
+            onValue:
+              `if (value < 0) { set('this', 0); }\n\n` +
+
+              `send(get('varSCLangAddress'), '/ui', 'o', {type: "i", value: ${channelNum}}, 'd', value);`
+          });
+
+          // MUTE
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}Mute`,
+            //value
+            default: 1,
+            linkId: `${singularName}${channelNum}Mute`,
+            //osc
+            decimals: 0,
+            //scripting
+            onValue:
+              `send(get('varSCLangAddress'), '/ui', 'o', {type: "i", value: ${channelNum}}, 'm', value);`
+          });
+
+          // VOLUME
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}Volume`,
+            //value
+            default: 1,
+            linkId: `${singularName}${channelNum}Volume`,
+            //scripting
+            onValue:
+              `if (value == 0) { set('var${singularName}${channelNum}VolumedB', '-inf',  {script: false}); }\n` +
+              `else { set('var${singularName}${channelNum}VolumedB', Math.log10(value)*20, {script: false}); }\n\n` +
+
+              `send(get('varSCLangAddress'), '/ui', 'o', {type: "i", value: ${channelNum}}, 'v', value);`
+          });
+
+          // VOLUME dB
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}VolumedB`,
+            //value
+            default: 1,
+            linkId: `${singularName}${channelNum}VolumedB`,
+            //scripting
+            onValue:
+              `if (value == '-inf') { set('var${singularName}${channelNum}Volume', 0, {script: false}); };\n` +
+              `if (value > 10) { set('this', 10); }\n` +
+              `if (value < -100) { set('this', '-inf', {script: false}); set('var${singularName}${channelNum}Volume', 0, {script: false}); }\n\n` +
+              
+              `let volume = Math.pow(10, value/20);\n` +
+              `send(get('varSCLangAddress'), '/ui', 'o', {type: "i", value: ${channelNum}}, 'v', volume);\n` +
+              `set('var${singularName}${channelNum}Volume', volume, {script: false});`
+          });
+
+          // VOLUME METER IN
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}VMIn`,
+            //value
+            default: 0,
+            linkId: `>>${singularName}${channelNum}VMIn`
+          });
+
+          // VOLUME METER OUT
+          channelFolder.widgets.push({
+            //widget
+            type: 'variable',
+            id: `var${singularName}${channelNum}VMOut`,
+            //value
+            default: 0,
+            linkId: `>>${singularName}${channelNum}VMOut`
+          });
+
+          break;
+        
         default:
           break;
       }
@@ -532,6 +643,524 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
     receive( '/EDIT/MERGE', `fldr${pluralName}`, {
       widgets: typeFolderWidgets
     });
+
+    if (channelType == 'output') {
+      //
+      let channelRow = {
+        //widgets
+        type: 'panel',
+        id: `pnl${pluralName}Row`,
+        //geometry
+        expand: 'true',
+        //panel style
+        layout: 'horizontal',
+        justify: 'space-between',
+        contain: true,
+        scroll: false,
+        innerPadding: false,
+        //panel
+        traversing: 'smart',
+        //osc
+        bypass: 'true',
+        widgets: []
+      }
+      
+      channelRow.widgets.push({
+        //widgets
+        type: 'frame',
+        id: `frm${pluralName}RowL`,
+        //geometry
+        width: 0
+      });
+
+      for (let channelNum = 1; channelNum <= 9; channelNum++) {
+        //
+        //PANEL UI ROW CHANNEL
+        channelRow.widgets.push({
+          //widget
+          type: 'panel',
+          id: `pnlUIRow${singularName}${channelNum}`,
+          //geometry
+          width: 85,
+          //style
+          alphaStroke: 0,
+          //panel style
+          layout: 'vertical',
+          justify: 'space-around',
+          contain: true,
+          scroll: false,
+          innerPadding: false,
+          //osc
+          bypass: true,
+
+          widgets: 
+          [
+
+            // LABEL
+            {
+              //widget
+              type: 'text',
+              id: `lblUIRow${singularName}${channelNum}`,
+              //geometry
+              width: 60,
+              height: 30,
+              //style
+              colorText: '#ffffff',
+              //value
+              default: channelNum,
+              //osc
+              bypass: true
+            },
+
+            // INPUT NAME
+            {
+              //widget
+              type: 'input',
+              id: `inpUIRow${singularName}${channelNum}Name`,
+              //geometry
+              width: 60,
+              height: 40,
+              //style
+              colorText: '#ffffff',
+              //value
+              default: `Out ${channelNum}`,
+              linkId: `${singularName}${channelNum}Name`,
+              //osc
+              bypass: true
+            },
+
+            // LABEL DELAY
+            {
+              //widget
+              type: 'text',
+              id: `lblUIRow${singularName}${channelNum}Delay`,
+              //geometry
+              width: 60,
+              height: 20,
+              //style
+              colorText: '#ffffff',
+              //value
+              default: 'Delay',
+              //osc
+              bypass: true
+            },
+
+            // INPUT DELAY
+            {
+              //widget
+              type: 'input',
+              id: `inpUIRow${singularName}${channelNum}Delay`,
+              //geometry
+              width: 60,
+              height: 30,
+              //style
+              colorText: '#ffffff',
+              //input
+              numeric: true,
+              //value
+              default: 0,
+              linkId: `${singularName}${channelNum}Delay`,
+              //osc
+              bypass: true
+            },
+
+            // ENCODER DELAY
+            {
+              //widget
+              type: 'encoder',
+              id: `encUIRow${singularName}${channelNum}Delay`,
+              //geometry
+              height: 80,
+              //encoder
+              mode: 'circular',
+              range: `{ "min": 0, "max": 1 }`,
+              sensitivity: 0.5,
+              //osc
+              bypass: true,
+              //scripting
+              onValue:
+              `set('var${singularName}${channelNum}Delay', parseInt(get('var${singularName}${channelNum}Delay')) + value);`
+            },
+
+            // LABEL VOLUME dB
+            {
+              //widget
+              type: 'text',
+              id: `lblUIRow${singularName}${channelNum}VolumedB`,
+              //geometry
+              width: 60,
+              height: 20,
+              //style
+              colorText: '#ffffff',
+              //value
+              default: 'Volume',
+              //osc
+              bypass: true
+            },
+
+            // INPUT VOLUME dB
+            {
+              //widget
+              type: 'input',
+              id: `inpUIRow${singularName}${channelNum}VolumedB`,
+              //geometry
+              width: 60,
+              height: 30,
+              //style
+              colorText: '#ffffff',
+              //input
+              numeric: true,
+              //value
+              default: 0,
+              linkId: `${singularName}${channelNum}VolumedB`,
+              //osc
+              bypass: true,
+              //scripting
+              onValue:
+                `if (value > 10) { set('this', 10, {script: false}); }\n` +
+                `if (value < -100) { set('this', '-inf', {script: false}); }`
+            },
+
+            // PANEL VOLUME
+            {
+              //widget
+              type: 'panel',
+              id: `pnlUIRow${singularName}${channelNum}Volume`,
+              //geometry
+              height: 340,
+              expand: true,
+              //style
+              alphaStroke: 0,
+              //panel style
+              layout: 'default',
+              contain: true,
+              scroll: false,
+              innerPadding: false,
+              //osc
+              bypass: true,
+
+              widgets:
+              [
+
+                // FADER VOLUME
+                {
+                  type: 'fader',
+                  id: `fdrUIRow${singularName}${channelNum}Volume`,
+                  //geometry
+                  left: 12,
+                  top: '0%',
+                  width: 60,
+                  height: '100%',
+                  //style
+                  colorText: '#ffffff',
+                  //fader style
+                  design: 'default',
+                  knobSize: 80,
+                  horizontal: false,
+                  pips: false,
+                  dashed: false,
+                  //fader
+                  snap: false,
+                  spring: false,
+                  doubleTap: true,
+                  range:
+                  `{\n` +
+                    `"max": { "+10": 3.162278 },\n` +
+                    `"91%": { "+5": 1.778279 },\n` +
+                    `"82%": { "0.0": 1 },\n` +
+                    `"73%": { "-5": 0.562341 },\n` +
+                    `"64%": { "-10": 0.316228 },\n` +
+                    `"55%": { "-15": 0.177828 },\n` +
+                    `"46%": { "-20": 0.1 },\n` +
+                    `"37%": { "-30": 0.031623 },\n` +
+                    `"28%": { "-40": 0.01 },\n` +
+                    `"19%": { "-50": 0.003162 },\n` +
+                    `"10%": { "-60": 0.001 },\n` +
+                    `"min": { "-inf": 0 }\n` +
+                  `}`,
+                  logScale: false,
+                  sensitivity: 1,
+                  //value
+                  default: 1,
+                  linkId: `${singularName}${channelNum}Volume`,
+                  //osc
+                  bypass: true
+                },
+                
+                //PANEL VM IN
+                {
+                  //widget
+                  type: 'panel',
+                  id: `pnlUIRow${singularName}${channelNum}VMIn`,
+                  //geometry
+                  left: 5,
+                  top: '0%',
+                  width: 15,
+                  height: '100%',
+                  //style
+                  alphaStroke: 0,
+                  padding: 0,
+                  //panel style
+                  layout: 'vertical',
+                  contain: true,
+                  scroll: false,
+                  innerPadding: true,
+                  //osc
+                  bypass: true,
+
+                  widgets:
+                  [
+                    
+                    // FRAME UP
+                    {
+                      //widget
+                      type: 'frame',
+                      id: `frmUIRow${singularName}${channelNum}VMInUp`,
+                      //geometry
+                      height: 11,
+                      //style
+                      alphaStroke: 0
+                    },
+
+                    // FADER VM IN
+                    {
+                      //widget
+                      type: 'fader',
+                      id: `fdrUIRow${singularName}${channelNum}VMIn`,
+                      interaction: false,
+                      //geometry
+                      expand: true,
+                      //style
+                      colorText: '#ffffff',
+                      colorFill: '#97ff6a',
+                      //fader style
+                      design: 'compact',
+                      horizontal: false,
+                      pips: false,
+                      dashed: false,
+                      //fader
+                      snap: false,
+                      spring: false,
+                      doubleTap: false,
+                      range:
+                      `{\n` +
+                        `"max": { "+10": 3.162278 },\n` +
+                        `"91%": { "+5": 1.778279 },\n` +
+                        `"82%": { "0.0": 1 },\n` +
+                        `"73%": { "-5": 0.562341 },\n` +
+                        `"64%": { "-10": 0.316228 },\n` +
+                        `"55%": { "-15": 0.177828 },\n` +
+                        `"46%": { "-20": 0.1 },\n` +
+                        `"37%": { "-30": 0.031623 },\n` +
+                        `"28%": { "-40": 0.01 },\n` +
+                        `"19%": { "-50": 0.003162 },\n` +
+                        `"10%": { "-60": 0.001 },\n` +
+                        `"min": { "-inf": 0 }\n` +
+                      `}`,
+                      logScale: false,
+                      sensitivity: 1,
+                      //value
+                      linkId: `${singularName}${channelNum}VMIn`,
+                      //osc
+                      bypass: true
+                    },
+
+                    // FRAME DOWN
+                    {
+                      //widget
+                      type: 'frame',
+                      id: `frmUIRow${singularName}${channelNum}VMInDown`,
+                      //geometry
+                      height: 10,
+                      //style
+                      alphaStroke: 0
+                    }
+                  ]
+                },
+
+                //PANEL VM OUT
+                {
+                  //widget
+                  type: 'panel',
+                  id: `pnlUIRow${singularName}${channelNum}VMOut`,
+                  //geometry
+                  left: 64,
+                  top: '0%',
+                  width: 15,
+                  height: '100%',
+                  //style
+                  alphaStroke: 0,
+                  padding: 0,
+                  //panel style
+                  layout: 'vertical',
+                  contain: true,
+                  scroll: false,
+                  innerPadding: true,
+                  //osc
+                  bypass: true,
+
+                  widgets:
+                  [
+                    
+                    // FRAME UP
+                    {
+                      //widget
+                      type: 'frame',
+                      id: `frmUIRow${singularName}${channelNum}VMOutUp`,
+                      //geometry
+                      height: 11,
+                      //style
+                      alphaStroke: 0
+                    },
+
+                    // FADER VM OUT
+                    {
+                      //widget
+                      type: 'fader',
+                      id: `fdrUIRow${singularName}${channelNum}VMOut`,
+                      interaction: false,
+                      //geometry
+                      expand: true,
+                      //style
+                      colorText: '#ffffff',
+                      colorFill: '#97ff6a',
+                      //fader style
+                      design: 'compact',
+                      horizontal: false,
+                      pips: false,
+                      dashed: false,
+                      //fader
+                      snap: false,
+                      spring: false,
+                      doubleTap: false,
+                      range:
+                      `{\n` +
+                        `"max": { "+10": 3.162278 },\n` +
+                        `"91%": { "+5": 1.778279 },\n` +
+                        `"82%": { "0.0": 1 },\n` +
+                        `"73%": { "-5": 0.562341 },\n` +
+                        `"64%": { "-10": 0.316228 },\n` +
+                        `"55%": { "-15": 0.177828 },\n` +
+                        `"46%": { "-20": 0.1 },\n` +
+                        `"37%": { "-30": 0.031623 },\n` +
+                        `"28%": { "-40": 0.01 },\n` +
+                        `"19%": { "-50": 0.003162 },\n` +
+                        `"10%": { "-60": 0.001 },\n` +
+                        `"min": { "-inf": 0 }\n` +
+                      `}`,
+                      logScale: false,
+                      sensitivity: 1,
+                      //value
+                      linkId: `${singularName}${channelNum}VMOut`,
+                      //osc
+                      bypass: true
+                    },
+
+                    // FRAME DOWN
+                    {
+                      //widget
+                      type: 'frame',
+                      id: `frmUIRow${singularName}${channelNum}VMOutDown`,
+                      //geometry
+                      height: 10,
+                      //style
+                      alphaStroke: 0
+                    }
+                  ]
+                },
+
+                // FADER VOLUME PIPS
+                {
+                  type: 'fader',
+                  id: `fdrUIRow${singularName}${channelNum}VolumePips`,
+                  interaction: false,
+                  //geometry
+                  left: 13,
+                  top: '0%',
+                  width: 65,
+                  height: '100%',
+                  //style
+                  colorText: '#ffffff',
+                  alphaFillOff: 0,
+                  alphaFillOn: 0,
+                  css: `font-size: 115%;`,
+                  //fader style
+                  design: 'default',
+                  knobSize: 0,
+                  horizontal: false,
+                  pips: true,
+                  dashed: false,
+                  //fader
+                  snap: false,
+                  spring: false,
+                  doubleTap: true,
+                  range:
+                  `{\n` +
+                    `"max": { "+10": 3.162278 },\n` +
+                    `"91%": { "+5": 1.778279 },\n` +
+                    `"82%": { "0.0": 1 },\n` +
+                    `"73%": { "-5": 0.562341 },\n` +
+                    `"64%": { "-10": 0.316228 },\n` +
+                    `"55%": { "-15": 0.177828 },\n` +
+                    `"46%": { "-20": 0.1 },\n` +
+                    `"37%": { "-30": 0.031623 },\n` +
+                    `"28%": { "-40": 0.01 },\n` +
+                    `"19%": { "-50": 0.003162 },\n` +
+                    `"10%": { "-60": 0.001 },\n` +
+                    `"min": { "-inf": 0 }\n` +
+                  `}`,
+                  logScale: false,
+                  sensitivity: 1,
+                  //value
+                  default: 0,
+                  //osc
+                  bypass: true
+                }
+              ]
+            },
+
+            // BUTTON MUTE
+            {
+              //widget
+              type: 'button',
+              id: `btnUIRow${singularName}${channelNum}Mute`,
+              //geometry
+              width: 60,
+              height: 50,
+              //style
+              colorText: '#ffffff',
+              //button style
+              label: 'MUTE',
+              //button
+              on: 0,
+              off: 1,
+              mode: 'toggle',
+              //value
+              default: 1,
+              linkId: `${singularName}${channelNum}Mute`,
+              //osc
+              bypass: true
+            },
+          ]
+        });
+      }
+
+      channelRow.widgets.push({
+        //widgets
+        type: 'frame',
+        id: `frm${pluralName}RowR`,
+        //geometry
+        width: 0
+      });
+
+      console.log(`receiving Row`);
+      receive( '/EDIT', `pnlOutputsRow`, {
+        widgets: channelRow.widgets
+      });
+    }
+    
+
+    
 
     /*let rowPanelWidgets = [];
     

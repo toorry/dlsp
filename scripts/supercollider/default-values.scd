@@ -2,15 +2,6 @@
 
 	~defaultValues = Dictionary.new();
 
-	~defaultValues.put(\inputs, 16);
-	~defaultValues.put(\mixes, 8);
-	~defaultValues.put(\points, 16);
-	~defaultValues.put(\encoders, 4);
-	~defaultValues.put(\fields, 4);
-	~defaultValues.put(\spaces, 1);
-	~defaultValues.put(\decoders, 1);
-	~defaultValues.put(\outputs, 18);
-
 	~defaultValues.put( \inGate, Dictionary.new() );
 	~defaultValues[\inGate].put( \threshold, 0.01 );
 	~defaultValues[\inGate].put( \ratio, 10 );
@@ -78,4 +69,10 @@
 	~defaultValues[\field][\zoom].put( \angle, 0 );
 	~defaultValues[\field].put( \mute, 1.0 );
 	~defaultValues[\field].put( \volume, 1.0 );
+
+	~defaultValues.put( \output, Dictionary.new());
+
+	~defaultValues[\output].put( \delay, 1.0 );
+	~defaultValues[\output].put( \mute, 1.0 );
+	~defaultValues[\output].put( \volume, 1.0 );
 };

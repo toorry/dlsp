@@ -50,6 +50,20 @@
 
 	});
 
+	~stateCurrent.put(\outputs, Array.newClear(~serverConf[\outputsAmount]));
+	~serverConf[\outputsAmount].do ({
+		arg num;
+		var item = Dictionary.new();
+		item.put(\number, num + 1);
+		item.put(\name, ~outputs[num][\name]);
+		item.put(\patchOut, 0);
+		item.put(\delay, ~outputs[num][\delay]);
+		item.put(\mute, ~outputs[num][\mute]);
+		item.put(\volume, ~outputs[num][\volume]);
+		~stateCurrent[\outputs][num] = item;
+
+	});
+
 	~stateCurrent.put(\decoderMain, Dictionary.new());
 	~stateCurrent[\decoderMain].put(\number, 1);
 	~stateCurrent[\decoderMain].put(\name, "Main");

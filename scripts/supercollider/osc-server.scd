@@ -127,11 +127,87 @@ OSCdef(\ctrlFromUI,
 							~setFieldVolume.value(num: channelNumber - 1, value: msg[4], fb: false);
 						}
 					);
+				},
+				\o,// OUTPUT
+				{
+					channelNumber = msg[2];
+					commandType = msg[3];
+
+					switch (commandType,///COMMAND TYPE
+						\d,/// DELAY
+						{
+							~setOutputDelay.value(num: channelNumber - 1, value: msg[4], fb: false);
+						},
+						\m,///MUTE
+						{
+							~setOutputMute.value(num: channelNumber - 1, value: msg[4], fb: false);
+						},
+						\v,///VOLUME AMPLITUDE
+						{
+							~setOutputVolume.value(num: channelNumber - 1, value: msg[4], fb: false);
+						}
+					);
 				}
 			);
 		};
 	},
 	'/ui');
+
+OSCdef(\ctrlPoint,
+	{ arg msg;
+		var commandType, channelNumber, value;
+
+		if (~serverConf[\oscCtrlReady]) {
+
+			channelNumber = msg[2];
+			commandType = msg[3];
+
+			switch (commandType,///COMMAND TYPE
+				\g,/// GAIN
+				{
+					~setPointGain.value(num: channelNumber - 1, value: msg[4], fb: true);
+				},
+				\x,/// X
+				{
+					~setPointX.value(num: channelNumber - 1, value: msg[4], fb: true);
+				},
+				\y,/// Y
+				{
+					~setPointY.value(num: channelNumber - 1, value: msg[4], fb: true);
+				},
+				\z,/// Z
+				{
+					~setPointZ.value(num: channelNumber - 1, value: msg[4], fb: true);
+				},
+				\azim,/// AZIMUTH
+				{
+					~setPointAzim.value(num: channelNumber - 1, value: msg[4], fb: true);
+				},
+				\elev,/// ELEVATION
+				{
+					~setPointElev.value(num: channelNumber - 1, value: msg[4], fb: true);
+				},
+				\dist,///DISTANCE
+				{
+					~setPointDist.value(num: channelNumber - 1, value: msg[4], fb: true);
+				},
+				\pan,/// ALL PAN COORDS
+				{
+					~setPointPan.value(num: channelNumber - 1,
+						x: msg[4], y: msg[5], z: msg[6], azim: msg[7], elev: msg[8], dist: msg[9], fb: true);
+				},
+				\m,/// MUTE
+				{
+					~setPointMute.value(num: channelNumber - 1, value: msg[4], fb: true);
+				},
+				\v,/// VOLUME DB
+				{
+					~setPointVolume.value(num: channelNumber - 1, value: msg[4].dbamp, fb: true);
+				}
+			);
+		};
+	},
+	'/p');
 
 OSCdef(\ctrlPatch,
 	{ arg msg;

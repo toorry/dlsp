@@ -339,3 +339,34 @@
 	};
 	("Field " ++ (num + 1) ++ " patch " ++ value).postln;
 };
+
+
+/// OUTPUT
+
+~setOutputDelay = {
+	arg num, value, fb;
+	var delay = value / 1000;
+	~outputs[num][\synthDelay].set(\delay, delay.clip(~serverConf[\minDelayC],10));
+	~outputs[num][\delay] = delay;
+	~stateCurrent[\outputs][num][\delay] = delay;
+	if (fb) { ~ostagec.sendMsg("/fb", "o", num + 1, "d", delay); };
+	("Output " ++ (num + 1) ++ " delay " ++ delay).postln;
+};
+
+~setOutputMute = {
+	arg num, value, fb;
+	~outputs[num][\synthSend].set(\mute, value);
+	~outputs[num][\mute] = value;
+	~stateCurrent[\outputs][num][\mute] = value;
+	if (fb) { ~ostagec.sendMsg("/fb", "o", num + 1, "m", value); };
+	("Output " ++ (num + 1) ++ " mute " ++ value).postln;
+};
+
+~setOutputVolume = {
+	arg num, value, fb;
+	~outputs[num][\synthSend].set(\volume, value);
+	~outputs[num][\volume] = value;
+	~stateCurrent[\outputs][num][\volume] = value;
+	if (fb) { ~ostagec.sendMsg("/fb", "o", num + 1, "v", value); };
+	("Output " ++ (num + 1) ++ " volume " ++ value).postln;
+};

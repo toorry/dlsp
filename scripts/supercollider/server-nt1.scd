@@ -3,7 +3,8 @@
 	~hwInputs = s.options.numInputBusChannels;
 	~hwOutputs = s.options.numOutputBusChannels;
 
-	~hwInPatch;
+	~hwIn = ~serverConf[\inPatch];
+	~hwOut = ~serverConf[\outPatch];
 
 	~busSilent = Bus.audio(s,1);
 	~busSilentCtrl = Bus.control(s, 1);
@@ -22,7 +23,7 @@
 	~serverConf[\pointsAmount].do ({
 		arg num;
 		var item = Dictionary.new();
-		item.put(\in, ~hwOutputs + num);
+		if ( num < ~hwIn.size ) { item.put(\in, ~hwIn[num]); } { item.put(\in, ~busSilent); };
 		item.put(\inCtrl, Bus.control(s, 1));
 		item.put(\gain,Bus.audio(s,1));
 		item.put(\gainCtrl, Bus.control(s, 1));
@@ -35,8 +36,7 @@
 	~serverConf[\fieldsAmount].do ({
 		arg num;
 		var item = Dictionary.new();
-		item.put(\in, ~hwOutputs + ~serverConf[\pointsAmount] +
-			(num * ~serverConf[\ambChansAmount]));
+		item.put(\in, ~busSilentAmb);
 		item.put(\inCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
 		item.put(\gain,Bus.audio(s, ~serverConf[\ambChansAmount]));
 		item.put(\gainCtrl, Bus.control(s, ~serverConf[\ambChansAmount]));
@@ -52,12 +52,16 @@
 	});
 	~buses[\fields].postln;
 
+	~buses.put(\outputsIn, Bus.audio(s, ~serverConf[\outputsAmount]));
+	~buses.put(\outputsInCtrl, Bus.control(s, ~serverConf[\outputsAmount]));
+
 	~serverConf[\outputsAmount].do ({
 		arg num;
 		var item = Dictionary.new();
-		item.put(\in, Bus.audio(s, 1));
-		item.put(\inCtrl, Bus.control(s, 1));
-		item.put(\out, num - 1);
+		item.put(\in, Bus.newFrom(~buses[\outputsIn], num, 1));
+		item.put(\inCtrl, Bus.newFrom(~buses[\outputsInCtrl], num, 1));
+		item.put(\delay, Bus.audio(s, 1));
+		if ( num < ~hwOut.size ) { item.put(\out, ~hwOut[num]); } { item.put(\out, ~busTrash); };
 		item.put(\outCtrl, Bus.control(s, 1));
 		~buses[\outputs][num]=item;
 	});
@@ -94,7 +98,7 @@
 	});
 	~points.postln;
 
-	//Initialise FIELDS
+	//Initialize FIELDS
 	~fields = Array.newClear(~serverConf[\fieldsAmount]);
 
 	~serverConf[\fieldsAmount].do({
@@ -129,18 +133,39 @@
 		~fields[num] = item;
 	});
 	~fields.postln;
+
+	// Initialize OUTPUTS
+	~outputs = Array.newClear(~serverConf[\outputsAmount]);
+
+	~serverConf[\outputsAmount].do({
+		arg num;
+		var item = Dictionary.new();
+		item.put(\name, "Out " ++ (num + 1));
+		item.put(\delay, ~defaultValues[\output][\delay]);
+		item.put(\mute, ~defaultValues[\output][\mute]);
+		item.put(\volume, ~defaultValues[\output][\volume]);
+		item.put(\busIn, ~buses[\outputs][num][\in]);
+		item.put(\busInCtrl, ~buses[\outputs][num][\inCtrl]);
+		item.put(\busDelay, ~buses[\outputs][num][\delay]);
+		item.put(\busOut, ~buses[\outputs][num][\out]);
+		item.put(\busOutCtrl, ~buses[\outputs][num][\outCtrl]);
+		~outputs[num] = item;
+	});
+	~outputs.postln;
 };
 
-//Initialise GROUPS
+//Initialize GROUPS
 
 ~initGroups = {
 
 	~grpPoints = Group.new(s);
 	~grpFields = Group.after(~grpPoints);
 	~grpAmbMain = Group.after(~grpFields);
+	~grpOutputs = Group.after(~grpAmbMain);
 
 	~grpPoint = Array.newClear(~serverConf[\pointsAmount]);
 	~grpField = Array.newClear(~serverConf[\fieldsAmount]);
+	~grpOutput = Array.newClear(~serverConf[\outputsAmount]);
 
 	~serverConf[\pointsAmount].do({
 		arg num;
@@ -150,6 +175,11 @@
 	~serverConf[\fieldsAmount].do({
 		arg num;
 		~grpField[num] = Group.tail(~grpFields);
+	});
+
+	~serverConf[\outputsAmount].do({
+		arg num;
+		~grpOutput[num] = Group.tail(~grpOutputs);
 	});
 };
 
@@ -242,17 +272,53 @@
 
 	~synthDecoderBin = Synth.new(\decoderBin,
 		[\busIn, ~buses[\ambMain],
-			\busOut, [0,1],
+			\busOut,
+			[
+				~outputs[0][\busIn],
+				~outputs[1][\busIn]
+			],
 		],
 		~grpAmbMain,
 		\addToTail);
 
 	~synthDecoderRoom = Synth.new(\decoderRoom,
 		[\busIn, ~buses[\ambMain],
-			\busOut, [2,3,4,5,6,7,8,9,10,11],
+			\busOut,
+			[
+				~outputs[2][\busIn],
+				~outputs[3][\busIn],
+				~outputs[4][\busIn],
+				~outputs[5][\busIn],
+				~outputs[6][\busIn],
+				~outputs[7][\busIn],
+				~outputs[8][\busIn],
+				~outputs[9][\busIn],
+			],
 		],
 		~grpAmbMain,
 		\addToTail);
+
+	~serverConf[\outputsAmount].do({
+		arg num;
+		var item = ~outputs[num];
+		item.put(\synthDelay, Synth.new(\monoDelay,
+			[\busIn, item[\busIn],
+				\busOut, item[\busDelay],
+				\delay, 0.0
+			],
+			~grpOutput[num],
+			\addToTail)
+		);
+		item.put(\synthSend, Synth.new(\monoSend,
+			[\busIn, item[\busDelay],
+				\busOut, item[\busOut],
+				\mute, 1.0,
+				\volume, 1.0
+			],
+			~grpOutput[num],
+			\addToTail)
+		);
+	});
 
 };
 

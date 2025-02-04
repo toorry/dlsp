@@ -468,6 +468,14 @@ JSONlib.
 	while {value > 180} { value = value - 360; value.postln; };
 	while {value < 180} { value = value + 360; };
 }
+~outputs[0][\synthSend].get(\volume, {arg volume; volume.postln;});
+~hwOut.size;
+~outputs[1][\busIn];
+~synthDecoderBin.get(\busOut, {arg volume; volume.postln;});
+~outputs[0][\synthDelay].get(\delay, {arg volume; volume.postln;});
+SampleDur.ir;
+1 / ~serverConf[\sampleRate] * 4;
+100.0.clip((SampleDur.ir * 4).asFloat,10.0);
 
 
 
