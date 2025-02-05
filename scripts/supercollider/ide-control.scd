@@ -6,7 +6,7 @@
 SynthDef.new(\sample1, {
 	var sig;
 	sig = PlayBuf.ar(2, ~sample1, loop: 0.0);
-	Out.ar(10, Mix.ar(sig) * 0.5);
+	Out.ar(30, Mix.ar(sig) * 0.5);
 }).add;
 SynthDef.new(\sample2, {
 	var sig;
@@ -476,6 +476,7 @@ JSONlib.
 SampleDur.ir;
 1 / ~serverConf[\sampleRate] * 4;
 100.0.clip((SampleDur.ir * 4).asFloat,10.0);
+~buses[\points][0][\in]
 
 
 

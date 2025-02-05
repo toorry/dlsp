@@ -300,7 +300,17 @@ OSCdef(\ctrlPatch,
 	s.sync();
 	~synthDecoderRoom = Synth.new(\decoderRoom,
 		[\busIn, ~buses[\ambMain],
-			\busOut, [2,3,4,5,6,7,8,9,10,11],
+			\busOut,
+			[
+				~outputs[2][\busIn],
+				~outputs[3][\busIn],
+				~outputs[4][\busIn],
+				~outputs[5][\busIn],
+				~outputs[6][\busIn],
+				~outputs[7][\busIn],
+				~outputs[8][\busIn],
+				~outputs[9][\busIn],
+			],
 		],
 		~grpAmbMain,
 		\addToTail);
@@ -308,7 +318,7 @@ OSCdef(\ctrlPatch,
 
 OSCdef(\ctrlDecoder,
 	{ arg msg;
-		var commandType, decoderNumber, value;
+		var commandType, decoderNumber, value, dirsAmount, directions;
 
 		if (~serverConf[\oscCtrlReady]) {
 
@@ -319,9 +329,15 @@ OSCdef(\ctrlDecoder,
 				\dirs,///CHANNEL DIRECTIONS
 				{
 					("dec " ++ decoderNumber ++ " chan dirs").postln;
-					value = [ msg[3], msg[4], msg[5], msg[6], msg[7], msg[8], msg[9], msg[10] ];
-					~serverConf[\mainDirections] = value.degrad;
-					~serverConf[\decoderMainSpeakersAmount] = 8;
+
+					dirsAmount = msg[3];
+					directions = Array.newClear(dirsAmount);
+					dirsAmount.do({
+						arg num;
+						directions[num] = msg[4 + num];
+					});
+					~serverConf[\mainDirections] = directions.degrad;
+					~serverConf[\decoderMainSpeakersAmount] = dirsAmount;
 					~stateCurrent[\decoderMain][\dirs] = ~serverConf[\mainDirections];
 					~stateCurrent[\decoderMain][\speakersAmount] = ~serverConf[\decoderMainSpeakersAmount];
 

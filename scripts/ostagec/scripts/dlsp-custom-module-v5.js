@@ -583,6 +583,8 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             //value
             default: 1,
             linkId: `${singularName}${channelNum}Volume`,
+            //osc
+            decimals: 6,
             //scripting
             onValue:
               `if (value == 0) { set('var${singularName}${channelNum}VolumedB', '-inf',  {script: false}); }\n` +
@@ -597,8 +599,10 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             type: 'variable',
             id: `var${singularName}${channelNum}VolumedB`,
             //value
-            default: 1,
+            default: 0,
             linkId: `${singularName}${channelNum}VolumedB`,
+            //osc
+            decimals: 1,
             //scripting
             onValue:
               `if (value == '-inf') { set('var${singularName}${channelNum}Volume', 0, {script: false}); };\n` +
@@ -617,7 +621,9 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             id: `var${singularName}${channelNum}VMIn`,
             //value
             default: 0,
-            linkId: `>>${singularName}${channelNum}VMIn`
+            linkId: `>>${singularName}${channelNum}VMIn`,
+            //osc
+            decimals: 6
           });
 
           // VOLUME METER OUT
@@ -627,7 +633,9 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
             id: `var${singularName}${channelNum}VMOut`,
             //value
             default: 0,
-            linkId: `>>${singularName}${channelNum}VMOut`
+            linkId: `>>${singularName}${channelNum}VMOut`,
+            //osc
+            decimals: 6
           });
 
           break;
@@ -659,7 +667,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
         scroll: false,
         innerPadding: false,
         //panel
-        traversing: 'smart',
+        traversing: false,
         //osc
         bypass: 'true',
         widgets: []
@@ -672,6 +680,9 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
         //geometry
         width: 0
       });
+
+      let fldrPageOutputsLinkIDsWidgets = [];
+      let fldrPageOutputsWidgets = [];
 
       for (let channelNum = 1; channelNum <= 9; channelNum++) {
         //
@@ -724,7 +735,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               colorText: '#ffffff',
               //value
               default: `Out ${channelNum}`,
-              linkId: `${singularName}${channelNum}Name`,
+              linkId: `Page${singularName}${channelNum}Name`,
               //osc
               bypass: true
             },
@@ -759,7 +770,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               numeric: true,
               //value
               default: 0,
-              linkId: `${singularName}${channelNum}Delay`,
+              linkId: `Page${singularName}${channelNum}Delay`,
               //osc
               bypass: true
             },
@@ -812,7 +823,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               numeric: true,
               //value
               default: 0,
-              linkId: `${singularName}${channelNum}VolumedB`,
+              linkId: `Page${singularName}${channelNum}VolumedB`,
               //osc
               bypass: true,
               //scripting
@@ -882,7 +893,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                   sensitivity: 1,
                   //value
                   default: 1,
-                  linkId: `${singularName}${channelNum}Volume`,
+                  linkId: `Page${singularName}${channelNum}Volume`,
                   //osc
                   bypass: true
                 },
@@ -960,7 +971,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                       logScale: false,
                       sensitivity: 1,
                       //value
-                      linkId: `${singularName}${channelNum}VMIn`,
+                      linkId: `Page${singularName}${channelNum}VMIn`,
                       //osc
                       bypass: true
                     },
@@ -1051,7 +1062,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
                       logScale: false,
                       sensitivity: 1,
                       //value
-                      linkId: `${singularName}${channelNum}VMOut`,
+                      linkId: `Page${singularName}${channelNum}VMOut`,
                       //osc
                       bypass: true
                     },
@@ -1137,12 +1148,200 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
               mode: 'toggle',
               //value
               default: 1,
-              linkId: `${singularName}${channelNum}Mute`,
+              linkId: `Page${singularName}${channelNum}Mute`,
               //osc
               bypass: true
             },
           ]
         });
+
+        //LINK IDs CHANNEL FOLDER
+        fldrPageOutputsLinkIDsWidgets.push({
+          //widget
+          type: 'folder',
+          id: `fldrPage${singularName}${channelNum}LinkIDs`,
+          widgets: 
+          [
+
+            // NAME
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}NameLinkID`,
+              //value
+              default: `Page${singularName}${channelNum}Name`,
+              //osc
+              bypass: true
+            },
+
+            // DELAY
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}DelayLinkID`,
+              //value
+              default: `Page${singularName}${channelNum}Delay`,
+              //osc
+              bypass: true
+            },
+
+            // MUTE
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}MuteLinkID`,
+              //value
+              default: `Page${singularName}${channelNum}Mute`,
+              //osc
+              bypass: true
+            },
+
+            // VOLUME
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}VolumeLinkID`,
+              //value
+              default: `Page${singularName}${channelNum}Volume`,
+              //osc
+              bypass: true
+            },
+
+            // VOLUME dB
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}VolumedBLinkID`,
+              //value
+              default: `Page${singularName}${channelNum}VolumedB`,
+              //osc
+              bypass: true
+            },
+
+            // VM IN
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}VMInLinkID`,
+              //value
+              default: `Page${singularName}${channelNum}VMIn`,
+              //osc
+              bypass: true
+            },
+
+            // VM OUT
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}VMOutLinkID`,
+              //value
+              default: `Page${singularName}${channelNum}VMOut`,
+              //osc
+              bypass: true
+            }
+          ]
+        });
+
+        // CHANNEL FOLDER
+        fldrPageOutputsWidgets.push({
+          //widget
+          type: 'folder',
+          id: `fldrPage${singularName}${channelNum}`,
+          widgets:
+          [
+
+            // NAME
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}Name`,
+              //value
+              default: `Out ${channelNum}`,
+              linkId: `@{varPage${singularName}${channelNum}NameLinkID}`,
+              //osc
+              bypass: true
+            },
+
+            // DELAY
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}Delay`,
+              //value
+              default: 0,
+              linkId: `@{varPage${singularName}${channelNum}DelayLinkID}`,
+              //osc
+              decimals: 0,
+              bypass: true
+            },
+
+            // MUTE
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}Mute`,
+              //value
+              default: 1,
+              linkId: `@{varPage${singularName}${channelNum}MuteLinkID}`,
+              //osc
+              decimals: 0,
+              bypass: true
+            },
+
+            // VOLUME
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}Volume`,
+              //value
+              default: 1,
+              linkId: `@{varPage${singularName}${channelNum}VolumeLinkID}`,
+              //osc
+              decimals: 6,
+              bypass: true
+            },
+
+            // VOLUME dB
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}VolumedB`,
+              //value
+              default: 0,
+              linkId: `@{varPage${singularName}${channelNum}VolumedBLinkID}`,
+              //osc
+              decimals: 1,
+              bypass: true
+            },
+
+            // VM IN
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}VMIn`,
+              //value
+              default: 1,
+              linkId: `@{varPage${singularName}${channelNum}VMInLinkID}`,
+              //osc
+              decimals: 6,
+              bypass: true
+            },
+
+            // VM OUT
+            {
+              //widget
+              type: 'variable',
+              id: `varPage${singularName}${channelNum}VMOut`,
+              //value
+              default: 1,
+              linkId: `@{varPage${singularName}${channelNum}VMOutLinkID}`,
+              //osc
+              decimals: 6,
+              bypass: true
+            }
+          ]
+        });
+
       }
 
       channelRow.widgets.push({
@@ -1156,6 +1355,14 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
       console.log(`receiving Row`);
       receive( '/EDIT', `pnlOutputsRow`, {
         widgets: channelRow.widgets
+      });
+
+      receive( '/EDIT/MERGE', `fldrPage${pluralName}LinkIDs`, {
+        widgets: fldrPageOutputsLinkIDsWidgets
+      });
+
+      receive( '/EDIT/MERGE', `fldrPage${pluralName}`, {
+        widgets: fldrPageOutputsWidgets
       });
     }
     
