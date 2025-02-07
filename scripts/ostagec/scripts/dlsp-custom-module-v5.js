@@ -68,6 +68,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
         widgets: []
       };
 
+      // CREATE CHANNEL VARS FOLDER
       switch (channelType) {
 
         case 'point':
@@ -652,6 +653,7 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
       widgets: typeFolderWidgets
     });
 
+    // CREATE CHANNEL ROW
     if (channelType == 'output') {
       //
       let channelRow = {
@@ -1367,8 +1369,6 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
     }
     
 
-    
-
     /*let rowPanelWidgets = [];
     
     CreateChannelsPage( channelType, rowPanelWidgets, channelsOnPage );
@@ -1730,6 +1730,397 @@ function CreateChannelsPage( channelType, pageWidgets, channelsOnPage ) {
   }
 }
 
+function CreateDecoderSpeakersPage(speakersAmount) {
+  //
+  let xyPoints = [];
+  let pnlPantoSpeakersWidgets = [];
+  let fldrDecoderSelectedSpeakersWidgets = [];
+
+  for( let i = 1; i <= speakersAmount; i++ ) {
+    
+    // XY POINTS
+    xyPoints.push(i.toString());
+    
+    // SPEAKER PANEL
+    pnlPantoSpeakersWidgets.push({
+      //widget
+      type: 'panel',
+      id: `pnlDecoderOptionsPantoSpeaker${i}`,
+      //geometry
+      height: 80,
+      //style
+      padding: 0,
+      //panel style
+      layout: 'horizontal',
+      justify: 'start',
+      contain: true,
+      scroll: false,
+      innerPadding: false,
+      bypass: true,
+      
+      widgets: [
+
+        // LABEL
+        {
+          //widget
+          type: 'text',
+          id: `lblDecoderOptionsPantoSpeaker${i}`,
+          //geometry
+          width: 30,
+          //value
+          default: i,
+          //osc
+          bypass: true
+        },
+
+        // PARAMS PANEL
+        {
+          //widget
+          type: 'panel',
+          id: `lblDecoderOptionsPantoSpeaker${i}Params`,
+          //geometry
+          width: 60,
+          //style
+          padding: 0,
+          //panel style
+          layout: 'vertical',
+          justify: 'start',
+          contain: true,
+          scroll: false,
+          innerPadding: false,
+          //osc
+          bypass: true,
+
+          widgets: [
+
+            // AZIM LABEL
+            {
+              //widget
+              type: 'text',
+              id: `lblDecoderOptionsPantoSpeaker${i}Azim`,
+              //geometry
+              height: 20,
+              //value
+              value: 'AZIM',
+              default: 'AZIM',
+              //osc
+              bypass: true
+            },
+
+            // AZIM INPUT
+            {
+              //widget
+              type: 'input',
+              id: `inpDecoderOptionsPantoSpeaker${i}Azim`,
+              //geometry
+              height: 20,
+              //input
+              numeric: true,
+              //value
+              default: 0,
+              linkId: `DecoderSelectedSpeaker${i}Azim`,
+              //osc
+              decimals: 1,
+              bypass: true
+            },
+
+            // DIST LABEL
+            {
+              //widget
+              type: 'text',
+              id: `lblDecoderOptionsPantoSpeaker${i}Dist`,
+              //geometry
+              height: 20,
+              //value
+              value: 'DIST',
+              default: 'DIST',
+              //osc
+              bypass: true
+            },
+
+            // DIST INPUT
+            {
+              //widget
+              type: 'input',
+              id: `inpDecoderOptionsPantoSpeaker${i}Dist`,
+              //geometry
+              height: 20,
+              //input
+              numeric: true,
+              //value
+              default: 1,
+              linkId: `DecoderSelectedSpeaker${i}Dist`,
+              //osc
+              bypass: true
+            }
+          ]
+        },
+
+        // AZIM PANEL
+        {
+          //widget
+          type: 'panel',
+          id: `lblDecoderOptionsPantoSpeaker${i}Azim`,
+          //geometry
+          width: 80,
+          //style
+          padding: 0,
+          //panel style
+          layout: 'default',
+          justify: 'start',
+          contain: true,
+          scroll: false,
+          innerPadding: false,
+          //osc
+          bypass: true,
+
+          widgets: [
+
+            // AZIM ENCODER
+            {
+              //widget
+              type: 'encoder',
+              id: `encDecoderOptionsPantoSpeaker${i}Azim`,
+              //geometry
+              left: 0,
+              top: 0,
+              width: 80,
+              //encoder
+              mode: 'circular',
+              range: '{ "min": 0, "max": 1 }',
+              sensitivity: 1,
+              back: 1,
+              forth: -1,
+              //osc
+              decimals: 0,
+              bypass: true,
+              //scripting
+              onValue:
+              `set('varDecoderSelectedSpeaker${i}Azim', get('varDecoderSelectedSpeaker${i}Azim')+value);`
+            },
+
+            // AZIM ENCODER LABEL
+            {
+              //widget
+              type: 'text',
+              id: `lblDecoderOptionsPantoSpeaker${i}AzimWheel`,
+              //geometry
+              top: 5,
+              height: 20,
+              //style
+              colorFill: '#203447',
+              //value
+              default: 'AZIM',
+              //osc
+              bypass: true
+            }
+          ]
+        },
+
+        // DIST PANEL
+        {
+          //widget
+          type: 'panel',
+          id: `lblDecoderOptionsPantoSpeaker${i}Dist`,
+          //geometry
+          width: 80,
+          //style
+          padding: 0,
+          //panel style
+          layout: 'default',
+          justify: 'start',
+          contain: true,
+          scroll: false,
+          innerPadding: false,
+          //osc
+          bypass: true,
+
+          widgets: [
+
+            // DIST ENCODER
+            {
+              //widget
+              type: 'encoder',
+              id: `encDecoderOptionsPantoSpeaker${i}Dist`,
+              //geometry
+              left: 0,
+              top: 0,
+              width: 80,
+              //encoder
+              mode: 'circular',
+              range: '{ "min": 0, "max": 1 }',
+              sensitivity: 1,
+              back: -1,
+              forth: 1,
+              //osc
+              decimals: 0,
+              bypass: true,
+              //scripting
+              onValue:
+              `set('varDecoderSelectedSpeaker${i}Dist', get('varDecoderSelectedSpeaker${i}Dist')+value);`
+            },
+
+            // DIST ENCODER LABEL
+            {
+              //widget
+              type: 'text',
+              id: `lblDecoderOptionsPantoSpeaker${i}DistWheel`,
+              //geometry
+              top: 5,
+              height: 20,
+              //style
+              colorFill: '#203447',
+              //value
+              default: 'DIST',
+              //osc
+              bypass: true
+            }
+          ]
+        },
+
+        // DELAY LABEL
+        {
+          //widget
+          type: 'text',
+          id: `lblDecoderOptionsPantoSpeaker${i}Delay`,
+          //geometry
+          width: 20,
+          //text style
+          vertical: true,
+          //value
+          default: 'Delay',
+          //osc
+          bypass: true
+        },
+
+        // DELAY VALUE
+        {
+          //widget
+          type: 'text',
+          id: `txtDecoderOptionsPantoSpeaker${i}Delay`,
+          //geometry
+          width: 20,
+          //text style
+          vertical: true,
+          //value
+          default: 0,
+          linkId: `DecoderSelectedSpeaker${i}Delay`,
+          //osc
+          decimals: 0,
+          bypass: true
+        }
+      ]
+    });
+
+    // SPEAKER VARS FOLDER
+    fldrDecoderSelectedSpeakersWidgets.push({
+      //widget
+      type: 'folder',
+      id: `fldrDecoderSelectedSpeaker${i}`,
+      
+      widgets: [
+
+        // AZIM VARIABLE
+        {
+          //widget
+          type: 'variable',
+          id: `varDecoderSelectedSpeaker${i}Azim`,
+          //value
+          default: 0,
+          linkId: `DecoderSelectedSpeaker${i}Azim`,
+          //osc
+          decimals: 1,
+          bypass: true,
+          //scripting
+          onValue:
+            `var azim = value;\n\n` +
+
+            `if (azim > 180) { azim = azim - 360; set('this', azim); }\n` +
+            `else {\n` +
+            `  if (azim < -180) { azim = azim + 360; set('this', azim); }\n` +
+            `}\n\n` +
+
+            `var dist = get('varDecoderSelectedSpeaker${i}Dist');\n\n` +
+
+            `var x,y;\n\n` +
+
+            `x = -dist*Math.sin(azim*Math.PI/180);\n` +
+            `y = dist*Math.cos(azim*Math.PI/180);\n\n` +
+
+            `var xy = get('xyDecoderOptionsFlat');\n` +
+            `var r = get('varDecoderSelectedRadius');\n` +
+
+            `xy[${i} * 2 - 2] = x/r;\n` +
+            `xy[${i} * 2 - 1] = y/r;\n\n` +
+
+            `set('xyDecoderOptionsFlat', xy, {script: false});`
+        },
+
+        // DIST VARIABLE
+        {
+          //widget
+          type: 'variable',
+          id: `varDecoderSelectedSpeaker${i}Dist`,
+          //value
+          default: 1,
+          linkId: `DecoderSelectedSpeaker${i}Dist`,
+          //osc
+          decimals: 2,
+          bypass: true,
+          //scripting
+          onValue:
+            `if (value < 0) { value = 0; set('this',value); }\n\n` +
+
+            `var azim = get('varDecoderSelectedSpeaker${i}Azim');\n` +
+            `var dist = value;\n\n` +
+
+            `var x,y;\n\n` +
+
+            `x = -dist*Math.sin(azim*Math.PI/180);\n` +
+            `y = dist*Math.cos(azim*Math.PI/180);\n\n` +
+
+            `var xy = get('xyDecoderOptionsFlat');\n` +
+            `var r = get('varDecoderSelectedRadius');\n` +
+
+            `xy[${i} * 2 - 2] = x/r;\n` +
+            `xy[${i} * 2 - 1] = y/r;\n\n` +
+
+            `set('xyDecoderOptionsFlat', xy, {script: false});\n` +
+            `set('varDecoderSelectedSpeaker${i}Delay', value/get('varSpeedOfSound')*1000);`
+        },
+
+        // DELAY VARIABLE
+        {
+          //widget
+          type: 'variable',
+          id: `varDecoderSelectedSpeaker${i}Delay`,
+          //value
+          default: 0,
+          linkId: `DecoderSelectedSpeaker${i}Delay`,
+          //osc
+          decimals: 0,
+          bypass: true
+        }
+      ]
+    });
+  }
+
+  console.log(`Sending XY Points`);
+  receive( '/EDIT/MERGE', `xyDecoderOptionsFlat`, {
+    points: xyPoints
+  });
+
+  console.log(`Sending Speaker Widgets`);
+  receive( '/EDIT/MERGE', `pnlDecoderOptionsPantoSpeakers`, {
+    widgets: pnlPantoSpeakersWidgets
+  });
+
+  console.log(`Sending Speaker Vars`);
+  receive( '/EDIT/MERGE', `fldrDecoderSelectedSpeakers`, {
+    widgets: fldrDecoderSelectedSpeakersWidgets
+  });
+}
+
 module.exports = {
 
   init: function(){
@@ -1741,25 +2132,39 @@ module.exports = {
     
     var {address, args, host, port} = data
     
-    if ( address === '/drawChans' ) {
+    switch ( address ) {
       
-      try {
-        
-        let channelType = args[0].value;
-        let channelsAmount = args[1].value;
-        let channelsOnPage = args[2].value;
-        let pagesInGroup = args[3].value;
-        
-        console.log(`Task to Draw Channels. Type=${channelType} Amount=${channelsAmount}` +
-          `OnPage=${channelsOnPage} PagesInGroup=${pagesInGroup}`);
+      case '/drawChans':
+        try {
+          
+          let channelType = args[0].value;
+          let channelsAmount = args[1].value;
+          let channelsOnPage = args[2].value;
+          let pagesInGroup = args[3].value;
+          
+          console.log(`Task to Draw Channels. Type=${channelType} Amount=${channelsAmount}` +
+            `OnPage=${channelsOnPage} PagesInGroup=${pagesInGroup}`);
 
-        CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGroup );
+          CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGroup );
 
-        console.log('CM after func');
-        
-      } catch (e) {
-        
-      }
+          console.log('CM after func');
+          
+        } catch (e) {
+          
+        }
+        break;
+
+      case '/drawDecoderSpeakers':
+        try {
+
+          let speakersAmount = args[0].value;
+
+          console.log(`Task to Draw Decoder Speakers. Amount=${speakersAmount}`);
+          CreateDecoderSpeakersPage(speakersAmount);
+        } catch (e) {
+
+        }
+        break;
     }
     
     if ( address === '/sendtldr' ) {
