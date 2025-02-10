@@ -1,0 +1,5 @@
+touch ON fader 1-8 - Note_on channel 1 data1 104-111 data2 127
+touch OFF fader 1-8 - Note_on channel 1 data1 104-111 data2 0
+move fader 1-8 - Pitchband channel 1-8 data 0 - 16380
+Button "Select" ON 1-8 - Note_on channel 1 data1 24-31 data2 127
+Button "Select" OFF 1-8 - Note_on channel 1 data1 24-31 data2 0
