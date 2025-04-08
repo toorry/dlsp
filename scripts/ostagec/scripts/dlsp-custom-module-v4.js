@@ -31,6 +31,12 @@ function CreateChannels( channelType, channelsAmount, channelsOnPage, pagesInGro
         singularName = 'Point';
         pluralName = 'Points';
         break;
+
+        case 'output':
+        console.log('CM Creating Points..');
+        singularName = 'Point';
+        pluralName = 'Points';
+        break;
         
         default:
         console.log('CM Default name');
@@ -849,6 +855,498 @@ function CreateChannelsPage( channelType, pageWidgets, channelsOnPage ) {
       widgets: channelPanelWidgets
     });
   }
+}
+
+function CreateOutputs( channelType, channelsAmount, channelsOnPage, pagesInGroup ) {
+
+  var singularName = '';
+  var pluralName = '';
+
+  switch (channelType) {
+      case 'input':
+      console.log('CM Creating Inputs..');
+      singularName = 'Input';
+      pluralName = 'Inputs';
+      break;
+  
+      case 'mix':
+      console.log('CM Creating Mixes..');
+      singularName = 'Mix';
+      pluralName = 'Mixes';
+      break;
+
+      case 'point':
+      console.log('CM Creating Points..');
+      singularName = 'Point';
+      pluralName = 'Points';
+      break;
+      
+      default:
+      console.log('CM Default name');
+      break;
+  }
+
+  var pagesAmount = Math.ceil(channelsAmount / channelsOnPage);
+  var groupsAmount = Math.ceil(pagesAmount / pagesInGroup);
+  var groupsLevels = Math.ceil( Math.log(groupsAmount) / Math.log(pagesInGroup) );
+  console.log(`CM ${pluralName} groupsLevels=${groupsLevels}`);
+  let topLevelGroupsCount = Math.ceil( pagesAmount / Math.pow( pagesInGroup, groupsLevels ) );
+  //if ( topLevelGroupsCount == 1 ) { groupsLevels-- };
+  receive(`/varUI${pluralName}GroupsLevels`, groupsLevels);
+  receive(`/varUI${pluralName}GroupsAmount`, groupsAmount);
+  
+  let fldrUIChannelsPages = {
+      widgets: []
+  };
+
+  /*for ( let pageNum = 1; pageNum <= pagesAmount; pageNum++ ) {
+
+      let tabNumFirst = (pageNum - 1)*channelsOnPage + 1;
+      let tabNumLast =  Math.min(pageNum*channelsOnPage, channelsAmount);
+
+      fldrUIChannelsPages.widgets.push({
+
+          type: 'variable',
+          id: 'varUI' + pluralName + 'Page' + pageNum,
+          value: {
+              number: pageNum,
+              first: tabNumFirst,
+              last: tabNumLast,
+              label: `${tabNumFirst}-${tabNumLast}`
+          }
+      });
+  }*/
+
+  receive( '/EDIT/MERGE', `fldrUI${pluralName}Pages`, fldrUIChannelsPages);
+
+  let fldrUIGroupsWidgets = [];
+  let pnlRowsGroupsWidgets = [];
+  let currentLevelGroupsAmount = 0;
+  console.log(`CM ${pluralName} groupsAmount=${groupsAmount} pagesInGroup=${pagesInGroup}`);
+
+  for ( let groupsLevel = groupsLevels; groupsLevel > 0; groupsLevel-- ) {
+      //
+      let currentLevelGroupsButtons = [];
+
+      currentLevelGroupsAmount = Math.ceil( pagesAmount / Math.pow( pagesInGroup, groupsLevel ) );
+      console.log(`CM level ${groupsLevel}. ${currentLevelGroupsAmount} groups`);
+
+      fldrUIGroupsWidgets.push({
+          //
+          type: 'variable',
+          id: `varUI${pluralName}Lvl${groupsLevel}GroupsAmount`,
+          value: currentLevelGroupsAmount
+      });
+
+      fldrUIGroupsWidgets.push({
+          //
+          type: 'variable',
+          id: `varUI${pluralName}Lvl${groupsLevel}GroupSelected`,
+          value: 1
+      });
+
+      currentLevelGroupsButtons = [];
+
+      for ( let groupNum = 1; groupNum <= pagesInGroup; groupNum++ ) {
+          //
+          currentLevelGroupsButtons.push({
+              //
+              type: 'button',
+              id: `btn${pluralName}Group${groupsLevel}-${groupNum}`,
+              visible: "VAR{'visibility', 1}",
+              label: "VAR{'btnLabel', ''}",
+              wrap: 'soft'
+          });
+      }
+
+      pnlRowsGroupsWidgets.push({
+          //
+          type: 'panel',
+          id: `pnl${pluralName}RowsGroupsLvl${groupsLevel}`,
+          //Geometry
+          width: 65,
+          padding: 0,
+          //Panel Style
+          layout: 'vertical',
+          justify: 'start',
+          contain: true,
+          scroll: false,
+          innerPadding: false,
+
+          widgets: currentLevelGroupsButtons
+      });
+  }
+
+  receive( '/EDIT/MERGE', `pnl${pluralName}RowsGroups`, {
+      width: 65 * groupsLevels,
+      widgets: pnlRowsGroupsWidgets
+  });
+
+  receive( '/EDIT/MERGE', `fldrUI${pluralName}Groups`, {
+      //
+      widgets: fldrUIGroupsWidgets
+  });
+
+  if ( pagesAmount > 1 ) {//Several Pages Case
+  
+      if ( groupsAmount == 1 ) {//One Group Case
+
+          console.log('CM one group case');
+          let pnlChannelsRowsPages = {
+              widgets: []
+          };
+
+          for ( let pageNum = 1; pageNum <= pagesAmount; pageNum++ ) {
+              
+              pnlChannelsRowsPages.widgets.push({
+                  
+                  type: 'button',
+                  id: `btn${pluralName}RowsPage${pageNum}`,
+                  label: "VAR{'btnLabel', ''}",
+                  onValue: `if(value==1){\n  set('varUI${pluralName}PageSelected', ${pageNum});\n` +
+                  `  set('scrUI${pluralName}RowsUpdatePage', 1);\n}`
+              });
+              
+          }
+
+          receive( '/EDIT/MERGE', `pnl${pluralName}RowsPages`, pnlChannelsRowsPages);
+
+          receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
+          receive( `/varUI${pluralName}PageSelected`, 1);
+
+          receive(`/scrUI${pluralName}RowsUpdatePage`, 1);
+
+      } else {//Several Groups Case
+
+          console.log('CM Several groups case');
+          let pnlChannelsRowsPages = {
+              widgets: []
+          };
+
+          for ( let pageNum = 1; pageNum <= pagesInGroup; pageNum++ ) {
+              
+              pnlChannelsRowsPages.widgets.push({
+                  
+                  type: 'button',
+                  id: `btn${pluralName}RowsPage${pageNum}`,
+                  label: "VAR{'btnLabel', ''}",
+                  onValue: `if(value==1){\n  set('varUI${pluralName}PageSelected', ${pageNum});\n` +
+                  `  set('scrUI${pluralName}RowsUpdatePage', 1);\n}`
+              });
+              
+          }
+
+          receive( '/EDIT/MERGE', `pnl${pluralName}RowsPages`, pnlChannelsRowsPages);
+
+          receive( `/varUI${pluralName}GroupsAmount`, groupsAmount);
+          receive( `/varUI${pluralName}PagesAmount`, pagesAmount);
+          receive( `/varUI${pluralName}PageSelected`, 1);
+
+          receive(`/scrUI${pluralName}RowsUpdatePage`, 1);
+          receive(`/scrUI${pluralName}RowsUpdateGroupButtons`, 1);
+      }
+  } else {//One Page Case
+      
+      receive( `/varUI${pluralName}GroupsAmount`, 1);
+      receive( `/varUI${pluralName}PagesAmount`, 1);
+      receive( `/varUI${pluralName}PageSelected`, 1);
+
+      receive( '/EDIT/MERGE', `pnl${pluralName}RowsGroups`, {
+          widgets: []
+      });
+
+      receive( '/EDIT/MERGE', `pnl${pluralName}RowsPages`, {
+          widgets: []
+      });
+  }
+
+  //Create Variables for Channels
+  let typeFolderWidgets = [];
+
+  console.log(`CM creating ${singularName} vars`);
+  for ( let channelNum = 1; channelNum <= channelsAmount; channelNum++ ) {
+    
+    let channelFolder = {
+
+      type: 'folder',
+      id: `fldr${singularName}${channelNum}`,
+      widgets: []
+    };
+
+    switch (channelType) {
+
+      case 'input':
+
+        //GAIN
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}Gain`
+          
+        });
+
+        //GATE
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}GateOn`
+          
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}GateTreshold`
+          
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}GateRatio`
+          
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}GateAttack`
+          
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}GateRelease`
+          
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}GateDryWet`
+          
+        });
+
+        //EQ
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQOn`
+          
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQDryWet`
+
+        });
+
+        //EQ LOW CUT
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQLowCutOn`
+
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQLowCutFreq`
+
+        });
+
+        //EQ HI CUT
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQHiCutOn`
+
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQHiCutFreq`
+
+        });
+
+        //EQ LOW SHELF
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQLowShelfOn`
+
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQLowShelfFreq`
+
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQLowShelfQ`
+
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQLowShelfGain`
+
+        });
+
+        //EQ HI SHELF
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQHiShelfOn`
+
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQHiShelfFreq`
+
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQLHiShelfQ`
+
+        });
+
+        channelFolder.widgets.push({
+
+          type: 'variable',
+          id: `var${singularName}${channelNum}EQHiShelfGain`
+
+        });
+
+        //EQ BANDS
+        for (let bandNum = 1; bandNum < 5; bandNum++) {
+          
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQBand${bandNum}On`
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQBand${bandNum}Freq`
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQBand${bandNum}Q`
+
+          });
+
+          channelFolder.widgets.push({
+
+            type: 'variable',
+            id: `var${singularName}${channelNum}EQBand${bandNum}Gain`
+
+          });
+        }
+        break;
+    
+      default:
+        break;
+    }
+
+    //VOLUME METERS
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusInVM`,
+      
+    });
+    
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusGainVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusGateVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusEQVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusDynEQVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusCompVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusLimitVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusOutPreVM`,
+      
+    });
+
+    channelFolder.widgets.push({
+
+      type: 'variable',
+      id: `var${singularName}${channelNum}BusOutVM`,
+      
+    });
+
+    typeFolderWidgets.push(channelFolder);
+  }
+
+  receive( '/EDIT/MERGE', `fldr${pluralName}`, {
+    widgets: typeFolderWidgets
+  });
+
+  let rowPanelWidgets = [];
+  
+  CreateChannelsPage( channelType, rowPanelWidgets, channelsOnPage );
+  
+  receive( '/EDIT/MERGE', 'pnl' + pluralName + 'Row', {
+    tabs: null,
+    widgets: rowPanelWidgets
+  });
 }
 
 module.exports = {
