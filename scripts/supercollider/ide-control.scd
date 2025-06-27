@@ -522,8 +522,19 @@ myPath = PathName.new("C:\\meganz\\dlsp\\work");
 myPath.folders.postln;
 )
 
+File.getcwd;
+~fileList = "dir".unixCmdGetStdOut;
+~fileList.postln;
 
+~os.switch(
+    \mac,   {  },
+    \lin,   {  },
+	\win,   { ~fileList = ("dir /b " ++ ~dirSourcesCurrent).unixCmdGetStdOut.asString }
+);
+~fileList = nil;
 
+~getFileList.value( path: ~dirSourcesCurrent );
+~fileList.postln;
 
 
 

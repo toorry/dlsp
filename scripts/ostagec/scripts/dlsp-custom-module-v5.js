@@ -2121,6 +2121,89 @@ function CreateDecoderSpeakersPage(speakersAmount) {
   });
 }
 
+function CreateList(mediaType, itemType, listLength, list) {
+  //
+  let singularName = "";
+  let pluralName = "";
+
+  switch (itemType) {
+    case 'folder':
+      console.log('CM Creating Folders List..');
+      singularName = 'Folder';
+      pluralName = 'Folders';
+      break;
+  
+    case 'file':
+      console.log('CM Creating Files List..');
+      singularName = 'File';
+      pluralName = 'Files';
+      break;
+      
+      default:
+      console.log('CM Default name');
+      break;
+  }
+
+  let listWidgets = [];
+
+  for (let i = 0; i < listLength; i++) {
+    //
+    listWidgets.push({
+      //widget
+      type: 'panel',
+      id: `pnlSource${singularName}${i+1}`,
+      //geometry
+      height: 50,
+      expand: false,
+      //style
+      layout: 'horizontal',
+      justify: 'start',
+      contain: true,
+      scroll: false,
+      innerPadding: false,
+      widgets: [
+
+        //ITEM NUMBER
+        {
+          //widget
+          type: 'text',
+          id: `mumSource${singularName}${i+1}`,
+          //geometry
+          width: 50,
+          expand: false,
+          //value
+          value: i + 1,
+          default: i + 1
+        },
+
+        //ITEM NAME
+        {
+          //widget
+          type: 'text',
+          id: `txtSource${singularName}${i+1}`,
+          expand: true,
+          wrap: 'soft',
+          align: 'left'
+        },
+
+        //CHANNELS AMOUNT LABEL
+        {
+          //widget
+          type: 'text',
+          id: `lblChannelsSource${singularName}${i+1}`,
+          //geometry
+          width: 60,
+          value: 'Channels',
+          default: 'Channels'
+        },
+
+        //CHANNELS AMOUNT
+      ]
+    });
+  }
+
+}
+
 module.exports = {
 
   init: function(){
@@ -2164,6 +2247,29 @@ module.exports = {
         } catch (e) {
 
         }
+        break;
+
+      case '/drawList':
+        //console.log('Draw List Task');
+        //console.log(args);
+        try {
+
+          let mediaType = args[0].value;
+          let itemType = args[1].value
+          let listLength = args[2].value;
+
+          console.log(`Task to Draw ${mediaType} ${itemType} List. Amount=${listLength}`);
+
+          let list = args.slice(3, args.length - 1);
+          console.log(list);
+
+          CreateList(mediaType, itemType, listLength, list);
+        } catch (e) {
+
+        }
+        break;
+
+      default:
         break;
     }
     

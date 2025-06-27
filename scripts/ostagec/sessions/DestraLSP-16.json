@@ -1,6 +1,6 @@
 {
   "createdWith": "Open Stage Control",
-  "version": "1.29.0",
+  "version": "1.29.5",
   "type": "session",
   "content": {
     "type": "root",
@@ -17295,7 +17295,7 @@
             "bypass": false,
             "onCreate": "",
             "onValue": "",
-            "onKeyboard": "send('custom:module', '/dlsp/init')",
+            "onKeyboard": "//send('custom:module', '/dlsp/init')",
             "keyBinding": "o",
             "keyRepeat": false,
             "keyType": "keydown"
@@ -17342,6 +17342,28 @@
             "onKeyboard": "",
             "keyBinding": "",
             "keyRepeat": true,
+            "keyType": "keydown"
+          },
+          {
+            "type": "script",
+            "lock": false,
+            "id": "scrFileListInput",
+            "comments": "",
+            "value": "",
+            "default": "",
+            "linkId": "",
+            "address": "/fs",
+            "preArgs": "",
+            "typeTags": "",
+            "decimals": 2,
+            "target": "",
+            "ignoreDefaults": false,
+            "bypass": false,
+            "onCreate": "",
+            "onValue": "//noloop\n\nconsole.log('/fs');\n\nvar selfAddress = get('varUIAddress');\n\nvar listLength, i, listString;\n\nswitch (value[0]) { //OBJECT TYPE\n  //\n  case 'dr': //FOLDERS LIST\n    console.log('case dir');\n    listString = \"\";\n    try {\n      listLength = value[1];\n      console.log(`listLength ${listLength}`);\n      \n      for (i = 1; i < listLength; i++) {\n        console.log(value[1 + i]);\n        listString = listString + `, ${value[1+i]}`;\n      }\n    }\n    catch (e) {}\n    \n    //send(selfAddress, '/drawList', 'source', 'folder', listLength);\n    //eval(`send('${selfAddress}', '/drawList', 'source', 'folder', ${listLength}` + listString + `);`);\n    console.log(`Task to Draw Source Folders List. Lenght=${listLength}`);\n    \n    break;\n    \n  case 'fl': //FILES LIST\n    console.log('case file');\n    listString = \"\";\n    try {\n      listLength = value[1];\n      console.log(`listLength ${listLength}`);\n      \n      for (i = 1; i < listLength; i++) {\n        console.log(value[1 + i]);\n        listString = listString + `, '${value[1+i]}'`;\n      }\n    }\n    catch (e) {}\n    //console.log(`send('${selfAddress}', '/drawList', 'source', 'file', ${listLength}` + listString + `);`);\n    send('127.0.0.1:8080', '/drawList');\n    //send('127.0.0.1:8080', '/drawList', 'source', 'file', listLength);\n    //eval(`send('${selfAddress}', '/drawList', 'source', 'file', ${listLength}` + listString + `);`);\n    console.log(`Task to Draw Source Files List. Lenght=${listLength}`);\n    \n    break;\n    \n  default:\n    break;\n  \n}",
+            "onKeyboard": "",
+            "keyBinding": "",
+            "keyRepeat": false,
             "keyType": "keydown"
           }
         ],
@@ -18377,7 +18399,7 @@
                                             "padding": "auto",
                                             "html": "",
                                             "css": "",
-                                            "align": "center",
+                                            "align": "left",
                                             "value": "",
                                             "default": "",
                                             "linkId": "",
@@ -18502,7 +18524,7 @@
                                             "id": "txtChannelsSource1",
                                             "visible": true,
                                             "comments": "",
-                                            "width": 50,
+                                            "width": 30,
                                             "height": "auto",
                                             "expand": false,
                                             "colorText": "auto",
@@ -18800,7 +18822,7 @@
                                             "id": "lblTypeSource1",
                                             "visible": true,
                                             "comments": "",
-                                            "width": 50,
+                                            "width": 40,
                                             "height": "auto",
                                             "expand": "false",
                                             "colorText": "auto",
@@ -18838,7 +18860,7 @@
                                             "id": "txtTypeSource1",
                                             "visible": true,
                                             "comments": "",
-                                            "width": 60,
+                                            "width": 50,
                                             "height": "auto",
                                             "expand": false,
                                             "colorText": "auto",
@@ -18876,7 +18898,7 @@
                                             "id": "lblSizeSource1",
                                             "visible": true,
                                             "comments": "",
-                                            "width": 50,
+                                            "width": 40,
                                             "height": "auto",
                                             "expand": "false",
                                             "colorText": "auto",
@@ -18915,7 +18937,7 @@
                                             "visible": true,
                                             "interaction": false,
                                             "comments": "",
-                                            "width": 70,
+                                            "width": 60,
                                             "height": "auto",
                                             "expand": false,
                                             "colorText": "auto",
@@ -19971,6 +19993,234 @@
                                     "onTouch": "",
                                     "widgets": [
                                       {
+                                        "type": "text",
+                                        "top": "auto",
+                                        "left": "auto",
+                                        "lock": false,
+                                        "id": "numSourceFile1",
+                                        "visible": true,
+                                        "comments": "",
+                                        "width": 50,
+                                        "height": "auto",
+                                        "expand": "false",
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "font-size:125%;",
+                                        "value": "",
+                                        "default": "",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "interaction": false,
+                                        "bypass": false,
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "align": "center"
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto",
+                                        "left": "auto",
+                                        "lock": false,
+                                        "id": "txtSourceFile1",
+                                        "visible": true,
+                                        "interaction": true,
+                                        "comments": "",
+                                        "width": "auto",
+                                        "height": "auto",
+                                        "expand": true,
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "align": "left",
+                                        "value": "",
+                                        "default": "",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "bypass": false,
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "vertical": false,
+                                        "wrap": "soft"
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto-Infinity",
+                                        "left": "auto-Infinity",
+                                        "lock": false,
+                                        "id": "lblChannelsSource3",
+                                        "visible": true,
+                                        "comments": "",
+                                        "width": 60,
+                                        "height": "auto",
+                                        "expand": "false",
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "align": "center",
+                                        "value": "Channels",
+                                        "default": "Channels",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "bypass": false,
+                                        "interaction": false,
+                                        "vertical": false,
+                                        "wrap": false
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto",
+                                        "left": "auto",
+                                        "lock": false,
+                                        "id": "txtChannelsSource3",
+                                        "visible": true,
+                                        "comments": "",
+                                        "width": 30,
+                                        "height": "auto",
+                                        "expand": false,
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "align": "center",
+                                        "value": 128,
+                                        "default": "",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "bypass": false,
+                                        "interaction": false
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto-Infinity",
+                                        "left": "auto-Infinity",
+                                        "lock": false,
+                                        "id": "lblDurationSource3",
+                                        "visible": true,
+                                        "comments": "",
+                                        "width": 60,
+                                        "height": "auto",
+                                        "expand": "false",
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "align": "center",
+                                        "value": "Duration",
+                                        "default": "Duration",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "bypass": false,
+                                        "interaction": false
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto",
+                                        "left": "auto",
+                                        "lock": false,
+                                        "id": "txtDurationSource3",
+                                        "visible": true,
+                                        "comments": "",
+                                        "width": 160,
+                                        "height": "auto",
+                                        "expand": false,
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "align": "center",
+                                        "value": "10d:24h:24m:24s:999ms",
+                                        "default": "",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "bypass": false,
+                                        "interaction": false
+                                      },
+                                      {
                                         "type": "button",
                                         "top": "auto",
                                         "left": "auto",
@@ -20000,6 +20250,90 @@
                                         "wrap": false,
                                         "on": 1,
                                         "off": 0,
+                                        "mode": "toggle",
+                                        "doubleTap": false,
+                                        "decoupled": false,
+                                        "value": "",
+                                        "default": "",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "typeTags": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "ignoreDefaults": false,
+                                        "bypass": false,
+                                        "onCreate": "",
+                                        "onValue": ""
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto",
+                                        "left": "auto",
+                                        "lock": false,
+                                        "id": "txtSourceFile1Source",
+                                        "visible": true,
+                                        "interaction": true,
+                                        "comments": "",
+                                        "width": 60,
+                                        "height": "auto",
+                                        "expand": false,
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "value": "",
+                                        "default": "SOURCE",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "bypass": false,
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "align": "center"
+                                      },
+                                      {
+                                        "type": "button",
+                                        "top": "auto",
+                                        "left": "auto",
+                                        "lock": false,
+                                        "id": "btnSourceFile1Clear",
+                                        "visible": true,
+                                        "interaction": true,
+                                        "comments": "",
+                                        "width": 50,
+                                        "height": "auto",
+                                        "expand": false,
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "#fc6dfd",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "colorTextOn": "auto",
+                                        "label": "Clear",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "on": 1,
+                                        "off": 0,
                                         "mode": "momentary",
                                         "doubleTap": false,
                                         "decoupled": false,
@@ -20015,6 +20349,158 @@
                                         "bypass": false,
                                         "onCreate": "",
                                         "onValue": ""
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto-Infinity",
+                                        "left": "auto-Infinity",
+                                        "lock": false,
+                                        "id": "lblTypeSource3",
+                                        "visible": true,
+                                        "comments": "",
+                                        "width": 40,
+                                        "height": "auto",
+                                        "expand": "false",
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "align": "center",
+                                        "value": "Type",
+                                        "default": "Type",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "bypass": false,
+                                        "interaction": false
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto",
+                                        "left": "auto",
+                                        "lock": false,
+                                        "id": "txtTypeSource3",
+                                        "visible": true,
+                                        "comments": "",
+                                        "width": 50,
+                                        "height": "auto",
+                                        "expand": false,
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "align": "center",
+                                        "value": "WAVE",
+                                        "default": "",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "bypass": false,
+                                        "interaction": false
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto-Infinity",
+                                        "left": "auto-Infinity",
+                                        "lock": false,
+                                        "id": "lblSizeSource3",
+                                        "visible": true,
+                                        "comments": "",
+                                        "width": 40,
+                                        "height": "auto",
+                                        "expand": "false",
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "align": "center",
+                                        "value": "Size",
+                                        "default": "Size",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "bypass": false,
+                                        "interaction": false
+                                      },
+                                      {
+                                        "type": "text",
+                                        "top": "auto",
+                                        "left": "auto",
+                                        "lock": false,
+                                        "id": "txtSizeSource3",
+                                        "visible": true,
+                                        "interaction": false,
+                                        "comments": "",
+                                        "width": 60,
+                                        "height": "auto",
+                                        "expand": false,
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "value": "9999 MB",
+                                        "default": "",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "bypass": false,
+                                        "onCreate": "",
+                                        "onValue": "",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "align": "center"
                                       }
                                     ],
                                     "tabs": []
@@ -59695,7 +60181,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           },
                           {
                             "type": "switch",
@@ -60017,7 +60504,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           },
                           {
                             "type": "variable",
@@ -60173,7 +60661,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           },
                           {
                             "type": "panel",
@@ -60468,7 +60957,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -60592,7 +61082,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "tabs": [],
@@ -60943,7 +61434,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -61067,7 +61559,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "tabs": [],
@@ -63972,7 +64465,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -64197,7 +64691,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -64321,7 +64816,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "tabs": [],
@@ -64647,7 +65143,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -64833,7 +65330,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           },
                           {
                             "type": "variable",
@@ -124000,7 +124498,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           },
                           {
                             "type": "panel",
@@ -127954,7 +128453,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           }
                         ],
                         "tabs": [],
@@ -129795,7 +130295,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           },
                           {
                             "type": "panel",
@@ -136051,7 +136552,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           },
                           {
                             "type": "variable",
@@ -137152,7 +137654,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           },
                           {
                             "type": "panel",
@@ -137568,7 +138071,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -137655,7 +138159,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -137739,7 +138244,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -137826,7 +138332,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -138456,7 +138963,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -138543,7 +139051,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -138627,7 +139136,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -138714,7 +139224,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -139344,7 +139855,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -139431,7 +139943,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -139515,7 +140028,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -139602,7 +140116,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -140232,7 +140747,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -140319,7 +140835,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -140403,7 +140920,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -140490,7 +141008,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -141120,7 +141639,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -141207,7 +141727,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -141291,7 +141812,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -141378,7 +141900,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -142008,7 +142531,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -142095,7 +142619,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -142179,7 +142704,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -142266,7 +142792,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -142896,7 +143423,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -142983,7 +143511,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -143067,7 +143596,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -143154,7 +143684,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -143784,7 +144315,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -143871,7 +144403,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -143955,7 +144488,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -144042,7 +144576,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -144672,7 +145207,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -144759,7 +145295,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -144843,7 +145380,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       },
                                       {
                                         "type": "fader",
@@ -144930,7 +145468,8 @@
                                         "preArgs": "",
                                         "target": "",
                                         "onCreate": "",
-                                        "onValue": ""
+                                        "onValue": "",
+                                        "allow": ""
                                       }
                                     ],
                                     "lock": false,
@@ -145177,7 +145716,8 @@
                             "preArgs": "",
                             "target": "",
                             "onCreate": "",
-                            "onValue": ""
+                            "onValue": "",
+                            "allow": ""
                           }
                         ],
                         "tabs": null,
@@ -181485,7 +182025,7 @@
                               {
                                 "type": "variable",
                                 "lock": false,
-                                "id": "varIDEmsg",
+                                "id": "varEventmsg",
                                 "comments": "",
                                 "value": "",
                                 "default": "",
@@ -181498,14 +182038,14 @@
                                 "ignoreDefaults": false,
                                 "bypass": false,
                                 "onCreate": "",
-                                "onValue": "set('txtIDELog', value + '\\n' + get('txtIDELog'));"
+                                "onValue": "set('txtEventLog', value + '\\n' + get('txtEventLog'));"
                               },
                               {
                                 "type": "panel",
                                 "top": "auto",
                                 "left": "auto",
                                 "lock": false,
-                                "id": "pnlIDELog",
+                                "id": "pnlEventLog",
                                 "visible": true,
                                 "interaction": true,
                                 "comments": "",
@@ -181550,7 +182090,44 @@
                                   {
                                     "type": "textarea",
                                     "lock": false,
-                                    "id": "txtIDELog",
+                                    "id": "txtEventLog",
+                                    "comments": "",
+                                    "value": "1-th string. Some content to weight by.\n2-th string. Some content to weight by.\n3-th string. Some content to weight by.\n4-th string. Some content to weight by.\n5-th string. Some content to weight by.\n6-th string. Some content to weight by.\n7-th string. Some content to weight by.\n8-th string. Some content to weight by.\n",
+                                    "default": "",
+                                    "linkId": "",
+                                    "address": "auto",
+                                    "preArgs": "",
+                                    "decimals": 2,
+                                    "target": "",
+                                    "onCreate": "",
+                                    "onValue": "",
+                                    "visible": true,
+                                    "left": "auto",
+                                    "top": "auto",
+                                    "width": "auto",
+                                    "height": "auto",
+                                    "expand": true,
+                                    "colorText": "auto",
+                                    "colorWidget": "auto",
+                                    "colorStroke": "auto",
+                                    "colorFill": "auto",
+                                    "alphaStroke": "auto",
+                                    "alphaFillOff": "auto",
+                                    "alphaFillOn": "auto",
+                                    "lineWidth": "auto",
+                                    "borderRadius": "auto",
+                                    "padding": "auto",
+                                    "html": "",
+                                    "css": "font-size: 140%;\nline-height: 140%;",
+                                    "interaction": true,
+                                    "typeTags": "",
+                                    "ignoreDefaults": false,
+                                    "bypass": false
+                                  },
+                                  {
+                                    "type": "textarea",
+                                    "lock": false,
+                                    "id": "txtControlLog",
                                     "comments": "",
                                     "value": "1-th string. Some content to weight by.\n2-th string. Some content to weight by.\n3-th string. Some content to weight by.\n4-th string. Some content to weight by.\n5-th string. Some content to weight by.\n6-th string. Some content to weight by.\n7-th string. Some content to weight by.\n8-th string. Some content to weight by.\n",
                                     "default": "",
@@ -182204,6 +182781,52 @@
                                         "bypass": false,
                                         "onCreate": "",
                                         "onValue": "var address = '/di';\nvar args = [{ type: 'i', value: 4},{ type: 'i', value: 5}];\nvar target = '127.0.0.1:8872';\nvar data = {target, address, args};\nsend('127.0.0.1:8872',address, args);"
+                                      },
+                                      {
+                                        "type": "button",
+                                        "top": 240,
+                                        "left": 50,
+                                        "lock": false,
+                                        "id": "button_3",
+                                        "visible": true,
+                                        "interaction": true,
+                                        "comments": "",
+                                        "width": "auto",
+                                        "height": "auto",
+                                        "expand": false,
+                                        "colorText": "auto",
+                                        "colorWidget": "auto",
+                                        "colorStroke": "auto",
+                                        "colorFill": "auto",
+                                        "alphaStroke": "auto",
+                                        "alphaFillOff": "auto",
+                                        "alphaFillOn": "auto",
+                                        "lineWidth": "auto",
+                                        "borderRadius": "auto",
+                                        "padding": "auto",
+                                        "html": "",
+                                        "css": "",
+                                        "colorTextOn": "auto",
+                                        "label": "auto",
+                                        "vertical": false,
+                                        "wrap": false,
+                                        "on": 1,
+                                        "off": 0,
+                                        "mode": "toggle",
+                                        "doubleTap": false,
+                                        "decoupled": false,
+                                        "value": "",
+                                        "default": "",
+                                        "linkId": "",
+                                        "address": "auto",
+                                        "preArgs": "",
+                                        "typeTags": "",
+                                        "decimals": 2,
+                                        "target": "",
+                                        "ignoreDefaults": false,
+                                        "bypass": false,
+                                        "onCreate": "",
+                                        "onValue": "//send('127.0.0.1:8080', '/drawDick');\nsend('127.0.0.1:8080', '/drawList');"
                                       }
                                     ],
                                     "tabs": [],
@@ -189697,7 +190320,8 @@
                                 "preArgs": "",
                                 "target": "",
                                 "onCreate": "",
-                                "onValue": ""
+                                "onValue": "",
+                                "allow": ""
                               },
                               {
                                 "type": "panel",
@@ -199538,7 +200162,8 @@
                                 "preArgs": "",
                                 "target": "",
                                 "onCreate": "",
-                                "onValue": ""
+                                "onValue": "",
+                                "allow": ""
                               }
                             ],
                             "tabs": [],

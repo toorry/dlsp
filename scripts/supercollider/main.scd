@@ -1,5 +1,12 @@
 //// VARIABLES
 
+~os;
+Platform.case(
+    \osx,       { ~os = \mac },
+    \linux,     { ~os = \lin },
+    \windows,   { ~os = \win }
+);
+
 ~ostagec = NetAddr.new("127.0.0.1", 8080);
 ~myoscaddr = NetAddr.new("127.0.0.1", 57120);
 
@@ -47,6 +54,7 @@ File.use(~path +/+ "settings.dlspcfg", "w", { |f|
 
 //// PREPARING FILE SOUND SOURCES ENVIRONMENT
 
+~dirSourcesCurrent = ~dlspSettings[\sourcesPath];
 
 //// FUNCTIONS
 
@@ -81,6 +89,9 @@ File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "states.scd").int
 
 ////INITIALIZE DAEMONS
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "daemons.scd").interpret.postln;
+
+////INITIALIZE FILE SYSTEM FUNCTIONS
+File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "filesystem.scd").interpret.postln;
 
 //// SYSTEM CONTROL OSC MESSAGES HANDLERS
 File.readAllString(~path +/+ "scripts" +/+ "supercollider" +/+ "osc-system.scd").interpret.postln;
