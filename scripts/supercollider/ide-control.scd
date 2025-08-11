@@ -536,6 +536,10 @@ File.getcwd;
 ~getFileList.value( path: ~dirSourcesCurrent );
 ~fileList.postln;
 
+~readFileProperties.value( path: "C:\\meganz\\dlsp\\work\\sources\\Eagle-1.wav");
+
+~sendFileProperties.value( path: "C:/meganz/dlsp/work/sources/Mountain River.wav", num: 1);
+
 
 
 

@@ -371,3 +371,34 @@ OSCdef(\volumeMeter,
 		);
 	},
 	'/v');
+
+/// FILESYSTEM REQUESTS
+OSCdef(\filesystem,
+	{ arg msg;
+
+		var num, path, fileProps;
+
+		msg.postln;
+		//var time = Date.getDate.format("%Y-%m-%d %H:%M:%S");
+		//time ++ " ostagec msg to shutdown system".postln;
+
+		switch (msg[1],
+			\s, /// SOURCE MEDIAFILE
+			{
+				switch (msg[2],
+					\rp, /// READ FILE PROPERTIES
+					{
+						num = msg[3].postln;
+						path = msg[4].asString.postln;
+						~sendFileProperties.value( path: path, num: num);
+					}
+				);
+			}
+		);
+
+		//~ostagec.sendMsg('/dlsp/log', time + " Shutting down..");
+		//"systemctl poweroff -i".unixCmd; //FOR LINUX
+		//"shutdown /s".unixCmd; //FOR WIN
+		//0.exit;
+	},
+	'/fs');
